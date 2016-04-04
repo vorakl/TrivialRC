@@ -2,7 +2,7 @@
 
 # TrivialRC - The minimalistic startup manager for usage primarily in containers
 # Copyright (c) 2016 by Oleksii Tsvietnov, me@vorakl.name
-# Version: 1.0.1
+# Version: 1.0.2
 
 # --[ Environment ]--
 # RC_DEBUG (true|false) [false]
