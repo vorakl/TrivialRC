@@ -50,4 +50,4 @@ push:
 	@${ECHO_BIN} "Pushing tags..."
 	@${GIT_BIN} push origin ${VERSION}
 
-deploy: setver settag push
+deploy: settag push
