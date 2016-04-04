@@ -25,13 +25,12 @@ usage:
 	@${ECHO_BIN} "          make settag"
 	@${ECHO_BIN} "          make push"
 	@${ECHO_BIN} "          make deploy"
-	@${ECHO_BIN} "          make VERSION=1.4.0 deploy"
 	@${ECHO_BIN} ""
 	@${ECHO_BIN} "Description:"
 	@${ECHO_BIN} "  setver         Set a new version (is taken from environment or file)."
 	@${ECHO_BIN} "  settag         Set a new version as a tag to the last commit."
 	@${ECHO_BIN} "  push           Push to the repo (with tags)."
-	@${ECHO_BIN} "  deploy         Set a version, tag and push to the repo."
+	@${ECHO_BIN} "  deploy         Set a tag (version file) and push to the repo."
 	@${ECHO_BIN} ""
 
 setver:
@@ -50,4 +49,8 @@ push:
 	@${ECHO_BIN} "Pushing tags..."
 	@${GIT_BIN} push origin ${VERSION}
 
-deploy: settag push
+cideploy: setver settag
+	@${GIT_BIN} add .
+	@${GIT_BIN} ci -m "Deploy new version: ${VERSION}"
+
+deploy: cideploy push
