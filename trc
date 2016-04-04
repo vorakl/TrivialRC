@@ -1,0 +1,157 @@
+#!/bin/bash
+
+# TrivialRC - The minimalistic startup manager for usage primarily in containers
+# Copyright (c) 2016 by Oleksii Tsvietnov, me@vorakl.name
+# Version: 1.0.1
+
+# --[ Environment ]--
+# RC_DEBUG (true|false) [false]
+#    Prints out all commands which are being executed
+# RC_VERBOSE (true|false) [false]
+#    Prints out service information
+# RC_WAIT_POLICY (wait_all|wait_any|wait_forever) [wait_any]
+#    - wait_all      quit after exiting the last command (back- or foreground)
+#    - wait_any      quit after exiting any of command (including zero commands)
+#    - wait_forever  will be waiting forever after exiting all commands.
+#                    Usefull in case of daemons which are detaching and exiting
+
+
+set +e # Do not exit on errors by default
+if [ "$RC_DEBUG" = "true" ]; then
+    set -x # Turns on Debug mode if true
+fi
+: ${RC_WAIT_POLICY:=wait_any} # Sets default value for a wait policy
+
+main() {
+    trap hook_main_exit EXIT
+    trap 'exit' INT
+
+    export SELF_NAME=$(basename -s .sh $0) # Self name for logging purpose
+    export DIR_NAME=$(dirname $0)
+    export MAINPID="$BASHPID" # PID of the main process
+    childpid="" # Collecting child processes
+    ns="main" # Name Space
+    local _wait_bg_cmd _file
+
+    case "$RC_WAIT_POLICY" in
+        wait_all)  _wait_bg_cmd="command -p wait";;
+        wait_any)  _wait_bg_cmd="command -p wait";;
+        *)         _wait_bg_cmd="";;
+    esac
+
+    say "The default wait policy for processes: $RC_WAIT_POLICY"
+
+    # Reads commands from files to run on the background (in parallel)
+    for _file in $(ls $DIR_NAME/trc.bg.* 2>/dev/null); do
+        (
+            trap 'hook_sub_exit "$_file"' EXIT
+            ns="bg"
+            set -e # Exit on errors in the sub-shell
+            say "Running on the background: $_file"
+            . $_file
+        )&
+        childpid="${childpid} $!"
+    done
+
+    # Checks for background tasks in the command line
+    while [ "$1" = "-D" ]; do
+        shift
+        (
+            trap 'hook_sub_exit "$1"' EXIT
+            ns="bg"
+            set -e # Exit on errors in the sub-shell
+            say "Running on the background: $1"
+            eval "$1"
+        )&
+        childpid="${childpid} $!"
+        shift
+    done
+
+    # Checks for foreground tasks in files (sequentially)
+    for _file in $(ls $DIR_NAME/trc.fg.* 2>/dev/null); do
+        (
+            trap 'hook_sub_exit "$_file"' EXIT
+            ns="fg"
+            set -e # Exit on errors in the sub-shell
+            say "Running on the foreground: $_file"
+            . $_file
+        )
+    done
+
+    # Checks for a foreground task in the command line (one parameter with all commands)
+    if [ -n "$*" ]; then
+        (
+            trap 'hook_sub_exit "$@"' EXIT
+            ns="fg"
+            set -e # Exit on errors in the sub-shell
+            say "Running on the foreground: $@"
+            eval "$@"
+        )
+    fi
+
+    $_wait_bg_cmd
+
+    if [ "$RC_WAIT_POLICY" = "wait_forever" ]; then
+        infinite_loop
+    fi
+}
+
+say() {
+    if [ "$RC_VERBOSE" = "true" ]; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') ($SECONDS sec) ${SELF_NAME} [$ns/$BASHPID]: $@"
+    fi
+}
+
+warn() {
+    say "$@" >&2
+}
+
+hook_main_exit() {
+    local _pid _file
+
+    say "Going down. Running shutdown scripts..."
+    # Checks for shutdown tasks in files (sequentially)
+    for _file in $(ls $DIR_NAME/trc.sd.* 2>/dev/null); do
+        (
+            ns="sd"
+            set -e # Exit on errors in the sub-shell
+            say "Running the shutdown script: $_file"
+            . $_file
+        )
+    done
+
+    say "Handling of termination..."
+    for _pid in $childpid; do
+        if ps -p $_pid &> /dev/null; then
+            warn " - terminating child <$_pid>"
+            kill -TERM $_pid &> /dev/null
+        fi
+    done
+    say "Exited."
+}
+
+hook_sub_exit() {
+    local _rc=$?
+
+    say "Exiting on the $ns ($_rc): $@"
+
+    if [ "$RC_WAIT_POLICY" = "wait_any" ]
+    then
+        # If exiting from a bg process and don't need to wait other processes, let's stop the main
+        if ps -p $MAINPID &> /dev/null; then
+            warn " - terminating main <$MAINPID>"
+            kill -TERM $MAINPID &> /dev/null
+        fi
+    else
+        return $_rc
+    fi
+}
+
+infinite_loop() {
+    warn "Activated infinite loop! To stop, press <Ctrl+C> or send SIGTERM..."
+    while true; do
+        sleep 60
+    done
+}
+
+main "$@"
