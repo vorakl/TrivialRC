@@ -1,4 +1,4 @@
-# Run make without any parameters to get help
+# (c) Oleksii Tsvietnov, me@vorakl.name
 #
 # Variables:
 ECHO_BIN ?= echo
