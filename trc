@@ -39,7 +39,7 @@ main() {
         *)         _wait_bg_cmd="";;
     esac
 
-    say "The default wait policy for processes: $RC_WAIT_POLICY"
+    say "The default wait policy: $RC_WAIT_POLICY"
 
     # Reads commands from files to run on the background (in parallel)
     for _file in $(ls $DIR_NAME/trc.bg.* 2>/dev/null); do
@@ -47,7 +47,7 @@ main() {
             trap 'hook_sub_exit "$_file"' EXIT
             ns="bg"
             set -e # Exit on errors in the sub-shell
-            say "Running on the background: $_file"
+            say "Running on the $(ns_long $ns): $_file"
             . $_file
         )&
         childpid="${childpid} $!"
@@ -60,7 +60,7 @@ main() {
             trap 'hook_sub_exit "$1"' EXIT
             ns="bg"
             set -e # Exit on errors in the sub-shell
-            say "Running on the background: $1"
+            say "Running on the $(ns_long $ns): $1"
             eval "$1"
         )&
         childpid="${childpid} $!"
@@ -73,7 +73,7 @@ main() {
             trap 'hook_sub_exit "$_file"' EXIT
             ns="fg"
             set -e # Exit on errors in the sub-shell
-            say "Running on the foreground: $_file"
+            say "Running on the $(ns_long $ns): $_file"
             . $_file
         )
     done
@@ -84,7 +84,7 @@ main() {
             trap 'hook_sub_exit "$@"' EXIT
             ns="fg"
             set -e # Exit on errors in the sub-shell
-            say "Running on the foreground: $@"
+            say "Running on the $(ns_long $ns): $@"
             "$@"
         )
     fi
@@ -131,16 +131,9 @@ hook_main_exit() {
 }
 
 hook_sub_exit() {
-    local _ns _rc=$?
+    local _rc=$?
 
-    case $ns in
-        fg) _ns="foreground";;
-        bg) _ns="background";;
-        sd) _ns="shutdown";;
-         *) _ns=$ns;;
-    esac
-
-    say "Exiting on the $_ns ($_rc): $@"
+    say "Exiting on the $(ns_long $ns) ($_rc): $@"
 
     if [ "$RC_WAIT_POLICY" = "wait_any" ]
     then
@@ -159,6 +152,19 @@ infinite_loop() {
     while true; do
         sleep 60
     done
+}
+
+ns_long() {
+    local _ns
+
+    case "$1" in
+        fg) _ns="foreground";;
+        bg) _ns="background";;
+        sd) _ns="shutdown";;
+         *) _ns="$1";;
+    esac
+
+    echo "$_ns"
 }
 
 main "$@"
