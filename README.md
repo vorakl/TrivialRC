@@ -16,7 +16,7 @@ scenario is needed.
 
 TrivialRC is designed to be used as an Entrypoint. By default, it does not show itself,
 does not affect any configuration and behaves transparently. So, you can add it into
-any container without an entrypoint. Please, have a look at examples for more information.
+any containers which do not have an entrypoint. Please, have a look at examples for more information.
 
 Anyway, to be sure that all processes will be stopped on exit and all zombies are properly reaped,
 at least for now, it is highly recommended to use inside containers some init process like one
@@ -28,7 +28,7 @@ of mentioned above.
 Basically, you need the only one file (trc) that can be downloaded directly from GitHub,
 but as long as it likely is going to be used in containers...
 
-1. You need to add into your Dockerfile something like
+- You need to add into your Dockerfile something like
 
 ```bash
 RUN curl -sSLo /etc/trc https://raw.githubusercontent.com/vorakl/TrivialRC/master/trc && \
@@ -42,13 +42,20 @@ RUN curl -sSLo /sbin/dumb-init https://github.com/Yelp/dumb-init/releases/downlo
     chmod +x /sbin/dumb-init
 ```
 
-2. If you have additional files, add them all at once
+- If you need to change a behavior of rc system, set appropriate variables like
+
+```bash
+ENV RC_VERBOSE true
+ENV RC_WAIT_POLICY wait_all
+```
+
+- If you have additional files, add them all at once
 
 ```bash
 COPY trc.* /etc/
 ```
 
-3. Eventually, if you do not use init process, specify only rc system
+- Eventually, if you do not use init process, specify only rc system
 
 ```bash
 ENTRYPOINT ["/etc/trc"]
@@ -60,6 +67,9 @@ Otherwise, which is RECOMMENDED, add an init process and rc system together, for
 ENTRYPOINT ["/sbin/dumb-init", "/etc/trc"]
 ```
 
+### Environments
+
+### Еhe boot sequence
 
 
 ##### Version: 1.0.3
