@@ -85,7 +85,7 @@ main() {
             ns="fg"
             set -e # Exit on errors in the sub-shell
             say "Running on the foreground: $@"
-            eval "$@"
+            "$@"
         )
     fi
 
