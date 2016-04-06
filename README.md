@@ -14,21 +14,53 @@ in parallel or sequentially, on back- or foreground. All commands can be specifi
 in the command line if they are simple, or in a separate file, if more comprehensive
 scenario is needed.
 
-Anyway, to be sure that all processes will be stopped on exit, at least for now,
-it is highly recommended to use inside Containers some init process like one of mentioned
-above.
+TrivialRC is designed to be used as an Entrypoint. By default, it does not show itself,
+does not affect any configuration and behaves transparently. So, you can add it into
+any container without an entrypoint. Please, have a look at examples for more information.
+
+Anyway, to be sure that all processes will be stopped on exit and all zombies are properly reaped,
+at least for now, it is highly recommended to use inside containers some init process like one
+of mentioned above.
 
 
 ### Installation
 
 Basically, you need the only one file (trc) that can be downloaded directly from GitHub,
-but as long as it likely is going to be used in Containers, you need to add into your
-Dockerfile something like:
+but as long as it likely is going to be used in containers...
+
+1. You need to add into your Dockerfile something like
 
 ```bash
 RUN curl -sSLo /etc/trc https://raw.githubusercontent.com/vorakl/TrivialRC/master/trc && \
     chmod +x /etc/trc
 ```
+
+If you are going to use it in pair with init, for example dumb-init
+
+```bash
+RUN curl -sSLo /sbin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.0.1/dumb-init_1.0.1_amd64 && \
+    chmod +x /sbin/dumb-init
+```
+
+2. If you have additional files, add them all at once
+
+```bash
+COPY trc.* /etc/
+```
+
+3. Eventually, if you do not use init process, specify only rc system
+
+```bash
+ENTRYPOINT ["/etc/trc"]
+```
+
+Otherwise, which is RECOMMENDED, add an init process and rc system together, for example
+
+```bash
+ENTRYPOINT ["/sbin/dumb-init", "/etc/trc"]
+```
+
+
 
 ##### Version: 1.0.3
 ##### Copyright (c) by Oleksii Tsvietnov, me@vorakl.name

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TrivialRC - The minimalistic startup manager for usage primarily in containers
+# TrivialRC - The minimalistic init system and process manager for containers
 # Copyright (c) 2016 by Oleksii Tsvietnov, me@vorakl.name
 # Version: 1.0.3
 
