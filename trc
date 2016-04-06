@@ -131,9 +131,16 @@ hook_main_exit() {
 }
 
 hook_sub_exit() {
-    local _rc=$?
+    local _ns _rc=$?
 
-    say "Exiting on the $ns ($_rc): $@"
+    case $ns in
+        fg) _ns="foreground";;
+        bg) _ns="background";;
+        sd) _ns="shutdown";;
+         *) _ns=$ns;;
+    esac
+
+    say "Exiting on the $_ns ($_rc): $@"
 
     if [ "$RC_WAIT_POLICY" = "wait_any" ]
     then
