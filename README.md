@@ -67,7 +67,7 @@ Otherwise, which is RECOMMENDED, add an init process and rc system together, for
 ENTRYPOINT ["/sbin/dumb-init", "/etc/trc"]
 ```
 
-### Environments
+### Environment variables
 
 ### Еhe boot sequence
 
