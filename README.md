@@ -72,5 +72,5 @@ ENTRYPOINT ["/sbin/dumb-init", "/etc/trc"]
 ### Еhe boot sequence
 
 
-##### Version: 1.0.3
+##### Version: 1.0.4
 ##### Copyright (c) by Oleksii Tsvietnov, me@vorakl.name
