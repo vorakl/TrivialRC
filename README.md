@@ -52,7 +52,7 @@ ENV RC_WAIT_POLICY wait_all
 - If you have additional files, add them all at once
 
 ```bash
-COPY trc.* /etc/
+COPY trc* /etc/
 ```
 
 - Eventually, if you do not use init process, specify only rc system
