@@ -69,7 +69,7 @@ ENTRYPOINT ["/sbin/dumb-init", "/etc/trc"]
 
 ### Environment variables
 
-### Еhe boot sequence
+### The boot sequence
 
 
 ##### Version: 1.0.4
