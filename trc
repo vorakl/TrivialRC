@@ -15,7 +15,6 @@
 #    - wait_forever  will be waiting forever after exiting all commands.
 #                    Usefull in case of daemons which are detaching and exiting
 
-
 set +e # Do not exit on errors by default
 if [ "$RC_DEBUG" = "true" ]; then
     set -x # Turns on Debug mode if true
@@ -23,20 +22,19 @@ fi
 : ${RC_WAIT_POLICY:=wait_any} # Sets default value for a wait policy
 
 main() {
-    trap hook_main_exit EXIT
-    trap 'exit' INT
+    trap '_exitcode=$?; hook_main_exit; exit $_exitcode' EXIT
 
     export SELF_NAME=$(basename -s .sh $0) # Self name for logging purpose
     export DIR_NAME=$(dirname $0)
     export MAINPID="$BASHPID" # PID of the main process
     childpid="" # Collecting child processes
     ns="main" # Name Space
-    local _wait_bg_cmd _file
+    local _wait_bg_cmd _file _exitcode=0 _exitcode2=0
 
     case "$RC_WAIT_POLICY" in
         wait_all)  _wait_bg_cmd="command -p wait";;
         wait_any)  _wait_bg_cmd="command -p wait";;
-        *)         _wait_bg_cmd="";;
+        *)         _wait_bg_cmd=":";;
     esac
 
     say "The default wait policy: $RC_WAIT_POLICY"
@@ -44,9 +42,16 @@ main() {
     # Reads commands from files to run on the background (in parallel)
     for _file in $(ls $DIR_NAME/trc.bg.* 2>/dev/null); do
         (
-            trap 'hook_sub_exit "$_file"' EXIT
+            # Run this on any exit, catching the exitcode of the "main" command,
+            # printing additional info and finishing up this sub-program with the right exitcode
+            trap '_exitcode=$?; hook_sub_exit $_exitcode "$_file"; exit $_exitcode' EXIT
+
+            # In case of exit on errors (set -e), catch exitcode and exit with it, which
+            # will lead to triggering an EXIT trap
+            set -e
+            trap 'exit $?' ERR # Exit with the status code of a last command
+
             ns="bg"
-            set -e # Exit on errors in the sub-shell
             say "Running on the $(ns_long $ns): $_file"
             . $_file
         )&
@@ -57,9 +62,16 @@ main() {
     while [ "$1" = "-D" ]; do
         shift
         (
-            trap 'hook_sub_exit "$1"' EXIT
+            # Run this on any exit, catching the exitcode of the "main" command,
+            # printing additional info and finishing up this sub-program with the right exitcode
+            trap '_exitcode=$?; hook_sub_exit $_exitcode "$1"; exit $_exitcode' EXIT
+
+            # In case of exit on errors (set -e), catch exitcode and exit with it, which
+            # will lead to triggering an EXIT trap
+            set -e
+            trap 'exit $?' ERR # Exit with the status code of a last command
+
             ns="bg"
-            set -e # Exit on errors in the sub-shell
             say "Running on the $(ns_long $ns): $1"
             eval "$1"
         )&
@@ -70,30 +82,57 @@ main() {
     # Checks for foreground tasks in files (sequentially)
     for _file in $(ls $DIR_NAME/trc.fg.* 2>/dev/null); do
         (
-            trap 'hook_sub_exit "$_file"' EXIT
+            # Run this on any exit, catching the exitcode of the "main" command,
+            # printing additional info and finishing up this sub-program with the right exitcode
+            trap '_exitcode=$?; hook_sub_exit $_exitcode "$_file"; exit $_exitcode' EXIT
+
+            # In case of exit on errors (set -e), catch exitcode and exit with it, which
+            # will lead to triggering an EXIT trap
+            set -e
+            trap 'exit $?' ERR # Exit with the status code of a last command
+
             ns="fg"
-            set -e # Exit on errors in the sub-shell
             say "Running on the $(ns_long $ns): $_file"
             . $_file
         )
+        # Catch the exitcode of a foreground sub-program
+        _exitcode=$?
     done
 
     # Checks for a foreground task in the command line (one parameter with all commands)
     if [ -n "$*" ]; then
         (
-            trap 'hook_sub_exit "$@"' EXIT
+            # Run this on any exit, catching the exitcode of the "main" command,
+            # printing additional info and finishing up this sub-program with the right exitcode
+            trap '_exitcode=$?; hook_sub_exit $_exitcode "$@"; exit $_exitcode' EXIT
+
+            # In case of exit on errors (set -e), catch exitcode and exit with it, which
+            # will lead to trigger an EXIT trap
+            set -e
+            trap 'exit $?' ERR # Exit with the status code of a last command
+
             ns="fg"
-            set -e # Exit on errors in the sub-shell
             say "Running on the $(ns_long $ns): $@"
             "$@"
         )
+        # Catch the exitcode of a foreground sub-program
+        _exitcode=$?
     fi
 
-    $_wait_bg_cmd
+    # Wait for all background processes and exit with a status of the last one
+    # or with 128+SIGNAL in case of getting a signal
+    $_wait_bg_cmd $childpid;
+    _exitcode2=$?
+
+    if [ $_exitcode2 -ne 0 ]; then
+        _exitcode=$_exitcode2 # update exit code only if one of background processes has failed
+    fi
 
     if [ "$RC_WAIT_POLICY" = "wait_forever" ]; then
         infinite_loop
     fi
+
+    return $_exitcode
 }
 
 say() {
@@ -128,10 +167,16 @@ hook_main_exit() {
         fi
     done
     say "Exited."
+
+    # It's not needed to exit with a proper exit code here.
+    # The programm will exit with correct exit code from EXIT trap of main()
 }
 
 hook_sub_exit() {
-    local _rc=$?
+    set +e # do not stop or errors anyway
+
+    local _rc=$1 # Getting the exit code for a logging purpose only
+    shift
 
     say "Exiting on the $(ns_long $ns) ($_rc): $@"
 
@@ -142,9 +187,10 @@ hook_sub_exit() {
             warn " - terminating main <$MAINPID>"
             kill -TERM $MAINPID &> /dev/null
         fi
-    else
-        return $_rc
     fi
+    # To prevent invoking error trap from error trap ;)
+    # The correct exit code was taken before diving into this function
+    return 0
 }
 
 infinite_loop() {
