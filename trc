@@ -2,7 +2,7 @@
 
 # TrivialRC - The minimalistic init system and process manager for containers
 # Copyright (c) 2016 by Oleksii Tsvietnov, me@vorakl.name
-# Version: 1.0.4
+# Version: 1.0.5
 
 # --[ Environment ]--
 # RC_DEBUG (true|false) [false]
