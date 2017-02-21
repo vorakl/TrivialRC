@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# TrivialRC - The minimalistic init system and process manager for containers
-# Copyright (c) 2016 by Oleksii Tsvietnov, me@vorakl.name
+# TrivialRC - The minimalistic RC system and process manager for containers
+# Copyright (c) 2016,2017 by Oleksii Tsvietnov, me@vorakl.name
 # Version: 1.1.0
 
 # --[ Environment ]--
@@ -22,9 +22,9 @@ fi
 : ${RC_WAIT_POLICY:=wait_any} # Sets default value for a wait policy
 
 main() {
-    trap '_exitcode=$?; hook_main_exit; say "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
-    trap '_exitcode=$?; say "sig-trap ($_exitcode)"; exit $_exitcode' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-    trap '_exitcode=$?; say "err-trap ($_exitcode)"; exit $_exitcode' ERR
+    trap '_exitcode=$?; hook_main_exit; debug "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
+    trap '_exitcode=$?; debug "sig-trap ($_exitcode)"; exit $_exitcode' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+    trap '_exitcode=$?; debug "err-trap ($_exitcode)"; exit $_exitcode' ERR
 
     export SELF_NAME=$(basename $0 .sh) # Self name for logging purpose
     export DIR_NAME=$(dirname $0)
@@ -36,8 +36,7 @@ main() {
 
     # Checks if there is an exit flag on startup
     if [[ -n "${EXIT_FLAG}" ]] && [[ -f ${EXIT_FLAG} ]]; then
-        warn "An exit flag ${EXIT_FLAG} exists! Exiting..."
-        exit 1
+        err "An exit flag ${EXIT_FLAG} exists! Exiting..."
     fi
 
     case "$RC_WAIT_POLICY" in
@@ -46,14 +45,14 @@ main() {
         *)         _wait_bg_cmd=":";;
     esac
 
-    say "The default wait policy: $RC_WAIT_POLICY"
+    log "The default wait policy: $RC_WAIT_POLICY"
 
 
     # Reads commands from files to run before everything
     for _file in $(ls $DIR_NAME/trc.boot.* $DIR_NAME/trc.d/boot.* 2>/dev/null || true); do
         set -e
 
-        say "Running on the $(ns_long $ns): $_file"
+        log "Launching on the $(ns_long $ns): $_file"
         . $_file
 
         set +e
@@ -64,7 +63,7 @@ main() {
         shift
         set -e
 
-        say "Running on the $(ns_long $ns): $1"
+        log "Launching on the $(ns_long $ns): $1"
         eval "$1"
 
         set +e
@@ -73,42 +72,41 @@ main() {
 
     # Reads commands from files to run on the background (in parallel)
     for _file in $(ls $DIR_NAME/trc.bg.* $DIR_NAME/trc.async.* $DIR_NAME/trc.d/async.* 2>/dev/null || true); do
-        (
+        { # Supress all output for a background process 
+          (
+            set -e
             # Run this on any exit, catching the exitcode of the "main" command,
             # printing additional info and finishing up this sub-program with the right exitcode
-            trap '_exitcode=$?; hook_sub_exit $_exitcode "$_file"; say "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
+            trap '_exitcode=$?; hook_sub_exit $_exitcode "$_file"; debug "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
 
-            # In case of exit on errors (set -e), catch exitcode and exit with it, which
+            # In case of exit on errors (set -e) or by a signal, catch exitcode and exit with it, which
             # will lead to triggering an EXIT trap
-            set -e
-            trap '_exitcode=$?; say "sig-trap ($_exitcode)"; exit $_exitcode' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-            trap '_exitcode=$?; say "err-trap ($_exitcode)"; exit $_exitcode' ERR
+            trap '_exitcode=$?; debug "sig-trap ($_exitcode)"; exit $_exitcode' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+            trap '_exitcode=$?; debug "err-trap ($_exitcode)"; exit $_exitcode' ERR
 
             ns="async"
-            say "Running on the $(ns_long $ns): $_file"
+            log "Launching on the $(ns_long $ns): $_file"
             . $_file
-        )&
+          )& 
+        } &>/dev/null
         childpid="${childpid} $!"
     done
 
     # Checks for background tasks in the command line
     while [ "$1" = "-D" ]; do
         shift
-        (
-            # Run this on any exit, catching the exitcode of the "main" command,
-            # printing additional info and finishing up this sub-program with the right exitcode
-            trap '_exitcode=$?; hook_sub_exit $_exitcode "$1"; say "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
-
-            # In case of exit on errors (set -e), catch exitcode and exit with it, which
-            # will lead to triggering an EXIT trap
+        { 
+          (
             set -e
-            trap '_exitcode=$?; say "sig-trap ($_exitcode)"; exit $_exitcode' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-            trap '_exitcode=$?; say "err-trap ($_exitcode)"; exit $_exitcode' ERR
+            trap '_exitcode=$?; hook_sub_exit $_exitcode "$1"; debug "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
+            trap '_exitcode=$?; debug "sig-trap ($_exitcode)"; exit $_exitcode' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+            trap '_exitcode=$?; debug "err-trap ($_exitcode)"; exit $_exitcode' ERR
 
             ns="async"
-            say "Running on the $(ns_long $ns): $1"
+            log "Launching on the $(ns_long $ns): $1"
             eval "$1"
-        )&
+          )& 
+        } &>/dev/null
         childpid="${childpid} $!"
         shift
     done
@@ -116,18 +114,13 @@ main() {
     # Checks for foreground tasks in files (sequentially)
     for _file in $(ls $DIR_NAME/trc.fg.* $DIR_NAME/trc.sync.* $DIR_NAME/trc.d/sync.* 2>/dev/null || true); do
         (
-            # Run this on any exit, catching the exitcode of the "main" command,
-            # printing additional info and finishing up this sub-program with the right exitcode
-            trap '_exitcode=$?; hook_sub_exit $_exitcode "$_file"; say "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
-
-            # In case of exit on errors (set -e), catch exitcode and exit with it, which
-            # will lead to triggering an EXIT trap
             set -e
-            trap '_exitcode=$?; say "sig-trap ($_exitcode)"; exit $_exitcode' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-            trap '_exitcode=$?; say "err-trap ($_exitcode)"; exit $_exitcode' ERR
+            trap '_exitcode=$?; hook_sub_exit $_exitcode "$_file"; debug "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
+            trap '_exitcode=$?; debug "sig-trap ($_exitcode)"; exit $_exitcode' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+            trap '_exitcode=$?; debug "err-trap ($_exitcode)"; exit $_exitcode' ERR
 
             ns="sync"
-            say "Running on the $(ns_long $ns): $_file"
+            log "Launching on the $(ns_long $ns): $_file"
             . $_file
         )
         # Catch the exitcode of a foreground sub-program
@@ -137,18 +130,13 @@ main() {
     # Checks for a foreground task in the command line (one parameter with all commands)
     if [ -n "$*" ]; then
         (
-            # Run this on any exit, catching the exitcode of the "main" command,
-            # printing additional info and finishing up this sub-program with the right exitcode
-            trap '_exitcode=$?; hook_sub_exit $_exitcode "$@"; say "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
-
-            # In case of exit on errors (set -e), catch exitcode and exit with it, which
-            # will lead to trigger an EXIT trap
             set -e
-            trap '_exitcode=$?; say "sig-trap ($_exitcode)"; exit $_exitcode' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-            trap '_exitcode=$?; say "err-trap ($_exitcode)"; exit $_exitcode' ERR
+            trap '_exitcode=$?; hook_sub_exit $_exitcode "$@"; debug "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
+            trap '_exitcode=$?; debug "sig-trap ($_exitcode)"; exit $_exitcode' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+            trap '_exitcode=$?; debug "err-trap ($_exitcode)"; exit $_exitcode' ERR
 
             ns="sync"
-            say "Running on the $(ns_long $ns): $@"
+            log "Launching on the $(ns_long $ns): $@"
             "$@"
         )
         # Catch the exitcode of a foreground sub-program
@@ -171,37 +159,66 @@ main() {
     return $_exitcode
 }
 
-say() {
+print() {
     if [ "$RC_VERBOSE" = "true" ]; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S') ${SELF_NAME} [$ns/$BASHPID]: $@"
+        echo -en "$@"
     fi
 }
 
+say() {
+    print "$@\n"
+}
+
+logn() {
+    print "$(date '+%Y-%m-%d %H:%M:%S') ${SELF_NAME} [$ns/$BASHPID]: $@"
+}
+
+log() {
+    logn "$@\n"
+}
+
+warnn() {
+    logn "$@" >&2
+}
+
 warn() {
-    say "$@" >&2
+    log "$@" >&2
+}
+
+err() {
+    warn "$@"
+    exit 1
+}
+
+debug() {
+    if [ "$RC_DEBUG" = "true" ]; then
+        log "$@"
+    fi
 }
 
 hook_main_exit() {
+    set +e # do not stop or errors anyway
+
     local _pid _file
 
     # Creating an exit flag
     touch ${EXIT_FLAG} || warn "Cannot create ${EXIT_FLAG}"
 
-    say "Going down. Running shutdown scripts..."
+    log "Going down. Running shutdown scripts..."
     # Checks for shutdown tasks in files (sequentially)
     for _file in $(ls $DIR_NAME/trc.sd.* $DIR_NAME/trc.halt.* $DIR_NAME/trc.d/halt.* 2>/dev/null || true); do
         (
             ns="halt"
             set -e # Exit on errors in the sub-shell
-            say "Running the shutdown script: $_file"
+            log "Running the shutdown script: $_file"
             . $_file
         )
     done
 
-    say "Handling of termination..."
+    log "Handling of termination..."
     for _pid in $childpid; do
         if ps -p $_pid &> /dev/null; then
-            warn " - terminating child <$_pid> and it's sub-processes"
+            logn " - terminating the child <$_pid> "
 
             # Removes all unexpected sub-processes
             pkill -TERM -P $_pid &> /dev/null           
@@ -210,11 +227,18 @@ hook_main_exit() {
 
             while ps -p $_pid &>/dev/null && [ ${term_timeout} -gt 0 ]
             do
+                print "."
                 sleep 1
                 : $((term_timeout--))
             done
 
-            ps -p $_pid &>/dev/null && { pkill -KILL -P $_pid &> /dev/null; kill -KILL $_pid &> /dev/null; }
+            if  ps -p $_pid &>/dev/null; then
+                pkill -KILL -P $_pid &> /dev/null
+                kill -KILL $_pid &> /dev/null
+                say "Killed"
+            else
+                say "Done"
+            fi
         fi
     done
     # Removes all unexpected sub-processes
@@ -224,7 +248,7 @@ hook_main_exit() {
         rm -f ${EXIT_FLAG} || warn "Cannot remove ${EXIT_FLAG}"
     fi
 
-    say "Exited."
+    log "Exited."
 
     # It's not needed to exit with a proper exit code here.
     # The programm will exit with correct exit code from EXIT trap of main()
@@ -236,13 +260,13 @@ hook_sub_exit() {
     local _rc=$1 # Getting the exit code for a logging purpose only
     shift
 
-    say "Exiting on the $(ns_long $ns) ($_rc): $@"
+    log "Exiting on the $(ns_long $ns) ($_rc): $@"
 
     if [[ "$RC_WAIT_POLICY" = "wait_any" ]]; then 
         if [[ -n "${EXIT_FLAG}" ]] && [[ ! -f ${EXIT_FLAG} ]]; then
             # If exiting from a bg process and don't need to wait other processes, let's stop the main
             if ps -p $MAINPID &> /dev/null; then
-                warn " - terminating main <$MAINPID>"
+                log " - terminating the main <$MAINPID>"
                 kill -TERM $MAINPID &> /dev/null
             fi
         fi
@@ -253,7 +277,7 @@ hook_sub_exit() {
 }
 
 infinite_loop() {
-    warn "Activated infinite loop! To stop, press <Ctrl+C> or send SIGTERM..."
+    log "Activated infinite loop! To stop, press <Ctrl+C> or send SIGTERM..."
     while true; do
         sleep 60
     done
@@ -266,6 +290,7 @@ ns_long() {
         fg|sync)  _ns="foreground";;
         bg|async) _ns="background";;
         sd|halt)  _ns="shutdown";;
+        main)     _ns="boot";;
          *)       _ns="$1";;
     esac
 
