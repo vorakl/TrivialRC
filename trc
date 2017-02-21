@@ -16,7 +16,7 @@
 #                    Usefull in case of daemons which are detaching and exiting
 
 set +e # Do not exit on errors by default
-if [ "$RC_DEBUG" = "true" ]; then
+if [[ "$RC_DEBUG" = "true" ]]; then
     set -x # Turns on Debug mode if true
 fi
 : ${RC_WAIT_POLICY:=wait_any} # Sets default value for a wait policy
@@ -59,7 +59,7 @@ main() {
     done
 
     # Checks for boot tasks in the command line
-    while [ "$1" = "-B" ]; do
+    while [[ "$1" = "-B" ]]; do
         shift
         set -e
 
@@ -93,7 +93,7 @@ main() {
     done
 
     # Checks for background tasks in the command line
-    while [ "$1" = "-D" ]; do
+    while [[ "$1" = "-D" ]]; do
         shift
         { 
           (
@@ -128,7 +128,7 @@ main() {
     done
 
     # Checks for a foreground task in the command line (one parameter with all commands)
-    if [ -n "$*" ]; then
+    if [[ -n "$*" ]]; then
         (
             set -e
             trap '_exitcode=$?; hook_sub_exit $_exitcode "$@"; debug "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
@@ -152,7 +152,7 @@ main() {
         _exitcode=$_exitcode2 # update exit code only if one of background processes has failed
     fi
 
-    if [ "$RC_WAIT_POLICY" = "wait_forever" ]; then
+    if [[ "$RC_WAIT_POLICY" = "wait_forever" ]]; then
         infinite_loop
     fi
 
@@ -160,7 +160,7 @@ main() {
 }
 
 print() {
-    if [ "$RC_VERBOSE" = "true" ]; then
+    if [[ "$RC_VERBOSE" = "true" ]]; then
         echo -en "$@"
     fi
 }
@@ -191,7 +191,7 @@ err() {
 }
 
 debug() {
-    if [ "$RC_DEBUG" = "true" ]; then
+    if [[ "$RC_DEBUG" = "true" ]]; then
         log "$@"
     fi
 }
@@ -225,7 +225,7 @@ hook_main_exit() {
             term_timeout=5
             kill -TERM $_pid &> /dev/null
 
-            while ps -p $_pid &>/dev/null && [ ${term_timeout} -gt 0 ]
+            while ps -p $_pid &>/dev/null && [[ ${term_timeout} -gt 0 ]]
             do
                 print "."
                 sleep 1
