@@ -72,7 +72,7 @@ main() {
 
     # Reads commands from files to run on the background (in parallel)
     for _file in $(ls $DIR_NAME/trc.bg.* $DIR_NAME/trc.async.* $DIR_NAME/trc.d/async.* 2>/dev/null || true); do
-        { # Supress all output for a background process 
+         {
           (
             set -e
             # Run this on any exit, catching the exitcode of the "main" command,
@@ -88,14 +88,15 @@ main() {
             log "Launching on the $(ns_long $ns): $_file"
             . $_file
           )& 
-        } &>/dev/null
+         } 2> /dev/null
+
         childpid="${childpid} $!"
     done
 
     # Checks for background tasks in the command line
     while [[ "$1" = "-D" ]]; do
         shift
-        { 
+        { # supressing stderr for avoiding uncontrolled messages like "Terminated" or "Killed"
           (
             set -e
             trap '_exitcode=$?; hook_sub_exit $_exitcode "$1"; debug "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
@@ -106,7 +107,7 @@ main() {
             log "Launching on the $(ns_long $ns): $1"
             eval "$1"
           )& 
-        } &>/dev/null
+        } 2> /dev/null
         childpid="${childpid} $!"
         shift
     done
@@ -176,26 +177,14 @@ main() {
     return $_exitcode
 }
 
-print() {
+say() {
     if [[ "$RC_VERBOSE" = "true" ]]; then
-        echo -en "$@"
+        echo -e "$@"
     fi
 }
 
-say() {
-    print "$@\n"
-}
-
-logn() {
-    print "$(date '+%Y-%m-%d %H:%M:%S') ${SELF_NAME} [$ns/$BASHPID]: $@"
-}
-
 log() {
-    logn "$@\n"
-}
-
-warnn() {
-    logn "$@" >&2
+    say "$(date '+%Y-%m-%d %H:%M:%S') ${SELF_NAME} [$ns/$BASHPID]: $@"
 }
 
 warn() {
@@ -216,10 +205,16 @@ debug() {
 hook_main_exit() {
     set +e # do not stop or errors anyway
 
-    local _pid _file
+    # Checks if there is an exit flag on exit
+    if [[ -n "${EXIT_FLAG}" ]] && [[ -f ${EXIT_FLAG} ]]; then
+        warn "An exit flag ${EXIT_FLAG} exists! I'm already exiting..."
+        return 0
+    fi
 
     # Creating an exit flag
     touch ${EXIT_FLAG} || warn "Cannot create ${EXIT_FLAG}"
+
+    local _pid _file
 
     log "Going down. Running shutdown scripts..."
     # Checks for shutdown tasks in files (sequentially)
@@ -235,7 +230,7 @@ hook_main_exit() {
     log "Handling of termination..."
     for _pid in $childpid; do
         if ps -p $_pid &> /dev/null; then
-            logn " - terminating the child <$_pid> "
+            log " - terminating the child <$_pid>"
 
             # Removes all unexpected sub-processes
             pkill -TERM -P $_pid &> /dev/null           
@@ -244,7 +239,6 @@ hook_main_exit() {
 
             while ps -p $_pid &>/dev/null && [[ ${term_timeout} -gt 0 ]]
             do
-                print "."
                 sleep 1
                 : $((term_timeout--))
             done
@@ -252,9 +246,6 @@ hook_main_exit() {
             if  ps -p $_pid &>/dev/null; then
                 pkill -KILL -P $_pid &> /dev/null
                 kill -KILL $_pid &> /dev/null
-                say "Killed"
-            else
-                say "Done"
             fi
         fi
     done

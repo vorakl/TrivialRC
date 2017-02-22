@@ -39,7 +39,7 @@ $ echo $?
 111
 ```
 ```bash
-# Both commans are running on the foreground but it exits after the first one
+# Both commands are running on the foreground but it exits after the first one
 $ RC_VERBOSE=true ./trc -F 'echo Hello' echo World
 2017-02-22 00:52:20 trc [main/16530]: The wait policy: wait_any
 2017-02-22 00:52:20 trc [sync/16538]: Launching on the foreground: echo Hello
@@ -52,7 +52,12 @@ Hello
 ```
 ```bash
 # The same goal and it waits for all commands
-$ RC_VERBOSE=true RC_WAIT_POLICY=wait_all ./trc -F 'echo Hello' echo World
+
+$ RC_VERBOSE=true \
+  RC_WAIT_POLICY=wait_all \
+  ./trc -F 'echo Hello' \
+        echo World
+
 2017-02-22 00:54:02 trc [main/16794]: The wait policy: wait_all
 2017-02-22 00:54:02 trc [sync/16802]: Launching on the foreground: echo Hello
 Hello
@@ -66,11 +71,29 @@ World
 ```
 ```bash
 # A few ways to run commands on the foreground
-$ RC_WAIT_POLICY=wait_all ./trc -F 'echo Hello' -F 'sleep 1' -F 'echo World'
+
+$ RC_WAIT_POLICY=wait_all \ 
+  ./trc -F 'echo Hello' \
+        -F 'sleep 1' \
+        -F 'echo World'
+
 Hello
 World
 
-$ ./trc sh -c 'echo Hello; sleep 1; echo World'
+$ ./trc -F 'echo Hello; sleep 1; echo World'
 Hello
 World
 ```
+```bash
+$ RC_WAIT_POLICY=wait_all \
+  ./trc -D 'date > date1.log' \
+        -F 'sleep 3' \
+        -F 'echo -e "Old time: $(cat date1.log)\nNew time: $(date)"; rm -f date1.log'
+
+Old time: Wed Feb 22 14:15:20 CET 2017
+New time: Wed Feb 22 14:15:23 CET 2017
+
+$ ls -l date1.log
+ls: cannot access 'date1.log': No such file or directory
+```
+

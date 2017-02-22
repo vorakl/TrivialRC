@@ -8,4 +8,4 @@
         * ./trc.d/{boot,sync,async,halt}.*
         * ./trc.{boot,sync,async,halt}.*
     * ADD: added examples
-    * CHANGE: supresses all output for background processes
+    * CHANGE: supresses stderr for background processes
