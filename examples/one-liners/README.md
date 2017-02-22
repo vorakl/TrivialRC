@@ -81,7 +81,7 @@ Hello
 World
 ```
 ```bash
-# Here we're gonna create file on the background, wait for 3 sec and then, read this file showing the difference in time which
+# Here we're gonna create file on the background, wait for 3 sec and then, read this file 
 $ RC_WAIT_POLICY=wait_all \
   ./trc -D 'date > date1.log' \
         -F 'sleep 3' \
