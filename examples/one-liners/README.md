@@ -52,12 +52,10 @@ Hello
 ```
 ```bash
 # The same goal and it waits for all commands
-
 $ RC_VERBOSE=true \
   RC_WAIT_POLICY=wait_all \
   ./trc -F 'echo Hello' \
         echo World
-
 2017-02-22 00:54:02 trc [main/16794]: The wait policy: wait_all
 2017-02-22 00:54:02 trc [sync/16802]: Launching on the foreground: echo Hello
 Hello
@@ -71,12 +69,10 @@ World
 ```
 ```bash
 # A few ways to run commands on the foreground
-
 $ RC_WAIT_POLICY=wait_all \ 
   ./trc -F 'echo Hello' \
         -F 'sleep 1' \
         -F 'echo World'
-
 Hello
 World
 
@@ -85,15 +81,21 @@ Hello
 World
 ```
 ```bash
+# Here we're gonna create file on the background, wait for 3 sec and then, read this file showing the difference in time which
 $ RC_WAIT_POLICY=wait_all \
   ./trc -D 'date > date1.log' \
         -F 'sleep 3' \
         -F 'echo -e "Old time: $(cat date1.log)\nNew time: $(date)"; rm -f date1.log'
-
 Old time: Wed Feb 22 14:15:20 CET 2017
 New time: Wed Feb 22 14:15:23 CET 2017
 
 $ ls -l date1.log
 ls: cannot access 'date1.log': No such file or directory
 ```
-
+```bash
+# It assigns environment variables in the boot-block an then uses them in the foreground-block
+./trc -B 'export myhost=$(hostname) user=$(id -un)' \
+      -F 'echo -e "Username: $user\nHostname: $myhost"'
+Username: vorakl
+Hostname: marche
+```
