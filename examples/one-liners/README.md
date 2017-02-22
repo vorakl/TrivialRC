@@ -25,6 +25,7 @@ $ echo $?
 0
 ```
 ```bash
+# Exits with a proper exit code
 $ RC_VERBOSE=true ./trc exit 111
 2017-02-22 00:20:57 trc [main/12811]: The wait policy: wait_any
 2017-02-22 00:20:57 trc [sync/12821]: Launching on the foreground: exit 111
