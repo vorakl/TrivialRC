@@ -68,11 +68,12 @@ Hello
 World
 ```
 ```bash
-# It's going to create file on the background, waiting for 3 sec and then reads this file 
+# It's going to create file on the background, waiting for 3 sec and then reading this file 
 $ RC_WAIT_POLICY=wait_all \
   ./trc -D 'date > date1.log' \
         -F 'sleep 3' \
-        -F 'echo -e "Old time: $(cat date1.log)\nNew time: $(date)"; rm -f date1.log'
+        -F 'echo -e "Old time: $(cat date1.log)\nNew time: $(date)"'
+        -F 'rm -f date1.log'
 Old time: Wed Feb 22 14:15:20 CET 2017
 New time: Wed Feb 22 14:15:23 CET 2017
 
