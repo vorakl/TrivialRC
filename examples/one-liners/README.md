@@ -31,7 +31,7 @@ $ echo $?
 111
 ```
 ```bash
-# Both commands are running on the foreground but it exits after the first one
+# Both commands are running on the foreground but it exits after the first one by default
 $ RC_VERBOSE=true \
   RC_VERBOSE_EXTRA=true \
   ./trc -F 'echo Hello'
@@ -49,7 +49,7 @@ Hello
 2017-02-22 23:14:35 trc [main/24314]: Exited.
 ```
 ```bash
-# The same goal and it waits for all commands and we see both outputs
+# To achive the same goal it needs to wait for all commands and then we see both outputs
 $ RC_WAIT_POLICY=wait_all ./trc -F 'echo Hello' echo World
 Hello
 World
