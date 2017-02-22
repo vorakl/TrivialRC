@@ -45,7 +45,7 @@ main() {
         *)         _wait_bg_cmd=":";;
     esac
 
-    log "The default wait policy: $RC_WAIT_POLICY"
+    log "The wait policy: $RC_WAIT_POLICY"
 
 
     # Reads commands from files to run before everything
@@ -109,6 +109,23 @@ main() {
         } &>/dev/null
         childpid="${childpid} $!"
         shift
+    done
+
+    # Checks for foreground tasks in the command line
+    while [[ "$1" = "-F" ]]; do
+        shift
+        (
+            set -e
+            trap '_exitcode=$?; hook_sub_exit $_exitcode "$1"; debug "exit-trap ($_exitcode)"; exit $_exitcode' EXIT
+            trap '_exitcode=$?; debug "sig-trap ($_exitcode)"; exit $_exitcode' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+            trap '_exitcode=$?; debug "err-trap ($_exitcode)"; exit $_exitcode' ERR
+
+            ns="sync"
+            log "Launching on the $(ns_long $ns): $1"
+            eval "$1"
+        )
+        shift
+        _exitcode=$?
     done
 
     # Checks for foreground tasks in files (sequentially)
