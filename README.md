@@ -59,9 +59,10 @@ Otherwise, which is RECOMMENDED, add an init process and rc system together, for
 ENTRYPOINT ["/sbin/dumb-init", "/etc/trc"]
 ```
 
-### Examples
+### How to get started?
 
-All examples can be found [here](https://github.com/vorakl/TrivialRC/tree/master/examples)
+The best way to get started is trying simple [one-line examples](https://github.com/vorakl/TrivialRC/blob/master/examples/one-liners/README.md) which follow you from "zero" to almost all available features. 
+Many other use cases and examples can be found [here](https://github.com/vorakl/TrivialRC/tree/master/examples).
 
 ### Environment variables
 
@@ -76,7 +77,7 @@ All examples can be found [here](https://github.com/vorakl/TrivialRC/tree/master
     - wait_any      quit after exiting any of command (including zero commands)
     - wait_forever  will be waiting forever after exiting all commands.
                     Usefull in case of daemons which are detaching and exiting
-
+    - wait_err      quits after the first failed command
 
 
 ##### Version: 1.1.0

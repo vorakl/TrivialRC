@@ -101,3 +101,20 @@ true	 : 0
 false	 : 1
 exit 4	 : 4
 ```
+```bash
+# It catches an exit code of the first failed command.
+# It's `exit 4` because `exit 0` didn't fail and all other commands stil run
+# For this example it needs a `wait_err` wait policy
+$ RC_WAIT_POLICY=wait_err ./trc -D 'sleep 1; exit 2' -D 'sleep 2; exit 3' -F 'exit 0' -F 'exit 4' exit 5
+
+$ echo $?
+4
+
+# And now, let's run the same example but with a `wait_all` wait policy. 
+# In this case, it will wait for all commands and exit with a status of the last command which is `sleep 2; exit 3`
+$ RC_WAIT_POLICY=wait_all ./trc -D 'sleep 1; exit 2' -D 'sleep 2; exit 3' -F 'exit 0' -F 'exit 4' exit 5
+
+$ echo $?
+3
+```
+
