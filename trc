@@ -13,10 +13,11 @@
 # RC_VERBOSE_EXTRA (true|false) [false]
 #    Prints out additional service information
 # RC_WAIT_POLICY (wait_all|wait_any|wait_forever) [wait_any]
-#    - wait_all      quit after exiting the last command (back- or foreground)
-#    - wait_any      quit after exiting any of command (including zero commands)
+#    - wait_all      quits after exiting the last command (back- or foreground)
+#    - wait_any      quits after exiting any command (including zero commands)
 #    - wait_forever  will be waiting forever after exiting all commands.
 #                    Usefull in case of daemons which are detaching and exiting
+#    - wait_err      quits after the first failed command
 
 set +e # Do not exit on errors by default
 if [[ "${RC_DEBUG}" = "true" ]]; then
@@ -27,7 +28,7 @@ fi
 main() {
     trap '_exitcode=$?; debug "exit-trap (exitcode=${_exitcode})"; hook_main_exit; exit ${_exitcode}' EXIT
     trap '_exitcode=$?; debug "sig-trap (exitcode=${_exitcode})"; exit ${_exitcode}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-    trap '_exitcode=$?; debug "err-trap (exitcode=${_exitcode})"; exit ${_exitcode}' ERR
+    trap '_exitcode=$?; [[ "${RC_WAIT_POLICY}" = "wait_err" ]] && { debug "err-trap (exitcode=${_exitcode})"; exit ${_exitcode}; }' ERR
 
     export SELF_NAME=$(basename $0 .sh) # Self name for logging purpose
     export DIR_NAME=$(dirname $0)
@@ -143,7 +144,7 @@ main() {
             log "Launching on the $(ns_long ${ns}): $1"
             eval "$1"
         )
-        _exitcode3=$?
+        _exitcode=$?
         shift
     done
 
