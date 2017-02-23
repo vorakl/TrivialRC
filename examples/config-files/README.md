@@ -34,7 +34,7 @@ sync.2
 ```bash
 $ RC_WAIT_POLICY=wait_all ./trc
 host:	marche
-ip:	127.0.0.1
+ip:     127.0.0.1
 login:	vorakl
 ```
 
