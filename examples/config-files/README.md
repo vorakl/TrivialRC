@@ -51,7 +51,7 @@ $ RC_VERBOSE=true RC_WAIT_POLICY=wait_all ./trc
 2017-02-23 01:04:18 trc [sync/7231]: Exiting on the foreground (exitcode=0): ./trc.d/sync.1
 2017-02-23 01:04:18 trc [sync/7244]: Launching on the foreground: ./trc.d/sync.2
 host:	marche
-ip:	127.0.0.1
+ip:     127.0.0.1
 login:	vorakl
 2017-02-23 01:04:18 trc [sync/7244]: Exiting on the foreground (exitcode=0): ./trc.d/sync.2
 2017-02-23 01:04:18 trc [main/7207]: Going down. Running shutdown scripts...
