@@ -8,4 +8,5 @@
         * ./trc.d/{boot,sync,async,halt}.*
         * ./trc.{boot,sync,async,halt}.*
     * ADD: added examples
+    * ADD: added tests
     * CHANGE: supresses stderr for background processes

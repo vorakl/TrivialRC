@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# TrivialRC - The minimalistic RC system and process manager for containers
-# Copyright (c) 2016,2017 by Oleksii Tsvietnov, me@vorakl.name
+# TrivialRC
+# The minimalistic RC system and process manager for containers and applications
+# Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name
 # Version: 1.1.0
 
 # --[ Environment variables ]--
@@ -51,26 +52,24 @@ main() {
 
 
     # Reads commands from files to run before everything
+    set -e
     for _file in $(ls ${DIR_NAME}/trc.boot.* ${DIR_NAME}/trc.d/boot.* 2>/dev/null || true); do
-        set -e
-
         log "Launching on the $(ns_long ${ns}): ${_file}"
         . ${_file}
-
-        set +e
     done
+    set +e
 
     # Checks for boot tasks in the command line
+    set -e
     while [[ "$1" = "-B" ]]; do
         shift
-        set -e
 
         log "Launching on the $(ns_long ${ns}): $1"
         eval "$1"
 
-        set +e
         shift
     done
+    set +e
 
     # Reads commands from files to run on the background (in parallel)
     for _file in $(ls ${DIR_NAME}/trc.bg.* ${DIR_NAME}/trc.async.* ${DIR_NAME}/trc.d/async.* 2>/dev/null || true); do
@@ -133,6 +132,7 @@ main() {
     # Checks for foreground tasks in the command line
     while [[ "$1" = "-F" ]]; do
         shift
+        set +e
         (
             set -e
             trap '_exitcode=$?; debug "exit-trap (exitcode=${_exitcode})"; hook_sub_exit ${_exitcode} "$1"; exit ${_exitcode}' EXIT
@@ -143,7 +143,7 @@ main() {
             log "Launching on the $(ns_long ${ns}): $1"
             eval "$1"
         )
-        _exitcode=$?
+        _exitcode3=$?
         shift
     done
 

@@ -32,7 +32,11 @@ usage:
 	@${ECHO_BIN} "  settag         Set a new version as a tag to the last commit."
 	@${ECHO_BIN} "  push           Push to the repo (with tags)."
 	@${ECHO_BIN} "  release        Set a version, tag and push to the repo."
+	@${ECHO_BIN} "  test           Run all tests"
 	@${ECHO_BIN} ""
+
+test:
+	@(cd tests && roundup)
 
 setver:
 	@${ECHO_BIN} "Setting version to ${VERSION}"
@@ -50,7 +54,7 @@ push:
 	@${ECHO_BIN} "Pushing tags..."
 	@${GIT_BIN} push origin ${VERSION}
 
-cirelease: setver settag
+cirelease: test setver settag
 	@${GIT_BIN} add .
 	@${GIT_BIN} ci -m "Release new version: ${VERSION}"
 
