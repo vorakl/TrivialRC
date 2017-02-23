@@ -1,7 +1,7 @@
 # TrivialRC
 
 The minimalistic is a Run-time Configuration (RC) system and process manager.
-Originaly, it was designed for usage primarily in containers but it can be alse very useful 
+Originaly, it was designed for usage primarily in containers but it can be also very useful 
 for running a group of processes asynchronously/synchronously, managing their running order and exit codes.
 
 TrivialRC is not a replacement for an init process that usually exists as /sbin/init
@@ -34,18 +34,10 @@ RUN curl -sSLo /etc/trc https://raw.githubusercontent.com/vorakl/TrivialRC/maste
     chmod +x /etc/trc
 ```
 
-- If you are going to use it in pair with an init, for example dumb-init
-
-```bash
-RUN curl -sSLo /sbin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.0.1/dumb-init_1.0.1_amd64 && \
-    chmod +x /sbin/dumb-init
-```
-
 - If you need to change a behavior of rc system, set appropriate variables like
 
 ```bash
 ENV RC_VERBOSE true
-ENV RC_VERBOSE_EXTRA true
 ENV RC_WAIT_POLICY wait_all
 ```
 
@@ -70,6 +62,21 @@ ENTRYPOINT ["/sbin/dumb-init", "/etc/trc"]
 ### Examples
 
 All examples can be found [here](https://github.com/vorakl/TrivialRC/tree/master/examples)
+
+### Environment variables
+
+* RC_DEBUG (true|false) [false]
+    Prints out all commands which are being executed
+* RC_VERBOSE (true|false) [false]
+    Prints out service information
+* RC_VERBOSE_EXTRA (true|false) [false]
+    Prints out additional service information
+* RC_WAIT_POLICY (wait_all|wait_any|wait_forever) [wait_any]
+    - wait_all      quit after exiting the last command (back- or foreground)
+    - wait_any      quit after exiting any of command (including zero commands)
+    - wait_forever  will be waiting forever after exiting all commands.
+                    Usefull in case of daemons which are detaching and exiting
+
 
 
 ##### Version: 1.1.0
