@@ -1,5 +1,5 @@
 export MYIP=$(hostname -i)
 export MYHOSTNAME=$(hostname)
 export USERNAME=$(id -un)
-export WAIT_TIME=2
+export WAIT_TIME=1
 export INFO_FILE="localinfo.log"
