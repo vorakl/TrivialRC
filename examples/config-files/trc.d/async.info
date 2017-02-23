@@ -1,0 +1,5 @@
+if ! touch ${INFO_FILE}; then
+    print "Cannot create file ${INFO_FILE}"
+    exit 1
+fi
+print "host:\t${MYHOSTNAME}\nip:\t${MYIP}\nlogin:\t${USERNAME}\n" > ${INFO_FILE}

@@ -1,0 +1,4 @@
+print() {
+    echo -en "$@"
+}
+declare -fx print

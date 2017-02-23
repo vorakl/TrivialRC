@@ -1,0 +1,1 @@
+[[ -f "localinfo.log" ]] && rm -f localinfo.log || true

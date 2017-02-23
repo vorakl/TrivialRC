@@ -143,8 +143,8 @@ main() {
             log "Launching on the $(ns_long ${ns}): $1"
             eval "$1"
         )
-        shift
         _exitcode=$?
+        shift
     done
 
      # Checks for a foreground task in the command line (one parameter with all commands)
