@@ -2,6 +2,7 @@
 #
 # Variables:
 ECHO_BIN ?= echo
+CP_BIN ?= cp
 SED_BIN ?= sed
 PWD_BIN ?= pwd
 BASENAME_BIN ?= basename
@@ -54,7 +55,10 @@ push:
 	@${ECHO_BIN} "Pushing tags..."
 	@${GIT_BIN} push origin ${VERSION}
 
-cirelease: test setver settag
+publish:
+	@${CP_BIN} -f trc docs/
+
+cirelease: test setver settag publish
 	@${GIT_BIN} add .
 	@${GIT_BIN} ci -m "Release new version: ${VERSION}"
 

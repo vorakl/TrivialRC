@@ -1,6 +1,6 @@
 # TrivialRC
 
-The minimalistic is a Run-time Configuration (RC) system and process manager.
+The minimalistic Run-time Configuration (RC) system and process manager.
 Originaly, it was designed for usage primarily in containers but it can be also very useful 
 for running a group of processes asynchronously/synchronously, managing their running order and exit codes.
 
