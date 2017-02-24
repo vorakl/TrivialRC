@@ -1,1 +1,1 @@
-[[ -f "localinfo.log" ]] && rm -f localinfo.log || true
+[[ -f "${INFO_FILE}" ]] && rm -f ${INFO_FILE} || true

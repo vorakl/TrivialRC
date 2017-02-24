@@ -1,0 +1,10 @@
+language: bash
+
+before_script:
+    - curl -sSLf https://github.com/bmizerany/roundup/tarball/v0.0.5 | tar xvzf -
+    - cd bmizerany-roundup-*
+    - ./configure
+    - make
+    - make install
+
+script: make test
