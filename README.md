@@ -1,3 +1,5 @@
+[![Build Status](https://api.travis-ci.org/vorakl/TrivialRC.png)](https://travis-ci.org/vorakl/TrivialRC)
+
 # TrivialRC
 
 The minimalistic Run-time Configuration (RC) system and process manager.
