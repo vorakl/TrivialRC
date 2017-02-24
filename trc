@@ -46,6 +46,7 @@ main() {
     case "${RC_WAIT_POLICY}" in
         wait_all)  _wait_bg_cmd="command -p wait";;
         wait_any)  _wait_bg_cmd="command -p wait";;
+        wait_err)  _wait_bg_cmd="command -p wait";;
         *)         _wait_bg_cmd=":";;
     esac
 
@@ -217,7 +218,8 @@ hook_main_exit() {
     # Creating an exit flag
     touch ${EXIT_FLAG} || warn "Cannot create ${EXIT_FLAG}"
 
-    local _pid _file _term_timeout=5
+    local _pid _cpids _file _term_timeout
+    _term_timeout=5
 
     log "Going down. Running shutdown scripts..."
     # Checks for shutdown tasks in files (sequentially)
@@ -236,18 +238,17 @@ hook_main_exit() {
             debug "terminating the child process <pid=${_pid}>"
 
             # Removes all unexpected sub-processes
-            pkill -TERM -P ${_pid} &> /dev/null           
-            kill -TERM ${_pid} &> /dev/null
+            _cpids="$(pgrep -P ${_pid} -d,)"
+            kill -TERM ${_pid} $(echo "${_cpids}" | tr ',' ' ') &> /dev/null
 
-            while ps -p ${_pid} &>/dev/null && [[ ${_term_timeout} -gt 0 ]]
+            while ps -p ${_pid},${_cpids} &> /dev/null && [[ ${_term_timeout} -gt 0 ]]
             do
                 sleep 1
                 : $((_term_timeout--))
             done
 
-            if  ps -p ${_pid} &>/dev/null; then
-                pkill -KILL -P ${_pid} &> /dev/null
-                kill -KILL ${_pid} &> /dev/null
+            if ps -p ${_pid},${_cpids} &>/dev/null; then
+                kill -KILL ${_pid} $(echo "${_cpids}" | tr ',' ' ') &> /dev/null
             fi
         fi
     done
