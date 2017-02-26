@@ -89,7 +89,6 @@ main() {
     for _file in $(ls ${DIR_NAME}/trc.bg.* ${DIR_NAME}/trc.async.* ${DIR_NAME}/trc.d/async.* 2>/dev/null || true); do
         { # supressing stderr for avoiding uncontrolled messages like "Terminated" or "Killed"
               (
-#                set -e
                 # Run this on any exit, catching the exitcode of the "main" command,
                 # printing additional info and finishing up this sub-program with the right exitcode
                 trap '_exitcode=$?; debug "exit-trap (exitcode=${_exitcode})"; hook_sub_exit ${_exitcode} "${_file}"; exit ${_exitcode}' EXIT
@@ -112,7 +111,6 @@ main() {
         shift
         { # supressing stderr for avoiding uncontrolled messages like "Terminated" or "Killed"
               (
-#                set -e
                 trap '_exitcode=$?; debug "exit-trap (exitcode=${_exitcode})"; hook_sub_exit ${_exitcode} "$1"; exit ${_exitcode}' EXIT
                 trap '_exitcode=$?; debug "sig-trap (exitcode=${_exitcode})"; exit ${_exitcode}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
                 trap '_exitcode=$?; debug "err-trap (exitcode=${_exitcode})"; exit ${_exitcode}' ERR
@@ -130,7 +128,6 @@ main() {
     # Checks for foreground tasks in files (sequentially)
     for _file in $(ls ${DIR_NAME}/trc.fg.* ${DIR_NAME}/trc.sync.* ${DIR_NAME}/trc.d/sync.* 2>/dev/null || true); do
         (
-#            set -e
             trap '_exitcode=$?; debug "exit-trap (exitcode=${_exitcode})"; hook_sub_exit ${_exitcode} "${_file}"; exit ${_exitcode}' EXIT
             trap '_exitcode=$?; debug "sig-trap (exitcode=${_exitcode})"; exit ${_exitcode}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
             trap '_exitcode=$?; debug "err-trap (exitcode=${_exitcode})"; exit ${_exitcode}' ERR
@@ -146,9 +143,7 @@ main() {
     # Checks for foreground tasks in the command line
     while [[ "$1" = "-F" ]]; do
         shift
-#        set +e
         (
-#            set -e
             trap '_exitcode=$?; debug "exit-trap (exitcode=${_exitcode})"; hook_sub_exit ${_exitcode} "$1"; exit ${_exitcode}' EXIT
             trap '_exitcode=$?; debug "sig-trap (exitcode=${_exitcode})"; exit ${_exitcode}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
             trap '_exitcode=$?; debug "err-trap (exitcode=${_exitcode})"; exit ${_exitcode}' ERR
@@ -219,9 +214,6 @@ debug() {
 }
 
 hook_main_exit() {
-#    set +e # do not stop or any errors, we have to stop properly
-#    trap '' ERR # disable ERR trap
-
     # Checks if there is an exit flag on exit
     if [[ -n "${EXIT_FLAG}" ]] && [[ -f ${EXIT_FLAG} ]]; then
         warn "The exit flag ${EXIT_FLAG} exists! I'm already exiting..."
@@ -256,7 +248,6 @@ hook_main_exit() {
     # Removes all unexpected sub-processes
     pkill -KILL -P ${MAINPID} &> /dev/null
 
-    # --- `halt`
     { 
         debug "Looking for \`halt\` scripts..."
         # Checks for shutdown tasks in files (sequentially)
@@ -344,7 +335,7 @@ check_ver_usage() {
     case "$1" in
         -v|--version) print_version ;;
         -h|--help)    print_usage ;;
-         *)       : ;;
+         *)           : ;;
     esac
 }
 
@@ -355,13 +346,11 @@ print_usage() {
     echo -e " $ ${_self} -B 'name=\$(id -un); echo booting...' -H 'echo halting...' -F 'echo Hello, \${name}!'"
     echo -e " $ RC_WAIT_POLICY=wait_all ${_self} -D 'echo Hello' -D 'sleep 2; echo World' echo waiting..."
     echo -e " $ RC_VERBOSE=true ${_self} -F 'echo -n \"Hello \"; echo World'"
-
     exit 0
 }
 
 print_version() {
     echo "$trc_version"
-
     exit 0
 }
 
