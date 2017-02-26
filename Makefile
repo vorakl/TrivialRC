@@ -42,7 +42,7 @@ test:
 setver:
 	@${ECHO_BIN} "Setting version to ${VERSION}"
 	@${SED_BIN} -i "s/# Version: .*$$/# Version: ${VERSION}/" ${DIR}/README.md
-	@${SED_BIN} -i "s/# Version: .*$$/# Version: ${VERSION}/" ${DIR}/trc
+	@${SED_BIN} -i "s/trc_version=\".*$$/trc_version=\"${VERSION}\"/" ${DIR}/trc
 	@${SED_BIN} -i "1s/.*/${VERSION}/" ${DIR}/version
 
 settag:

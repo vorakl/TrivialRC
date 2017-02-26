@@ -32,7 +32,7 @@ Basically, you need the only one file (trc) which can be downloaded directly fro
 added into a Dockerfile as something like
 
 ```bash
-RUN curl -sSLo /etc/trc https://raw.githubusercontent.com/vorakl/TrivialRC/master/trc && \
+RUN curl -sSLfo /etc/trc http://vorakl.github.io/TrivialRC/trc && \
     chmod +x /etc/trc
 ```
 
