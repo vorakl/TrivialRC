@@ -7,6 +7,7 @@
     * ADD: a new command line option `-H` that runs commands on exiting
     * ADD: new command line options `-v` and `--version` to print the version
     * ADD: new command line options `-h` and `--help` to print a short help message
+    * ADD: new command line options `-w` and `--workdir` to set the directory with config files
     * ADD: more ways to present configs: 
         * ./trc.d/{boot,sync,async,halt}.*
         * ./trc.{boot,sync,async,halt}.*
