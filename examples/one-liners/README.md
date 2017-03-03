@@ -49,7 +49,7 @@ Hello
 2017-02-22 23:14:35 trc [main/24314]: Exited.
 ```
 ```bash
-# To achive the same goal it needs to wait for all commands and then we see both outputs
+# To achive the same goal it needs to wait for all commands and then we'll see both outputs
 $ RC_WAIT_POLICY=wait_all ./trc -F 'echo Hello' echo World
 Hello
 World
