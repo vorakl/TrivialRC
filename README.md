@@ -82,5 +82,5 @@ Many other use cases and examples can be found [here](https://github.com/vorakl/
     - wait_err      quits after the first failed command
 
 
-##### Version: v1.1.1
+##### Version: v1.1.2
 ##### Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name
