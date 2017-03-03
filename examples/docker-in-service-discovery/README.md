@@ -17,8 +17,8 @@ docker build -t trc-test-sd .
 
 ## Test
 
-Press <Ctrl+C> to exit 
+Press `<Ctrl+C>` to exit 
 
 ```bash
-$ docker run --rm -it -e ZKURL="srv1[:port1][,srv2[:port2]...]" trc-test-sd
+$ docker run --rm -it -e RC_VERBOSE=true -e ZKURL="srv1[:port1][,srv2[:port2]...]" trc-test-sd
 ```

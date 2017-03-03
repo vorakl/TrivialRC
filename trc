@@ -27,7 +27,7 @@ fi
 main() {
     check_ver_usage "$1"
 
-    trap '_es_mt_ex=$?; trap '_ignore_mt_ex=1' EXIT; debug "exit-trap (exitcode=${_es_mt_ex})"; hook_main_exit ${_es_mt_ex}' EXIT
+    trap '_exit_status=$?; trap '_ignore_mt_ex=1' EXIT; debug "exit-trap (exitcode=${_exit_status})"; hook_main_exit' EXIT
     trap '_es_mt_s=$?; trap '_ignore_mt_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=${_es_mt_s})"; exit ${_es_mt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
     trap '_es_mt_er=$?; trap '_ignore_mt_er=1' ERR; if [[ "${RC_WAIT_POLICY}" = "wait_err" ]]; then debug "err-trap (exitcode=${_es_mt_er})"; exit ${_es_mt_er}; fi' ERR
 
@@ -132,7 +132,7 @@ main() {
     # Checks for foreground tasks in files (sequentially)
     for _file in $(ls ${dir_name}/trc.fg.* ${dir_name}/trc.sync.* ${dir_name}/trc.d/sync.* 2>/dev/null || true); do
         (
-            trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "${_file}"; exit ${_es_ft_ex}' EXIT
+            trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "${_file}"' EXIT
             trap '_es_ft_s=$?; trap '_ignore_ft_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_ft_s)"; exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
             trap '_es_ft_er=$?; trap '_ignore_ft_er=1' ERR; debug "err-trap (exitcode=$_es_ft_er)"; exit ${_es_ft_er}' ERR
 
@@ -148,7 +148,7 @@ main() {
     while [[ "$1" = "-F" ]]; do
         shift
         (
-            trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "$1"; exit ${_es_ft_ex}' EXIT
+            trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "$1"' EXIT
             trap '_es_ft_s=$?; trap '_ignore_ft_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_ft_s)"; exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
             trap '_es_ft_er=$?; trap '_ignore_ft_er=1' ERR; debug "err-trap (exitcode=$_es_ft_er)"; exit ${_es_ft_er}' ERR
 
@@ -164,7 +164,7 @@ main() {
     if [[ -n "$*" ]]; then
         (
             set -e
-            trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "$@"; exit ${_es_ft_ex}' EXIT
+            trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "$@"' EXIT
             trap '_es_ft_s=$?; trap '_ignore_ft_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_ft_s)"; exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
             trap '_es_ft_er=$?; trap '_ignore_ft_er=1' ERR; debug "err-trap (exitcode=$_es_ft_er)"; exit ${_es_ft_er}' ERR
 
@@ -218,10 +218,7 @@ debug() {
 }
 
 hook_main_exit() {
-    local _rc _pid _cpids _file _cmd _es_mtt_h=0 _term_timeout=5
-
-    # Saving the exit status before this hook
-    _rc=$1
+    local _pid _cpids _file _cmd _es_mtt_h=0 _term_timeout=5
 
     log "Trying to terminate sub-processes..."
     for _pid in ${child_pids}; do
@@ -281,7 +278,7 @@ hook_main_exit() {
     if [[ ${halt_cmds_exist} -eq 1 ]]; then
         exit ${_es_mtt_h}
     else
-        exit ${_rc}
+        exit ${_exit_status}
     fi
 }
 

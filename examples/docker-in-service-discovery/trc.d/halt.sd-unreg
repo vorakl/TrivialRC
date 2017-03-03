@@ -1,0 +1,11 @@
+# Ignore any errors on exit
+set +e
+
+if zookeepercli -servers "${ZKURL}" -c get /nodes/$(hostname) &>/dev/null
+then
+    zookeepercli -servers "${ZKURL}" -c rm /nodes/$(hostname)
+    log "$(hostname) has been unregistered in ${ZKURL}"
+fi
+
+# finish with 0 exit status
+exit 0

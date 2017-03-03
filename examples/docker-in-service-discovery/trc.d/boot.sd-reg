@@ -1,0 +1,7 @@
+if ! zookeepercli -servers "${ZKURL}" -c get /nodes &>/dev/null
+then
+    zookeepercli -servers "${ZKURL}" -c create /nodes "" &>/dev/null || err "Cannot connect to the ZooKeeper at ${ZKURL}"
+fi
+
+zookeepercli -servers "${ZKURL}" -c create /nodes/$(hostname) ""
+log "$(hostname) has been registered in ${ZKURL}"
