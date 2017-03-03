@@ -248,9 +248,9 @@ hook_main_exit() {
         debug "Looking for \`halt\` scripts..."
         # Checks for shutdown tasks in files (sequentially)
         for _file in $(ls ${dir_name}/trc.sd.* ${dir_name}/trc.halt.* ${dir_name}/trc.d/halt.* 2>/dev/null || true); do
+            halt_cmds_exist=1
             (
                 set -e # Exit on errors in the sub-shell
-                halt_cmds_exist=1
                 ns="halt"
                 log "Running the shutdown script: ${_file}"
                 . ${_file}
@@ -297,8 +297,7 @@ hook_sub_exit() {
             kill -TERM ${MAINPID} &> /dev/null
         fi
     fi
-    # To prevent invoking error trap from error trap ;)
-    # The correct exit code was taken before diving into this function
+
     exit ${_rc}
 }
 

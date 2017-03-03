@@ -4,4 +4,4 @@ then
 fi
 
 zookeepercli -servers "${ZKURL}" -c create /nodes/$(hostname) ""
-log "$(hostname) has been registered in ${ZKURL}"
+log "$(hostname) has been registered at ${ZKURL}"
