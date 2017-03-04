@@ -99,39 +99,35 @@ main() {
     debug "Looking for \`async\` scripts and commands..."
     # Reads commands from files to run on the background (in parallel)
     for _file in $(run -p ls ${dir_name}/trc.bg.* ${dir_name}/trc.async.* ${dir_name}/trc.d/async.* 2>/dev/null || true); do
-        { # supressing stderr for avoiding uncontrolled messages like "Terminated" or "Killed"
-              (
-                # Run this on any exit, catching the exitcode of the "main" command,
-                # printing additional info and finishing up this sub-program with the right exitcode
-                trap '_es_dt_ex=$?; trap '_ignore_mt_ex=1' EXIT; debug "exit-trap (exitcode=${_es_dt_ex})"; hook_sub_exit ${_es_dt_ex} "${_file}"' EXIT
+        (
+            # Run this on any exit, catching the exitcode of the "main" command,
+            # printing additional info and finishing up this sub-program with the right exitcode
+            trap '_es_dt_ex=$?; trap '_ignore_mt_ex=1' EXIT; debug "exit-trap (exitcode=${_es_dt_ex})"; hook_sub_exit ${_es_dt_ex} "${_file}"' EXIT
 
-                # In case of exit on errors (set -e) or by a signal, catch exitcode and exit with it, which
-                # will lead to triggering an EXIT trap
-                trap '_es_dt_s=$?; trap '_ignore_dt_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_dt_s)"; exit ${_es_dt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-                trap '_es_dt_er=$?; trap '_ignore_dt_er=1' ERR; debug "err-trap (exitcode=$_es_dt_er)"; exit ${_es_dt_er}' ERR
+            # In case of exit on errors (set -e) or by a signal, catch exitcode and exit with it, which
+            # will lead to triggering an EXIT trap
+            trap '_es_dt_s=$?; trap '_ignore_dt_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_dt_s)"; exit ${_es_dt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+            trap '_es_dt_er=$?; trap '_ignore_dt_er=1' ERR; debug "err-trap (exitcode=$_es_dt_er)"; exit ${_es_dt_er}' ERR
 
-                ns="async"
-                log "Launching on the $(ns_long ${ns}): ${_file}"
-                . ${_file}
-              )& 
-        } 2> /dev/null
+            ns="async"
+            log "Launching on the $(ns_long ${ns}): ${_file}"
+            . ${_file}
+        )& 
         child_pids="${child_pids} $!"
     done
 
     # Checks for background tasks in the command line (all commands and their parameters should be supplied as one parameter)
     while [[ "$1" = "-D" ]]; do
         shift
-        { # supressing stderr for avoiding uncontrolled messages like "Terminated" or "Killed"
-              (
-                trap '_es_dt_ex=$?; trap '_ignore_dt_ex=1' EXIT; debug "exit-trap (exitcode=${_es_dt_ex})"; hook_sub_exit ${_es_dt_ex} "$1"' EXIT
-                trap '_es_dt_s=$?; trap '_ignore_dt_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_dt_s)"; exit ${_es_dt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-                trap '_es_dt_er=$?; trap '_ignore_dt_er=1' ERR; debug "err-trap (exitcode=$_es_dt_er)"; exit ${_es_dt_er}' ERR
+        (
+            trap '_es_dt_ex=$?; trap '_ignore_dt_ex=1' EXIT; debug "exit-trap (exitcode=${_es_dt_ex})"; hook_sub_exit ${_es_dt_ex} "$1"' EXIT
+            trap '_es_dt_s=$?; trap '_ignore_dt_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_dt_s)"; exit ${_es_dt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+            trap '_es_dt_er=$?; trap '_ignore_dt_er=1' ERR; debug "err-trap (exitcode=$_es_dt_er)"; exit ${_es_dt_er}' ERR
 
-                ns="async"
-                log "Launching on the $(ns_long ${ns}): $1"
-                eval "$1"
-              )& 
-        } 2> /dev/null
+            ns="async"
+            log "Launching on the $(ns_long ${ns}): $1"
+            eval "$1"
+        )& 
         child_pids="${child_pids} $!"
         shift
     done
@@ -285,13 +281,12 @@ hook_main_exit() {
         done    
     fi 
 
-    log "Exited."
-
     if [[ ${halt_cmds_exist} -eq 1 ]]; then
-        exit ${_es_mtt_h}
-    else
-        exit ${_exit_status}
+        _exit_status=${_es_mtt_h}
     fi
+
+    log "Exited (exitcode=${_exit_status})"
+    exit ${_exit_status}
 }
 
 hook_sub_exit() {
