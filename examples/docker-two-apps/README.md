@@ -53,14 +53,8 @@ $ curl http://localhost:8080/
 }
 ```
 
-To stop a container, you can simply run
-
-```bash
-docker rm -f trc-test-2apps
-```
-
 If you wanna check that a container is really being stopped when uWSGI or Nginx doesn't work in the container,
-you can stop any of them while a container is still running and check the status of the container:
+you can stop any of them while a container is still running and check its status:
 
 ```bash
 $ docker exec trc-test-2apps pkill nginx
@@ -82,7 +76,7 @@ spawned uWSGI worker 1 (and the only) (pid: 26, cores: 16)
 2017-03-04 21:33:32 trc [main/1]: Exited (exitcode=143)
 ```
 
-In this case, don't forget to remove a container manually:
+And don't forget to remove a container manually:)
 
 ```bash
 $ docker rm trc-test-2apps
