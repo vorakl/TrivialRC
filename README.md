@@ -24,44 +24,51 @@ a group of process and be a lightweight replacement for solutions like [Supervis
 For instance, in Docker images when TrivialRC is used as an Entrypoint, it doesn't reveal itself by default,
 does not affect any configuration and behaves absolutely transparently. So, you can add it into
 any Dockerfiles which do not have an entrypoint yet and get by this the full control under processes 
-with fairly detailed logs of what's is going on inside a container. Please, take a look at examples for more information.
+with fairly detailed logs of what's is going on inside a container. Please, take a look at [examples](https://github.com/vorakl/TrivialRC/tree/master/examples) for more information.
 
 
-### Installation
+### The installation
 
-This is an example of the installation in a Docker image.
-Basically, you need the only one file (trc) which can be downloaded directly from GitHub and
-added into a Dockerfile as something like
+Basically, all you need to install TrivialRC is download the latest release of the script from `http://vorakl.github.io/TrivialRC/trc`
+and give it an execute permission. By default, it looks for configuration files in the same directory from which it was invoked but this behavior can be changed by setting a work directory (-w|--workdir parametr). So, if you are going to use configuration files and keep them in /etc/, then you would probably want to install the script to /etc/ as well and simply run it without specifying any parametrs.
+Another option in this case could be to install the script in a more appropriate path but don't forget to specify '--workid /etc' parametr every time when you invoke this rc system. Both options are possible and depend more on a particular use case.
+For instance, in case of using in a Docker container, I personaly prefer to have all configuration in separate files in `trc.d/` sub-directory and copy it together with the script in /etc/ . 
+
+#### The installation on top of CentOS Linux base image
+
+This is an example of how it will look like in a Dockerfile with [centos:latest](https://hub.docker.com/_/centos/) as base image:
 
 ```bash
+FROM centos:latest
+
 RUN curl -sSLfo /etc/trc http://vorakl.github.io/TrivialRC/trc && \
-    chmod +x /etc/trc
-```
+    chmod +x /etc/trc && \
+    /etc/trc --version
 
-- If you need to change a behavior of rc system, set appropriate variables like
+COPY trc.d/ /etc/trc.d/
 
-```bash
-ENV RC_VERBOSE true
-ENV RC_WAIT_POLICY wait_all
-```
-
-- If you have additional files, add them all at once
-
-```bash
-COPY trc* /etc/
-```
-
-- Eventually, if you do not use init process, specify only trc as an Entrypoint
-
-```bash
 ENTRYPOINT ["/etc/trc"]
 ```
 
-Otherwise, which is RECOMMENDED, add an init process and rc system together, for example as
+#### The installation on top of Alpine Linux base image
+
+**Attention**! The Alpine Linux comes with Busybox but its functionality as a shell and as a few emulated tools *is not enough* for TrivialRC. To work in this distribution it requires two extra packages: `bash` and `procps`.
+As a result, Dockerfile for the [alpine:edge](https://hub.docker.com/_/alpine/) base image will look like:
 
 ```bash
-ENTRYPOINT ["/sbin/dumb-init", "/etc/trc"]
+FROM alpine:edge
+
+RUN apk add --no-cache bash procps
+
+RUN wget -qP /etc/ http://vorakl.github.io/TrivialRC/trc && \
+    chmod +x /etc/trc && \
+    /etc/trc --version
+
+COPY trc.d/ /etc/trc.d/
+
+ENTRYPOINT ["/etc/trc"]
 ```
+
 
 ### How to get started?
 
