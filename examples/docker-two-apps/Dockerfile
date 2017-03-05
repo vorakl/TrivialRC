@@ -1,7 +1,7 @@
 FROM alpine:edge
 MAINTAINER "Oleksii Tsvietnov" <me@vorakl.name>
 
-RUN apk add --no-cache bash nginx uwsgi uwsgi-python3 && \
+RUN apk add --no-cache nginx uwsgi uwsgi-python3 && \
     pip3 install --upgrade pip && \
     pip3 install flask
 

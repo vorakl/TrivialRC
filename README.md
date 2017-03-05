@@ -3,26 +3,32 @@
 # TrivialRC
 
 The minimalistic Run-time Configuration (RC) system and process manager.
-Originaly, it was designed for usage primarily in containers but it can be also very useful 
-for running a group of processes asynchronously/synchronously, managing their running order and exit codes.
+It's written in pure BASH and uses just a few external utilities like ls, ps, date and sleep.
+In the minimum intallation TrivialRC consists of only one file which can be downloaded directly from the Github.
+Originaly, it was designed for usage primarily in containers but it also can be successfully used 
+for running a group of processes asynchronously and synchronously, managing their running order and exit codes.
 
 TrivialRC is not a replacement for an init process that usually exists as /sbin/init
 and has a PID 1. In containers for this purpose could be used projects like
 [dumb-init](https://github.com/Yelp/dumb-init) or [tini](https://github.com/krallin/tini).
+Although, in most cases, having only TrivialRC as a first and main process (PID 1) in containers is enough.
+In terms of Docker, the best place for it is ENTRYPOINT.
 
-This is an equivalent to a common, for xBSD, /etc/rc. RC system that is used for
+TrivialRC is an equivalent to well known for xBSD users /etc/rc. The RC system that is used for
 managing startup and shutdown processes. It can start and stop one or more processes,
-in parallel or sequentially, on back- or foreground. All commands can be specified
-in the command line if they are simple, or in a separate file, if a more comprehensive
-scenario is needed.
+in parallel or sequentially, on back- or foreground, react differently in case of process failures, etc.
+All commands can be specified in the command line if they are pretty simple, or in separate files,
+if a more comprehensive scenario is needed. That's why it can be used as a simplest solution for managing 
+a group of process and be a lightweight replacement for projects like [Supervisor](https://github.com/Supervisor/supervisor).
 
-For instance, in Docker images, TrivialRC can be used as an Entrypoint. By default, it does not show itself,
-does not affect any configuration and behaves transparently. So, you can add it into
-any Dockerfiles which do not have an entrypoint. Please, have a look at examples for more information.
 
-Although, in case of usege in Docker containers, to be sure that all processes will be stopped on exit 
-and all zombies are properly reaped, at least for now, it is highly recommended, in addition, to use some 
-init process like one of mentioned above.
+
+
+
+For instance, in Docker images when TrivialRC is used as an Entrypoint, it does not show itself by default,
+does not affect any configuration and behaves absolutelly transparently. So, you can add it into
+any Dockerfiles which do not have an entrypoint at all and get by this the full controll under processes 
+with fairly detailed logs of what's is going on in a container. Please, take a look at examples for more information.
 
 
 ### Installation
