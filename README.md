@@ -2,6 +2,20 @@
 
 # TrivialRC
 
+Table of Contents
+=================
+
+* [Introduction](#introduction)
+* [Installation](#installation)
+    * [The installation on top of CentOS Linux base image](#the-installation-on-top-of-centos-linux-base-image)
+    * [The installation on top of Alpine Linux base image](#the-installation-on-top-of-alpine-linux-base-image)
+* [How to get started?](#how-to-get-started)
+* [The verbosity control](#the-verbosity-control)
+* [The wait policy](#the-wait-policy)
+
+
+## Introduction
+
 The minimalistic Run-time Configuration (RC) system and process manager.
 It's written in pure BASH and uses just a few external utilities like ls, ps, date and sleep.
 In the minimum intallation TrivialRC consists of only one file which can be downloaded directly from the Github.
@@ -26,15 +40,14 @@ does not affect any configuration and behaves absolutely transparently. So, you 
 any Dockerfiles which do not have an entrypoint yet and get by this the full control under processes 
 with fairly detailed logs of what's is going on inside a container. Please, take a look at [examples](https://github.com/vorakl/TrivialRC/tree/master/examples) for more information.
 
-
-### The installation
+## Installation
 
 Basically, all you need to install TrivialRC is download the latest release of the script from `http://vorakl.github.io/TrivialRC/trc`
-and give it an execute permission. By default, it looks for configuration files in the same directory from which it was invoked but this behavior can be changed by setting a work directory (-w|--workdir parametr). So, if you are going to use configuration files and keep them in /etc/, then you would probably want to install the script to /etc/ as well and simply run it without specifying any parametrs.
-Another option in this case could be to install the script in a more appropriate path but don't forget to specify '--workid /etc' parametr every time when you invoke this rc system. Both options are possible and depend more on a particular use case.
-For instance, in case of using in a Docker container, I personaly prefer to have all configuration in separate files in `trc.d/` sub-directory and copy it together with the script in /etc/ . 
+and give it an execute permission. By default, it looks for configuration files in the same directory from which it was invoked but this behavior can be changed by setting a work directory (`-w|--workdir` parametr). So, if you are going to use configuration files and keep them in /etc/, then you would probably want to install the script to /etc/ as well and simply run it without specifying any parametrs.
+Another option in this case could be to install the script in a more appropriate path but don't forget to specify `--workdir /etc` parametr every time when you invoke this rc system. Both options are possible and depend more on a particular use case.
+For instance, in case of using in a Docker container, I personaly prefer to have all configuration in separate files in `trc.d/` sub-directory and copy it together with the script in `/etc/` . 
 
-#### The installation on top of CentOS Linux base image
+### The installation on top of CentOS Linux base image
 
 This is an example of how it will look like in a Dockerfile with [centos:latest](https://hub.docker.com/_/centos/) as base image:
 
@@ -50,7 +63,7 @@ COPY trc.d/ /etc/trc.d/
 ENTRYPOINT ["/etc/trc"]
 ```
 
-#### The installation on top of Alpine Linux base image
+### The installation on top of Alpine Linux base image
 
 **Attention**! The Alpine Linux comes with Busybox but its functionality as a shell and as a few emulated tools *is not enough* for TrivialRC. To work in this distribution it requires two extra packages: `bash` and `procps`.
 As a result, Dockerfile for the [alpine:edge](https://hub.docker.com/_/alpine/) base image will look like:
@@ -69,26 +82,43 @@ COPY trc.d/ /etc/trc.d/
 ENTRYPOINT ["/etc/trc"]
 ```
 
+## How to get started?
 
-### How to get started?
+To get started there are provided a few examples:
 
-The best way to get started is trying simple [one-line examples](https://github.com/vorakl/TrivialRC/blob/master/examples/one-liners/README.md) which follow you from "zero" to almost all available features. 
-Many other use cases and examples can be found [here](https://github.com/vorakl/TrivialRC/tree/master/examples).
+* [One-liners](https://github.com/vorakl/TrivialRC/blob/master/examples/one-liners/README.md) which show most common use cases and features
+* The example of using [configuration files](https://github.com/vorakl/TrivialRC/tree/master/examples/config-files) instead of command line parameters
+* A docker container that registers itself in a [Service Discovery](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-service-discovery) in the beginning, then starts some application and automatically removes the registration on exit
+* This example launches [two different applications](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-two-apps) inside one docker container and controls the availability both of them. If any of applications has stopped working by some reasons, the whole container will be stopped automatically with the appropriate exit status
 
-### Environment variables
+## The verbosity control
 
-* RC_DEBUG (true|false) [false]
+By default, TrivailRC doesn't print any service messages at all.
+It only sends `stdout` and `stderr` of all isolated sub-shells to the same terminal.
+If another behavior is needed, you can redirect any of them inside each sub-shell separately.
+To increase the verbosity of rc system there are provided a few environment variables:
+
+* *RC_DEBUG* (true|false) [false]
     Prints out all commands which are being executed
-* RC_VERBOSE (true|false) [false]
+* *RC_VERBOSE* (true|false) [false]
     Prints out service information
-* RC_VERBOSE_EXTRA (true|false) [false]
+* *RC_VERBOSE_EXTRA* (true|false) [false]
     Prints out additional service information
-* RC_WAIT_POLICY (wait_all|wait_any|wait_forever) [wait_any]
-    - wait_all      quit after exiting the last command (back- or foreground)
-    - wait_any      quit after exiting any of command (including zero commands)
-    - wait_forever  will be waiting forever after exiting all commands.
-                    Usefull in case of daemons which are detaching and exiting
-    - wait_err      quits after the first failed command
+
+## The wait policy
+
+The rc system reacts differentely when one of controlled processes finishes.
+Depending on the value of *RC_WAIT_POLICY* environment variable it make a decision when exactly it should stop itself.
+The possible values are:
+
+* *wait_all*
+    stops after exiting all commands and doesn't matter wether they are synchronous or asynchronous
+* *wait_any*  [default]
+    stops after exiting any of background commands and if no of a foreground command are working at that moment. It makes sense to use this mode if all commands are asynchronous (background)
+* *wait_err*
+    stops after the first failed command. It make sense to use this mode with synchronous (foreground) commands only. For example, if you need to iterate synchronously over the list of command and to stop only if one of them has failed.
+* *wait_forever*
+    there is a special occasion when a process has doubled forked to become a daemon, it's still running but for the parent shell such process is considered as finished. So, in this mode, TrivialRC will keep working even if all processes have finished and it has to be stopped by the signal from its parent process (such a docker daemon for example)
 
 
 ##### Version: v1.1.5
