@@ -5,20 +5,6 @@
 # Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name
 trc_version="v1.1.5"
 
-# --[ Environment variables ]--
-# RC_DEBUG (true|false) [false]
-#    Prints out all commands which are being executed
-# RC_VERBOSE (true|false) [false]
-#    Prints out service information
-# RC_VERBOSE_EXTRA (true|false) [false]
-#    Prints out additional service information
-# RC_WAIT_POLICY (wait_all|wait_any|wait_forever) [wait_any]
-#    - wait_all      quits after exiting the last command (back- or foreground)
-#    - wait_any      quits after exiting any command (including zero commands)
-#    - wait_forever  will be waiting forever after exiting all commands.
-#                    Usefull in case of daemons which are detaching and exiting
-#    - wait_err      quits after the first failed command
-
 set +e # Do not exit on errors by default
 if [[ "${RC_DEBUG}" = "true" ]]; then
     set -x # Turns on Debug mode

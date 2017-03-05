@@ -7,6 +7,7 @@ SED_BIN ?= sed
 PWD_BIN ?= pwd
 BASENAME_BIN ?= basename
 GIT_BIN ?= git
+SHA256SUM_BIN ?= sha256sum 
 
 # -------------------------------------------------------------------------
 # Set a default target
@@ -57,6 +58,7 @@ push:
 
 publish:
 	@${CP_BIN} -f trc docs/
+	@(cd docs && ${SHA256SUM_BIN} trc > trc.sha256)
 
 cirelease: test setver settag publish
 	@${GIT_BIN} add .

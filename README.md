@@ -32,7 +32,7 @@ All commands can be specified in the command line if they are relatively simple,
 if a more comprehensive scenario is needed. That's why it can be used as a simplest tool for managing 
 a group of process and be a lightweight replacement for solutions like [Supervisor](https://github.com/Supervisor/supervisor).
 
-For instance, in Docker images when TrivialRC is used as an Entrypoint, it doesn't reveal itself by default,
+For instance, in docker images when TrivialRC is used as an Entrypoint, it doesn't reveal itself by default,
 does not affect any configuration and behaves absolutely transparently. So, you can add it into
 any Dockerfiles which do not have an entrypoint yet and get by this the full control under processes 
 with fairly detailed logs of what's is going on inside a container. Please, take a look at [examples](https://github.com/vorakl/TrivialRC/tree/master/examples) for more information.
@@ -42,7 +42,7 @@ with fairly detailed logs of what's is going on inside a container. Please, take
 Basically, all you need to install TrivialRC is download the latest release of the script from `http://vorakl.github.io/TrivialRC/trc`
 and give it an execute permission. By default, it looks for configuration files in the same directory from which it was invoked but this behavior can be changed by setting a work directory (`-w|--workdir` parametr). So, if you are going to use configuration files and keep them in /etc/, then you would probably want to install the script to /etc/ as well and simply run it without specifying any parametrs.
 Another option in this case could be to install the script in a more appropriate path but don't forget to specify `--workdir /etc` parametr every time when you invoke this rc system. Both options are possible and depend more on a particular use case.
-For instance, in case of using in a Docker container, I personaly prefer to have all configuration in separate files in `trc.d/` sub-directory and copy it together with the script in `/etc/` . 
+For instance, in case of using in a docker container, I personaly prefer to have all configuration in separate files in `trc.d/` sub-directory and copy it together with the script in `/etc/` . 
 
 ### The installation on top of CentOS Linux base image
 
@@ -104,14 +104,14 @@ To increase the verbosity of rc system there are provided a few environment vari
 
 ## The wait policy
 
-The rc system reacts differentely when one of controlled processes finishes.
-Depending on the value of *RC_WAIT_POLICY* environment variable it make a decision when exactly it should stop itself.
+The rc system reacts differently when one of controlled processes finishes.
+Depending on the value of *RC_WAIT_POLICY* environment variable it makes a decision when exactly it should stop itself.
 The possible values are:
 
 * *wait_all* <br />
     stops after exiting all commands and doesn't matter wether they are synchronous or asynchronous
 * *wait_any*  [default] <br />
-    stops after exiting any of background commands and if no of a foreground command are working at that moment. It makes sense to use this mode if all commands are asynchronous (background)
+    stops after exiting any of background commands and if there are no foreground commands working at that moment. It makes sense to use this mode if all commands are asynchronous (background)
 * *wait_err* <br />
     stops after the first failed command. It make sense to use this mode with synchronous (foreground) commands only. For example, if you need to iterate synchronously over the list of command and to stop only if one of them has failed.
 * *wait_forever* <br />
