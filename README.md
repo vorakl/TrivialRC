@@ -124,5 +124,5 @@ The possible values are:
     there is a special occasion when a process has doubled forked to become a daemon, it's still running but for the parent shell such process is considered as finished. So, in this mode, TrivialRC will keep working even if all processes have finished and it has to be stopped by the signal from its parent process (such a docker daemon for example)
 
 
-##### Version: v1.1.5
+##### Version: v1.1.6
 ##### Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name
