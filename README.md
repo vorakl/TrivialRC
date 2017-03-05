@@ -2,9 +2,6 @@
 
 # TrivialRC
 
-Table of Contents
-=================
-
 * [Introduction](#introduction)
 * [Installation](#installation)
     * [The installation on top of CentOS Linux base image](#the-installation-on-top-of-centos-linux-base-image)
@@ -117,7 +114,7 @@ The possible values are:
     stops after exiting any of background commands and if no of a foreground command are working at that moment. It makes sense to use this mode if all commands are asynchronous (background)
 * *wait_err*
     stops after the first failed command. It make sense to use this mode with synchronous (foreground) commands only. For example, if you need to iterate synchronously over the list of command and to stop only if one of them has failed.
-* *wait_forever*
+* *wait_forever* <br />
     there is a special occasion when a process has doubled forked to become a daemon, it's still running but for the parent shell such process is considered as finished. So, in this mode, TrivialRC will keep working even if all processes have finished and it has to be stopped by the signal from its parent process (such a docker daemon for example)
 
 
