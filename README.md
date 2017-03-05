@@ -95,11 +95,11 @@ It only sends `stdout` and `stderr` of all isolated sub-shells to the same termi
 If another behavior is needed, you can redirect any of them inside each sub-shell separately.
 To increase the verbosity of rc system there are provided a few environment variables:
 
-* *RC_DEBUG* (true|false) [false]
+* *RC_DEBUG* (true|false) [false] <br />
     Prints out all commands which are being executed
-* *RC_VERBOSE* (true|false) [false]
+* *RC_VERBOSE* (true|false) [false] <br />
     Prints out service information
-* *RC_VERBOSE_EXTRA* (true|false) [false]
+* *RC_VERBOSE_EXTRA* (true|false) [false] <br />
     Prints out additional service information
 
 ## The wait policy
@@ -108,11 +108,11 @@ The rc system reacts differentely when one of controlled processes finishes.
 Depending on the value of *RC_WAIT_POLICY* environment variable it make a decision when exactly it should stop itself.
 The possible values are:
 
-* *wait_all*
+* *wait_all* <br />
     stops after exiting all commands and doesn't matter wether they are synchronous or asynchronous
-* *wait_any*  [default]
+* *wait_any*  [default] <br />
     stops after exiting any of background commands and if no of a foreground command are working at that moment. It makes sense to use this mode if all commands are asynchronous (background)
-* *wait_err*
+* *wait_err* <br />
     stops after the first failed command. It make sense to use this mode with synchronous (foreground) commands only. For example, if you need to iterate synchronously over the list of command and to stop only if one of them has failed.
 * *wait_forever* <br />
     there is a special occasion when a process has doubled forked to become a daemon, it's still running but for the parent shell such process is considered as finished. So, in this mode, TrivialRC will keep working even if all processes have finished and it has to be stopped by the signal from its parent process (such a docker daemon for example)
