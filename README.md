@@ -46,16 +46,18 @@ For instance, in case of using in a docker container, I personaly prefer to have
 
 ### The installation on top of CentOS Linux base image
 
-This is an example of how it will look like in a Dockerfile with [centos:latest](https://hub.docker.com/_/centos/) as base image:
+This is an example of how it would look like in a Dockerfile with [centos:latest](https://hub.docker.com/_/centos/) as base image:
 
 ```bash
 FROM centos:latest
 
 RUN curl -sSLfo /etc/trc http://vorakl.github.io/TrivialRC/trc && \
+    ( cd /etc && curl -sSLf http://vorakl.github.io/TrivialRC/trc.sha256 | sha256sum -c ) && \
     chmod +x /etc/trc && \
     /etc/trc --version
 
-COPY trc.d/ /etc/trc.d/
+# Uncomment this if you have configuration files in trc.d/
+#COPY trc.d/ /etc/trc.d/
 
 ENTRYPOINT ["/etc/trc"]
 ```
@@ -63,18 +65,20 @@ ENTRYPOINT ["/etc/trc"]
 ### The installation on top of Alpine Linux base image
 
 **Attention**! The Alpine Linux comes with Busybox but its functionality as a shell and as a few emulated tools *is not enough* for TrivialRC. To work in this distribution it requires two extra packages: `bash` and `procps`.
-As a result, Dockerfile for the [alpine:edge](https://hub.docker.com/_/alpine/) base image will look like:
+As a result, Dockerfile for the [alpine:edge](https://hub.docker.com/_/alpine/) base image would look like:
 
 ```bash
-FROM alpine:edge
+FROM alpine:latest
 
 RUN apk add --no-cache bash procps
 
 RUN wget -qP /etc/ http://vorakl.github.io/TrivialRC/trc && \
+    ( cd /etc && wget -qO - http://vorakl.github.io/TrivialRC/trc.sha256 | sha256sum -c ) && \
     chmod +x /etc/trc && \
     /etc/trc --version
 
-COPY trc.d/ /etc/trc.d/
+# Uncomment this if you have configuration files in trc.d/
+#COPY trc.d/ /etc/trc.d/
 
 ENTRYPOINT ["/etc/trc"]
 ```
@@ -87,6 +91,8 @@ To get started there are provided a few examples:
 * The example of using [configuration files](https://github.com/vorakl/TrivialRC/tree/master/examples/config-files) instead of command line parameters
 * A docker container that registers itself in a [Service Discovery](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-service-discovery) in the beginning, then starts some application and automatically removes the registration on exit
 * This example launches [two different applications](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-two-apps) inside one docker container and controls the availability both of them. If any of applications has stopped working by some reasons, the whole container will be stopped automatically with the appropriate exit status
+* The example of building [docker base images](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-base-images) with TrivialRC as an ENTRYPOINT
+
 
 ## The verbosity control
 
