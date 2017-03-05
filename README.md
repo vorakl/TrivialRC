@@ -5,30 +5,26 @@
 The minimalistic Run-time Configuration (RC) system and process manager.
 It's written in pure BASH and uses just a few external utilities like ls, ps, date and sleep.
 In the minimum intallation TrivialRC consists of only one file which can be downloaded directly from the Github.
-Originaly, it was designed for usage primarily in containers but it also can be successfully used 
-for running a group of processes asynchronously and synchronously, managing their running order and exit codes.
+Originaly, it was designed for using in containers but it also can be well used for running a group of processes
+asynchronously and synchronously, managing their running order and exit codes.
 
-TrivialRC is not a replacement for an init process that usually exists as /sbin/init
+TrivialRC is not a replacement for an init process that usually resides in /sbin/init
 and has a PID 1. In containers for this purpose could be used projects like
 [dumb-init](https://github.com/Yelp/dumb-init) or [tini](https://github.com/krallin/tini).
-Although, in most cases, having only TrivialRC as a first and main process (PID 1) in containers is enough.
+Although, in most cases, having only TrivialRC as a first/main process (PID 1) in containers is quite enough.
 In terms of Docker, the best place for it is ENTRYPOINT.
 
-TrivialRC is an equivalent to well known for xBSD users /etc/rc. The RC system that is used for
+TrivialRC is an equivalent to well known /etc/rc for xBSD users. The RC system that is used for
 managing startup and shutdown processes. It can start and stop one or more processes,
 in parallel or sequentially, on back- or foreground, react differently in case of process failures, etc.
-All commands can be specified in the command line if they are pretty simple, or in separate files,
-if a more comprehensive scenario is needed. That's why it can be used as a simplest solution for managing 
-a group of process and be a lightweight replacement for projects like [Supervisor](https://github.com/Supervisor/supervisor).
+All commands can be specified in the command line if they are relatively simple, or in separate files
+if a more comprehensive scenario is needed. That's why it can be used as a simplest tool for managing 
+a group of process and be a lightweight replacement for solutions like [Supervisor](https://github.com/Supervisor/supervisor).
 
-
-
-
-
-For instance, in Docker images when TrivialRC is used as an Entrypoint, it does not show itself by default,
-does not affect any configuration and behaves absolutelly transparently. So, you can add it into
-any Dockerfiles which do not have an entrypoint at all and get by this the full controll under processes 
-with fairly detailed logs of what's is going on in a container. Please, take a look at examples for more information.
+For instance, in Docker images when TrivialRC is used as an Entrypoint, it doesn't reveal itself by default,
+does not affect any configuration and behaves absolutely transparently. So, you can add it into
+any Dockerfiles which do not have an entrypoint yet and get by this the full control under processes 
+with fairly detailed logs of what's is going on inside a container. Please, take a look at examples for more information.
 
 
 ### Installation
