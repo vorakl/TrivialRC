@@ -7,9 +7,9 @@
     * [The installation on top of CentOS Linux base image](#the-installation-on-top-of-centos-linux-base-image)
     * [The installation on top of Alpine Linux base image](#the-installation-on-top-of-alpine-linux-base-image)
 * [How to get started?](#how-to-get-started)
-* [The verbosity control](#the-verbosity-control)
-* [The wait policy](#the-wait-policy)
-
+* [Verbose levels](#verbose-levels)
+* [Wait policies](#wait-policies)
+* [Integrated functions](#integrated-functions)
 
 ## Introduction
 
@@ -65,7 +65,7 @@ ENTRYPOINT ["/etc/trc"]
 ### The installation on top of Alpine Linux base image
 
 **Attention**! The Alpine Linux comes with Busybox but its functionality as a shell and as a few emulated tools *is not enough* for TrivialRC. To work in this distribution it requires two extra packages: `bash` and `procps`.
-As a result, Dockerfile for the [alpine:edge](https://hub.docker.com/_/alpine/) base image would look like:
+As a result, Dockerfile for the [alpine:latest](https://hub.docker.com/_/alpine/) base image would look like:
 
 ```bash
 FROM alpine:latest
@@ -94,7 +94,7 @@ To get started there are provided a few examples:
 * The example of building [docker base images](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-base-images) with TrivialRC as an ENTRYPOINT
 
 
-## The verbosity control
+## Verbose levels
 
 By default, TrivailRC doesn't print any service messages at all.
 It only sends `stdout` and `stderr` of all isolated sub-shells to the same terminal.
@@ -108,7 +108,7 @@ To increase the verbosity of rc system there are provided a few environment vari
 * *RC_VERBOSE_EXTRA* (true|false) [false] <br />
     Prints out additional service information
 
-## The wait policy
+## Wait policies
 
 The rc system reacts differently when one of controlled processes finishes.
 Depending on the value of *RC_WAIT_POLICY* environment variable it makes a decision when exactly it should stop itself.
@@ -122,6 +122,25 @@ The possible values are:
     stops after the first failed command. It make sense to use this mode with synchronous (foreground) commands only. For example, if you need to iterate synchronously over the list of command and to stop only if one of them has failed.
 * *wait_forever* <br />
     there is a special occasion when a process has doubled forked to become a daemon, it's still running but for the parent shell such process is considered as finished. So, in this mode, TrivialRC will keep working even if all processes have finished and it has to be stopped by the signal from its parent process (such a docker daemon for example)
+
+## Integrated functions
+
+You can also use some of internal functions in async/sync tasks:
+
+* *say* <br />
+    prints only if RC_VERBOSE is set
+* *log* <br />
+    does the same as `say` but add additional info about time, PID, namespace, etc
+* *warn* <br />
+    does the say as `log` but sends a mesage to stderr
+* *err* <br />
+    does the same as `warn` but exits with an error (exit status = 1)
+* *debug* <br />
+    does the same as `log` but only if RC_VERBOSE_EXTRA is set
+* *run* <br />
+    launches builtin or external commands without checking functions with the same name
+    For instance, if you wanna run only external command from the standart PATH list, use `run -p 'command'`
+    Or, if you need to check existence of the command, try `run -v 'command'`
 
 
 ##### Version: v1.1.6
