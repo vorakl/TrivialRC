@@ -1,7 +1,7 @@
-# Do not fail on errors
+# Do not fail on errors in halt stage
 set +e
 
-rm -f ${NETMON} ${NETLISTENER} ${NETSENDER}
+rm -f ${NETMON} ${NETLISTENER}
 
 # Finishing  with the original exit status
 exit ${_exit_status}

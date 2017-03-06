@@ -35,7 +35,8 @@ a group of process and be a lightweight replacement for solutions like [Supervis
 For instance, in docker images when TrivialRC is used as an Entrypoint, it doesn't reveal itself by default,
 does not affect any configuration and behaves absolutely transparently. So, you can add it into
 any Dockerfiles which do not have an entrypoint yet and get by this the full control under processes 
-with fairly detailed logs of what's is going on inside a container. Please, take a look at [examples](https://github.com/vorakl/TrivialRC/tree/master/examples) for more information.
+with fairly detailed logs of what's is going on inside a container. 
+Please, take a look at [examples](https://github.com/vorakl/TrivialRC/tree/master/examples) for more information.
 
 ## Installation
 
@@ -85,7 +86,7 @@ ENTRYPOINT ["/etc/trc"]
 
 ## How to get started?
 
-To get started and find out some features, I suggest to go through these examples and read their readme's plus comment along the code:
+To get started and find out some features, I suggest to go through these examples and read their readme's plus comments along the code:
 
 * [One-liners](https://github.com/vorakl/TrivialRC/blob/master/examples/one-liners/README.md) which show most common use cases and features
 * The example of using [configuration files](https://github.com/vorakl/TrivialRC/tree/master/examples/config-files) instead of command line parameters

@@ -2,6 +2,6 @@
 trap 'true' ERR
 
 while true; do
-    nc localhost 1234 <<< "$(date)" &> ${NETSENDER}
+    nc localhost 1234 <<< "$(date)" &>/dev/null 
     sleep 1
 done

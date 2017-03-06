@@ -1,3 +1,4 @@
-export NETMON=$(mktemp /tmp/XXXXXX.netmon)
-export NETLISTENER=$(mktemp /tmp/XXXXXX.netlistener)
-export NETSENDER=$(mktemp /tmp/XXXXXX.netsender)
+export NETMON="/tmp/netmon.pipe"
+export NETLISTENER="/tmp/netlistener.pipe"
+mkfifo ${NETMON}
+mkfifo ${NETLISTENER}

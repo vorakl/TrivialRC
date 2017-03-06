@@ -1,0 +1,8 @@
+# Do not react on errors, keep working
+trap 'true' ERR
+local _str
+exec 5<>${NETMON}
+
+while read -u 5 _str; do
+    echo "netmon: ${_str}"
+done

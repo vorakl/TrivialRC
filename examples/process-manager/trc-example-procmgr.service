@@ -1,0 +1,16 @@
+[Unit]
+Description=The example of running TrivialRC as a process manager
+After=network.target
+
+[Service]
+Type=simple
+Environment=RC_VERBOSE=true
+ExecStart=/usr/bin/trc --workdir /opt/app
+ExecStop=/bin/kill -TERM $MAINPID
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=5s
+SuccessExitStatus=0 143 SIGTERM
+
+[Install]
+WantedBy=multi-user.target
