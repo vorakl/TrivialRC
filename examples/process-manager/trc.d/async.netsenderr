@@ -1,0 +1,7 @@
+# Do not react on errors, keep working
+trap 'true' ERR
+
+while true; do
+    nc localhost 1234 <<< "$(date)" &> ${NETSENDER}
+    sleep 1
+done

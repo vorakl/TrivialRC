@@ -1,0 +1,7 @@
+# Do not fail on errors
+set +e
+
+rm -f ${NETMON} ${NETLISTENER} ${NETSENDER}
+
+# Finishing  with the original exit status
+exit ${_exit_status}

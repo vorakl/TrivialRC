@@ -7,4 +7,4 @@ So, this is the solution. It consists of systemd unit that runs TrivialRC that r
 To prevent printing out stdout/stderr from all applications to the same tty at the same time by making a real mess, each async task will redirect stdout/stderr to the uniq file per task and then another async task will be tailing them line by line and prefixing lines by a task id. All uniq files for logging will be created at `boot` stage and removed at `halt` stage. By doing this, we will have on the main tty only TrvialRC's logs regarding launching tasks and probably some logs from tasks if they were sent by `log` of `warn` functions.
 All these messages will be seen by running via `journalctl`.
 
-Of course, you can ignore configuring extra async task for printing messages from apps' tasks with uniq prefixes and keep logs persistently in the same files without creating/removing them at boot/halt stages.
+Of course, you can ignore configuring extra async task for printing messages from apps' tasks with uniq prefixes and keep logs persistently in the same files without creating/removing them at `boot` and `halt` stages.

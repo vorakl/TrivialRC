@@ -212,6 +212,8 @@ hook_main_exit() {
 
     # If it fails in the `boot` stage, it appears here with 'set -e'. So, reset to +e again
     set +e
+    trap 'true' ERR
+
     log "Trying to terminate sub-processes..."
     for _pid in ${child_pids}; do
         if run -p ps -p ${_pid} &> /dev/null; then

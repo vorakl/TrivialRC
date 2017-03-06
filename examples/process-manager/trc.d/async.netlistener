@@ -1,0 +1,9 @@
+# Do not react on errors, keep working
+trap 'true' ERR
+
+while true; do
+    log "Start a network listener on the port 1234..."
+    nc -kl 1234 &> ${NETLISTENER}
+    warn "The network listener has stopped working!"
+    sleep 1
+done

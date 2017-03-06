@@ -85,14 +85,14 @@ ENTRYPOINT ["/etc/trc"]
 
 ## How to get started?
 
-To get started there are provided a few examples:
+To get started and find out some features, I suggest to go through these examples and read their readme's plus comment along the code:
 
 * [One-liners](https://github.com/vorakl/TrivialRC/blob/master/examples/one-liners/README.md) which show most common use cases and features
 * The example of using [configuration files](https://github.com/vorakl/TrivialRC/tree/master/examples/config-files) instead of command line parameters
 * A docker container that registers itself in a [Service Discovery](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-service-discovery) in the beginning, then starts some application and automatically removes the registration on exit
-* This example launches [two different applications](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-two-apps) inside one docker container and controls the availability both of them. If any of applications has stopped working by some reasons, the whole container will be stopped automatically with the appropriate exit status
+* This example launches [two different applications](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-two-apps) inside one docker container and controls the availability both of them. If any of applications has stopped working by some reasons, the whole container will be stopped automatically with an appropriate exit status
 * The example of building [docker base images](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-base-images) with TrivialRC as an ENTRYPOINT
-
+* Another useful use case is using TrivialRC for [process managing](https://github.com/vorakl/TrivialRC/tree/master/examples/process-manager) of a group of processes which represent one compound application and can be invoked then on the system from the Sysdemd 
 
 ## Verbose levels
 
