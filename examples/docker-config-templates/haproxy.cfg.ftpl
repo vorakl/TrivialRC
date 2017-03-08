@@ -1,0 +1,25 @@
+global
+    log /host-journal/dev-log local0
+    maxconn ${MAXCONN:-2000}
+    stats socket /tmp/haproxy.sock
+
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    retries 3
+    option  redispatch
+    option  forwardfor
+    timeout connect ${TIMEOUT_CONNECT:-5000}
+    timeout client  ${TIMEOUT_CLIENT:-10000}
+    timeout server  ${TIMEOUT_SERVER:-10000}
+
+frontend web
+    bind ${BIND_IP:-127.0.0.1}:80
+    default_backend web_dyn
+
+backend web_dyn
+   balance ${LB_ALG:-roundrobin}
+$(IFS=' '; for host in $(tr ' ' '\n' <<< ${!BACKENDS[@]} | sort -n | tr '\n' ' '); do echo "   server ${host} ${BACKENDS[${host}]}:80 check"; done)
+

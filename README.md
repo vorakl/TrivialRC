@@ -94,6 +94,7 @@ To get started and find out some features, I suggest to go through these example
 * This example launches [two different applications](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-two-apps) inside one docker container and controls the availability both of them. If any of applications has stopped working by some reasons, the whole container will be stopped automatically with an appropriate exit status
 * The example of building [docker base images](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-base-images) with TrivialRC as an ENTRYPOINT
 * Another useful use case is using TrivialRC for [process managing](https://github.com/vorakl/TrivialRC/tree/master/examples/process-manager) of a group of processes which represent one compound application and can be invoked then on the system from the Sysdemd 
+* This solution shows how to [configure services in a docker container by using templates](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-config-templates) and environment variables
 
 ## Verbose levels
 
@@ -116,13 +117,13 @@ Depending on the value of *RC_WAIT_POLICY* environment variable it makes a decis
 The possible values are:
 
 * *wait_all* <br />
-    stops after exiting all commands and doesn't matter wether they are synchronous or asynchronous
+    stops after exiting all commands and it doesn't matter wether they are synchronous or asynchronous. Just keep in mind, if you need to catch a signal in the main process, it doesn't have to be blocked by some foreground (sync) process. For example, this mode can be helpful if you need to troubleshoot a container (with `wait_any` policy) where some async task fails and the whole container gets stopped by this immediately. In this case, you can change a policy to `wait_all` and run BASH on the foreground like `docker -e RC_WAIT_POLICY=wait_all some-container bash`
 * *wait_any*  [default] <br />
-    stops after exiting any of background commands and if there are no foreground commands working at that moment. It makes sense to use this mode if all commands are asynchronous (background)
+    stops after exiting any of background commands and if there are no foreground commands working at that moment. It makes sense to use this mode if all commands are **asynchronous** (background). For example, if you need to start more than one process in the docker container, they all have to be asynchronous. Then, the main processed will be able to catch signals (for instance, from a docker daemon) and wait for finishing all other async processes.
 * *wait_err* <br />
-    stops after the first failed command. It make sense to use this mode with synchronous (foreground) commands only. For example, if you need to iterate synchronously over the list of command and to stop only if one of them has failed.
+    stops after the first failed command. It make sense to use this mode with **synchronous** (foreground) commands only. For example, if you need to iterate sequentially over the list of commands and to stop only if one of them has failed.
 * *wait_forever* <br />
-    there is a special occasion when a process has doubled forked to become a daemon, it's still running but for the parent shell such process is considered as finished. So, in this mode, TrivialRC will keep working even if all processes have finished and it has to be stopped by the signal from its parent process (such a docker daemon for example)
+    there is a special occasion when a process has doubled forked to become a daemon, it's still running but for the parent shell such process is considered as finished. So, in this mode, TrivialRC will keep working even if all processes have finished and it has to be stopped by the signal from its parent process (such as docker daemon for example).
 
 ## Integrated functions
 

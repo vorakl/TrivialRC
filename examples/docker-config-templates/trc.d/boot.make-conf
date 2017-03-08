@@ -1,0 +1,11 @@
+# import faketpl function
+. faketpl
+
+# It takes scalar from environment and makes array from it
+if [[ -n "${BACKEND}" ]]; then 
+    declare -A BACKENDS
+    eval BACKENDS=${BACKEND}; 
+fi
+
+log "Building a new config file from the template:" 
+(faketpl < /usr/local/etc/haproxy/haproxy.cfg.ftpl | tee /usr/local/etc/haproxy/haproxy.cfg)
