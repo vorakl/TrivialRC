@@ -1,5 +1,8 @@
 # Changing configuration of HAProxy in a docker container at run-time
 
+In the example, for transforming templates to configuration files is used [FakeTpl](https://github.com/vorakl/FakeTpl).
+To understand how it works it's worth following the link and read its documentation.
+
 ## Build
 
 Run this command from the directory with the example
@@ -161,7 +164,7 @@ $ curl -s http://127.0.0.1/ | grep '"host"'
   "host": "50afa4eba886", 
 ```
 
-All logs from HAProxy is being put the host's Journal and can be accessed as following:
+All logs from HAProxy is being sent to the host's Journal and can be easily accessed by filtering a sarvice name:
 
 ```bash
 $ sudo journalctl -b -f _COMM=haproxy
