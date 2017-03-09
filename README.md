@@ -151,7 +151,7 @@ The life cycle of TrivialRC consists of different stages, with different isolati
 
 1. *boot* <br />
    **Execution order**: trc.boot.* -> ./trc.d/boot.* -> [-B 'cmds' [...]] <br />
-   Command run in the same environment as main and that's why it has to be used with caution.
+   Commands run in a same environment as the main process and that's why it has to be used with caution.
    It's useful for setting up global variables which are seen in all other isolated environments.
 2. *async* <br />
    **Execution order**: trc.bg.* (deprecated) -> trc.async.* -> ./trc.d/async.* -> [-D 'cmds' [...]] <br />
@@ -162,7 +162,7 @@ The life cycle of TrivialRC consists of different stages, with different isolati
 4. *halt* <br />
    **Execution order**: trc.sd.* (deprecated) -> trc.halt.* -> ./trc.d/halt.* -> [-H 'cmds' [...]] <br />
    Commands run in the separate environment, synchronously (one by one) when the main process is finishing (on exit).
-   The exit status from the last halt command has precedence under the exit status from the main process which was supplied as ${_exit_status} variable. So you are able to keep a main exit status or rewrite it to something else.
+   An exit status from the last halt command has precedence under an exit status from the main process which was supplied as ${_exit_status} variable. So you are able to keep a main exit status or rewrite it to something else.
 
 
 ##### Version: v1.1.6
