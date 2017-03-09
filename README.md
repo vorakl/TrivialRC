@@ -10,6 +10,7 @@
 * [Verbose levels](#verbose-levels)
 * [Wait policies](#wait-policies)
 * [Integrated functions](#integrated-functions)
+* [Run stages](#run-stages)
 
 ## Introduction
 
@@ -143,6 +144,17 @@ You can also use some of internal functions in async/sync tasks:
     launches builtin or external commands without checking functions with the same name
     For instance, if you wanna run only external command from the standart PATH list, use `run -p 'command'`
     Or, if you need to check existence of the command, try `run -v 'command'`
+
+## Run stages
+
+* *boot* <br />
+    **Execution order**: trc.boot.* -> ./trc.d/boot.* -> [-B 'cmds' [...]]
+* *async* <br />
+    **Execution order**: trc.bg.* (deprecated) -> trc.async.* -> ./trc.d/async.* -> [-D 'cmds' [...]]
+* *sync* <br />
+    **Execution order**: trc.fg.* (deprecated) -> trc.sync.* -> ./trc.d/sync.* -> [-F 'cmds' [...]] -> [cmd]
+* *halt* <br />
+    **Execution order**: trc.sd.* (deprecated) -> trc.halt.* -> ./trc.d/halt.* -> [-H 'cmds' [...]]
 
 
 ##### Version: v1.1.6
