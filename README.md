@@ -147,14 +147,22 @@ You can also use some of internal functions in async/sync tasks:
 
 ## Run stages
 
-* *boot* <br />
-    **Execution order**: trc.boot.* -> ./trc.d/boot.* -> [-B 'cmds' [...]]
-* *async* <br />
-    **Execution order**: trc.bg.* (deprecated) -> trc.async.* -> ./trc.d/async.* -> [-D 'cmds' [...]]
-* *sync* <br />
-    **Execution order**: trc.fg.* (deprecated) -> trc.sync.* -> ./trc.d/sync.* -> [-F 'cmds' [...]] -> [cmd]
-* *halt* <br />
-    **Execution order**: trc.sd.* (deprecated) -> trc.halt.* -> ./trc.d/halt.* -> [-H 'cmds' [...]]
+The life cycle of TrivialRC consists of different stages, with different isolation and they are switched in the next order:
+
+1. *boot* <br />
+   **Execution order**: trc.boot.* -> ./trc.d/boot.* -> [-B 'cmds' [...]]
+   Command run in the same environment as main and that's why it has to be used with caution.
+   It's useful for setting up global variables which are seen in all other isolated environments.
+2. *async* <br />
+   **Execution order**: trc.bg.* (deprecated) -> trc.async.* -> ./trc.d/async.* -> [-D 'cmds' [...]]
+   Commands run in the separate environment, asynchronously (all run in parallel), on the background and do not affect the main process
+3. *sync* <br />
+   **Execution order**: trc.fg.* (deprecated) -> trc.sync.* -> ./trc.d/sync.* -> [-F 'cmds' [...]] -> [cmd]
+   Commands run in the separate environment, synchronously (one by one), on the foreground and do not affect the main process
+4. *halt* <br />
+   **Execution order**: trc.sd.* (deprecated) -> trc.halt.* -> ./trc.d/halt.* -> [-H 'cmds' [...]]
+   Commands run in the separate environment, synchronously (one by one) when the main process is finishing (on exit).
+   The exit status from the last halt command has precedence under the exit status from the main process which was supplied as ${_exit_status} variable. So you are able to keep a main exit status or rewrite it to something else.
 
 
 ##### Version: v1.1.6
