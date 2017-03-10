@@ -147,20 +147,35 @@ You can also use some of internal functions in async/sync tasks:
 
 ## Run stages
 
-The life cycle of TrivialRC consists of different stages, with different isolation and they are switched in the next order:
+The life cycle of TrivialRC consists of different stages, with different isolation.
+By default, all configuration files (or trc.d/ directory with them) are searched in the directory from which was executed `trc` itself. For instance, if you've installed trc in /usr/bin/ and run it by using only its name, like `trc`, then configuration will also be searched in /usr/bin/. Though, you can place configuration files anywhere you like and specify their location in the `-w|--workdir` option, like `trc -w /etc/`. 
+
+Let's check that:
+
+```bash
+$ which trc
+/usr/bin/trc
+
+$ trc -B 'echo $dir_name'
+/usr/bin
+
+$ trc -w /etc -B 'echo $dir_name'
+/etc
+```
+All stages are executed through in the next order:
 
 1. *boot* <br />
-   **Execution order**: trc.boot.* -> ./trc.d/boot.* -> [-B 'cmds' [...]] <br />
+   **Execution order**: trc.boot.* -> trc.d/boot.* -> [-B 'cmds' [...]] <br />
    Commands run in a same environment as the main process and that's why it has to be used with caution.
    It's useful for setting up global variables which are seen in all other isolated environments.
 2. *async* <br />
-   **Execution order**: trc.bg.* (deprecated) -> trc.async.* -> ./trc.d/async.* -> [-D 'cmds' [...]] <br />
+   **Execution order**: trc.async.* -> trc.d/async.* -> [-D 'cmds' [...]] <br />
    Commands run in the separate environment, asynchronously (all run in parallel), on the background and do not affect the main process
 3. *sync* <br />
-   **Execution order**: trc.fg.* (deprecated) -> trc.sync.* -> ./trc.d/sync.* -> [-F 'cmds' [...]] -> [cmd] <br />
+   **Execution order**: trc.sync.* -> trc.d/sync.* -> [-F 'cmds' [...]] -> [cmd] <br />
    Commands run in the separate environment, synchronously (one by one), on the foreground and do not affect the main process
 4. *halt* <br />
-   **Execution order**: trc.sd.* (deprecated) -> trc.halt.* -> ./trc.d/halt.* -> [-H 'cmds' [...]] <br />
+   **Execution order**: trc.halt.* -> trc.d/halt.* -> [-H 'cmds' [...]] <br />
    Commands run in the separate environment, synchronously (one by one) when the main process is finishing (on exit).
    An exit status from the last halt command has precedence under an exit status from the main process which was supplied as ${_exit_status} variable. So you are able to keep a main exit status or rewrite it to something else.
 
