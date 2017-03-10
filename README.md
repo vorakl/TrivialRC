@@ -6,7 +6,7 @@
 * [Installation](#installation)
     * [The installation on top of CentOS Linux base image](#the-installation-on-top-of-centos-linux-base-image)
     * [The installation on top of Alpine Linux base image](#the-installation-on-top-of-alpine-linux-base-image)
-* [How to get started?](#how-to-get-started)
+* [How to get started (examples)?](#how-to-get-started)
 * [Verbose levels](#verbose-levels)
 * [Wait policies](#wait-policies)
 * [Integrated functions](#integrated-functions)
@@ -120,7 +120,7 @@ Depending on the value of *RC_WAIT_POLICY* environment variable it makes a decis
 The possible values are:
 
 * *wait_all* <br />
-    stops after exiting all commands and it doesn't matter wether they are synchronous or asynchronous. Just keep in mind, if you need to catch a signal in the main process, it doesn't have to be blocked by some foreground (sync) process. For example, this mode can be helpful if you need to troubleshoot a container (with `wait_any` policy) where some async task fails and the whole container gets stopped by this immediately. In this case, you can change a policy to `wait_all` and run BASH on the foreground like `docker -e RC_WAIT_POLICY=wait_all some-container bash`
+    stops after exiting all commands and it doesn't matter whether they are synchronous or asynchronous. Just keep in mind, if you need to catch a signal in the main process, it doesn't have to be blocked by some foreground (sync) process. For example, this mode can be helpful if you need to troubleshoot a container (with `wait_any` policy) where some async task fails and the whole container gets stopped by this immediately. In this case, you can change a policy to `wait_all` and run BASH on the foreground like `docker -e RC_WAIT_POLICY=wait_all some-container bash`
 * *wait_any*  [default] <br />
     stops after exiting any of background commands and if there are no foreground commands working at that moment. It makes sense to use this mode if all commands are **asynchronous** (background). For example, if you need to start more than one process in the docker container, they all have to be asynchronous. Then, the main processed will be able to catch signals (for instance, from a docker daemon) and wait for finishing all other async processes.
 * *wait_err* <br />
