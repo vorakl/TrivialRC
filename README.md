@@ -96,6 +96,7 @@ To get started and find out some features, I suggest to go through these example
 * The example of building [docker base images](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-base-images) with TrivialRC as an ENTRYPOINT
 * Another useful use case is using TrivialRC for [process managing](https://github.com/vorakl/TrivialRC/tree/master/examples/process-manager) of a group of processes which represent one compound application and can be invoked then on the system from the Sysdemd 
 * This solution shows how to [configure services in a docker container by using templates](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-config-templates) and environment variables
+* This trick shows how to [create configuration on the fly](https://github.com/vorakl/TrivialRC/tree/master/examples/self-configuring) from the `boot` stage
 
 ## Verbose levels
 
@@ -170,10 +171,14 @@ All stages are executed through in the next order:
    It's useful for setting up global variables which are seen in all other isolated environments.
 2. *async* <br />
    **Execution order**: trc.async.* -> trc.d/async.* -> [-D 'cmds' [...]] <br />
-   Commands run in the separate environment, asynchronously (all run in parallel), on the background and do not affect the main process
+   Commands run in the separate environment, asynchronously (all run in parallel), on the background and do not affect the main process.
+If you are going to run more than one async commands, don't forget that default RC_WAIT_POLICY is set to 'wait_any' and the executing process will be stopped after the first finished command and only if there wasn't any running foreground (sync) command that could block the reaction on the TERM signal. So, there are two options: 
+   * to wait until all async commands have finished, you need to set RC_WAIT_POLICY to 'wait_all'.
+   * to wait for the first finished command, do not change the default value of RC_WAIT_POLICY but run only async commands.
 3. *sync* <br />
    **Execution order**: trc.sync.* -> trc.d/sync.* -> [-F 'cmds' [...]] -> [cmd] <br />
-   Commands run in the separate environment, synchronously (one by one), on the foreground and do not affect the main process
+   Commands run in the separate environment, synchronously (one by one), on the foreground and do not affect the main process.
+   if you are going to run more than one sync commands, don't forget to change RC_WAIT_POLICY to 'wait_all' or 'wait_err', otherwise, the executing process will be stopped after the first command.
 4. *halt* <br />
    **Execution order**: trc.halt.* -> trc.d/halt.* -> [-H 'cmds' [...]] <br />
    Commands run in the separate environment, synchronously (one by one) when the main process is finishing (on exit).
