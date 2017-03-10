@@ -1,0 +1,8 @@
+local _ip _params
+
+for _ip in "$@"; do
+    _params="${_params}-D 'ssh -i admin.key -o StrictHostKeyChecking=no admin@${_ip} ${TASK_CMD:-uptime}' "
+done
+         
+# replaces all command line parameters
+eval set -- ${_params}

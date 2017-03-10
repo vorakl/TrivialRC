@@ -97,6 +97,7 @@ To get started and find out some features, I suggest to go through these example
 * Another useful use case is using TrivialRC for [process managing](https://github.com/vorakl/TrivialRC/tree/master/examples/process-manager) of a group of processes which represent one compound application and can be invoked then on the system from the Sysdemd 
 * This solution shows how to [configure services in a docker container by using templates](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-config-templates) and environment variables
 * This trick shows how to [create configuration on the fly](https://github.com/vorakl/TrivialRC/tree/master/examples/self-configuring) from the `boot` stage
+* [Serial launching of group of parallel processes](https://github.com/vorakl/TrivialRC/tree/master/examples/sync-run-of-async-groups) and fails immediately if some group failed
 
 ## Verbose levels
 
@@ -151,7 +152,7 @@ You can also use some of internal functions in async/sync tasks:
 The life cycle of TrivialRC consists of different stages, with different isolation.
 By default, all configuration files (or trc.d/ directory with them) are searched in the directory from which was executed `trc` itself. For instance, if you've installed trc in /usr/bin/ and run it by using only its name, like `trc`, then configuration will also be searched in /usr/bin/. Though, you can place configuration files anywhere you like and specify their location in the `-w|--workdir` option, like `trc -w /etc/`. 
 
-Let's check that:
+Let's check:
 
 ```bash
 $ which trc

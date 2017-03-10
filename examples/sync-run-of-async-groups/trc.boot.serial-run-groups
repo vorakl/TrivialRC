@@ -1,0 +1,16 @@
+# The script gets IP address, 
+#   converts them to lines by ${ASYNC_TASKS} elements (or 10 by default), 
+#   iterates over the list and for each new line 
+#   forms a part of a future command line for itself and then
+#   updates its own command line to have a number of sync process when
+#   it has moved to the next stage.
+
+local _ips _params
+
+while read _ips; do
+    _params="${_params}-F 'RC_WAIT_POLICY=wait_all trc -w sub-trc ${_ips}' "
+done < <( curl -sSLf 'http://service-discovery.domain.com/api/nodes' | \
+          jq -r '.[] | select(.ipaddr != null) | .ipaddr' | \
+          xargs -n ${ASYNC_TASKS:-10} echo )
+
+eval set -- "$@" ${_params}
