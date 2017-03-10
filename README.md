@@ -186,5 +186,5 @@ If you are going to run more than one async commands, don't forget that default 
    An exit status from the last halt command has precedence under an exit status from the main process which was supplied as ${_exit_status} variable. So you are able to keep a main exit status or rewrite it to something else.
 
 
-##### Version: v1.1.6
+##### Version: v1.1.7
 ##### Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name

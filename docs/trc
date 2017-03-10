@@ -3,7 +3,7 @@
 # TrivialRC
 # The minimalistic RC system and process manager for containers and applications
 # Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name
-trc_version="v1.1.6"
+trc_version="v1.1.7"
 
 set +e # Do not exit on errors by default
 if [[ "${RC_DEBUG}" = "true" ]]; then
@@ -84,7 +84,7 @@ main() {
 
     debug "Looking for \`async\` scripts and commands..."
     # Reads commands from files to run on the background (in parallel)
-    for _file in $(run -p ls ${dir_name}/trc.bg.* ${dir_name}/trc.async.* ${dir_name}/trc.d/async.* 2>/dev/null || true); do
+    for _file in $(run -p ls ${dir_name}/trc.async.* ${dir_name}/trc.d/async.* 2>/dev/null || true); do
         (
             # Run this on any exit, catching the exitcode of the "main" command,
             # printing additional info and finishing up this sub-program with the right exitcode
@@ -120,7 +120,7 @@ main() {
 
     debug "Looking for \`sync\` scripts and commands..." 
     # Checks for foreground tasks in files (sequentially)
-    for _file in $(run -p ls ${dir_name}/trc.fg.* ${dir_name}/trc.sync.* ${dir_name}/trc.d/sync.* 2>/dev/null || true); do
+    for _file in $(run -p ls ${dir_name}/trc.sync.* ${dir_name}/trc.d/sync.* 2>/dev/null || true); do
         (
             trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "${_file}"' EXIT
             trap '_es_ft_s=$?; trap '_ignore_ft_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_ft_s)"; exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
@@ -212,6 +212,8 @@ hook_main_exit() {
 
     # If it fails in the `boot` stage, it appears here with 'set -e'. So, reset to +e again
     set +e
+    trap 'true' ERR
+
     log "Trying to terminate sub-processes..."
     for _pid in ${child_pids}; do
         if run -p ps -p ${_pid} &> /dev/null; then
@@ -241,7 +243,7 @@ hook_main_exit() {
     if [[ boot_stage_left -eq 1 ]]; then
         debug "Looking for \`halt\` scripts..."
         # Checks for shutdown tasks in files (sequentially)
-        for _file in $(run -p ls ${dir_name}/trc.sd.* ${dir_name}/trc.halt.* ${dir_name}/trc.d/halt.* 2>/dev/null || true); do
+        for _file in $(run -p ls ${dir_name}/trc.halt.* ${dir_name}/trc.d/halt.* 2>/dev/null || true); do
             halt_cmds_exist=1
             (
                 set -e # Exit on errors in the sub-shell
