@@ -1,6 +1,6 @@
 * 1.1.7
     * ADD: more examples
-    * DEL: deprecated names of configuration files have been removed (trc.fg.*, trc.bg.*, trc.sd.*)
+    * DEL: deprecated names of configuration files have been removed (`trc.fg.*`, `trc.bg.*`, `trc.sd.*`)
 * 1.1.6
     * FIX: now it ignores errors in the main exit hook
     * ADD: more examples
