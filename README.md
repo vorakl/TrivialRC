@@ -100,6 +100,7 @@ To get started and find out some features, I suggest to go through these example
 * This solution shows how to [configure services in a docker container by using templates](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-config-templates) and environment variables
 * This trick shows how to [create configuration on the fly](https://github.com/vorakl/TrivialRC/tree/master/examples/self-configuring) from the `boot` stage
 * [Serial launching of a group of parallel processes](https://github.com/vorakl/TrivialRC/tree/master/examples/sync-run-of-async-groups) and failing immediately if some group failed
+* [Reliable tests](https://github.com/vorakl/TrivialRC/tree/master/examples/reliable-tests-of-docker-images) of docker images
 
 ## Command line options
 
@@ -229,7 +230,7 @@ You can also use some of internal functions in async/sync tasks:
 
 ## Useful global variables
 
-* `MAINPID`, for sending signals to the main process
+* `MAINPID`, for sending signals to the main process ([example1](https://github.com/vorakl/TrivialRC/tree/master/examples/reliable-tests-of-docker-images))
 * `_exit_status`, for checking or rewriting an exit status of the whole script ([example1](https://github.com/vorakl/TrivialRC/blob/master/examples/process-manager/trc.d/halt.remove-logs), [example2](https://github.com/vorakl/TrivialRC/blob/master/examples/docker-service-discovery/trc.d/halt.sd-unreg))
 
 
