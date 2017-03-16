@@ -13,7 +13,12 @@ The container with a service resides in [vorakl/centos-opensmtpd](https://hub.do
 $ docker run -d --name smtpd --net host vorakl/centos-opensmtpd
 ```
 
-Let's add two (`async`, -D and `halt`, -H) additional commands to test the service and check the result:
+Let's add two additional commands to test the service and check the result:
+
+* async: `-D 'sleep 3; smtpctl show status && kill -10 ${MAINPID}'`
+* halt: `-H 'if [[ ${_exit_status} -eq 138 ]]; then exit 0; else exit ${_exit_status}; fi'`
+
+That's how it looks like:
 
 ```bash
 $ docker run --rm vorakl/centos-opensmtpd -H 'if [[ ${_exit_status} -eq 138 ]]; then exit 0; else exit ${_exit_status}; fi' -D 'sleep 3; smtpctl show status && kill -10 ${MAINPID}'
