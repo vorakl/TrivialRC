@@ -1,12 +1,19 @@
 # Reliable tests of docker images
 
-If you have automated builds of docker images, you need to be sure that these images are not only built successfuly but also run services. Sometimes, services fail immidiately after they were started up. 
+If you have automated builds of docker images, you need to be sure that these images are not only built successfuly but also run services. Sometimes, services fail immediately after they were started up. 
 
 This is an example of how services can be reliably tested without any extra efforts by adding a test proccess on the background and then, checking the exit status on exit. 
 
-As an example docker image I'm going to use [OpenSMTPD](https://github.com/vorakl/docker-images/tree/master/centos-opensmtpd) service image. Then, inject a background test command. In case of a success test, it will send a specific signal to the main process and cause by this (because a default wait policy is `wait_any`) a stop the whole container. On exit, I'll inject a `halt` command to check if the main process has cought my signal (128 + 10 = 138). If yes, I'll rewrite an exit status to 0 (success). Otherwise, the script will finish with some other error.
+As an example docker image I'm going to use [OpenSMTPD](https://github.com/vorakl/docker-images/tree/master/centos-opensmtpd) service image. Then, inject a background test command. In case of a success test, it will send a specific signal to the main process and cause (because a default wait policy is `wait_any`) a stop the whole container. On exit, I'll inject a `halt` command to check if the main process has cought my signal (128 + 10 = 138). If yes, I'll rewrite an exit status to 0 (success). Otherwise, the script will finish with some other error.
 
-So many words but in fact it looks much more simple. It just a one-liner:
+So many words but in fact it looks much more simple.
+The container with a service resides in [vorakl/centos-opensmtpd](https://hub.docker.com/r/vorakl/centos-opensmtpd/) and can be simply started as
+
+```bash
+$ docker run -d --name smtpd --net host vorakl/centos-opensmtpd
+```
+
+Let's add two (`async`, -D and `halt`, -H) additional commands to test the service and check the result:
 
 ```bash
 $ docker run --rm vorakl/centos-opensmtpd -H 'if [[ ${_exit_status} -eq 138 ]]; then exit 0; else exit ${_exit_status}; fi' -D 'sleep 3; smtpctl show status && kill -10 ${MAINPID}'
