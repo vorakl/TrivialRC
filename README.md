@@ -10,6 +10,7 @@
 * [Verbose levels](#verbose-levels)
 * [Wait policies](#wait-policies)
 * [Integrated functions](#integrated-functions)
+* [Command line options](#command-line-options)
 * [Run stages](#run-stages)
 
 ## Introduction
@@ -147,6 +148,46 @@ You can also use some of internal functions in async/sync tasks:
     For instance, if you wanna run only external command from the standart PATH list, use `run -p 'command'`
     Or, if you need to check existence of the command, try `run -v 'command'`
 
+## Command line options
+
+That's important to notice that the order of command line options *is not* equal to their run order.
+In general it looks like:
+
+```bash
+$ trc [-h|--help] [-v|--version] [-w|--workdir 'dir'] [-B 'cmds' [...]] [-H 'cmds' [...]] [-D 'cmds' [...]] [-F 'cmds' [...]] [command [args]]
+```
+
+Where 
+
+* `-h` or `--help`, prints a short help message
+* `-v` or `--version`, prints a current version  
+* `-w 'directory'` or `--workdir 'directory'`, sets a location with configuration files
+* `-B 'command1; command2; ...'`, boot commands
+* `-H 'command1; command2; ...'`, halt commands
+* `-D 'command1; command2; ...'`, async commands
+* `-F 'command1; command2; ...'`, sync commands
+* `command [args]`, a sync command
+
+So, command line options have to be supplied in the next order
+
+1. `-B`, zero or more 
+2. `-H`, zero or more
+3. `-D`, zero or more
+4. `-F`, zero or more
+5. `command with arguments` (without an option), zero or only one
+
+Examples:
+
+```bash
+$ ./trc -B 'name=$(id -un); echo booting...' -H 'echo halting...' -F 'echo Hello, ${name}!'
+
+$ RC_WAIT_POLICY=wait_all ./trc -D 'echo Hello' -D 'sleep 2; echo World' echo waiting...
+
+$ RC_VERBOSE=true ./trc -F 'echo -n "Hello "; echo World'
+
+$ ./trc --workdir /opt/app
+```
+
 ## Run stages
 
 The life cycle of TrivialRC consists of different stages, with different isolation.
@@ -183,7 +224,7 @@ If you are going to run more than one async commands, don't forget that default 
 4. *halt* <br />
    **Execution order**: trc.halt.* -> trc.d/halt.* -> [-H 'cmds' [...]] <br />
    Commands run in the separate environment, synchronously (one by one) when the main process is finishing (on exit).
-   An exit status from the last halt command has precedence under an exit status from the main process which was supplied as ${_exit_status} variable. So you are able to keep a main exit status or rewrite it to something else.
+   An exit status from the last halt command has precedence under an exit status from the main process which was supplied as ${_exit_status} variable. So you are able to keep a main exit status (by finishing `exit ${_exit_status}`) or rewrite it to something else but anyway, if you have at least one halt command, TrivialRC will finish with an exit status of this halt command.
 
 
 ##### Version: v1.1.7
