@@ -12,6 +12,7 @@
 * [Wait policies](#wait-policies)
 * [Verbose levels](#verbose-levels)
 * [Integrated functions](#integrated-functions)
+* [Useful global variables](#useful-global-variables)
 
 ## Introduction
 
@@ -225,6 +226,11 @@ You can also use some of internal functions in async/sync tasks:
     launches builtin or external commands without checking functions with the same name
     For instance, if you wanna run only external command from the standart PATH list, use `run -p 'command'`
     Or, if you need to check existence of the command, try `run -v 'command'`
+
+## Useful global variables
+
+* `MAINPID`, for sending signals to the main process
+* `_exit_status`, for checking or rewriting an exit status of the whole script ([example1](https://github.com/vorakl/TrivialRC/blob/master/examples/process-manager/trc.d/halt.remove-logs), [example2](https://github.com/vorakl/TrivialRC/blob/master/examples/docker-service-discovery/trc.d/halt.sd-unreg))
 
 
 ##### Version: v1.1.7
