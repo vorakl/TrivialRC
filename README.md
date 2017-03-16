@@ -234,5 +234,5 @@ You can also use some of internal functions in async/sync tasks:
 * `_exit_status`, for checking or rewriting an exit status of the whole script ([example1](https://github.com/vorakl/TrivialRC/blob/master/examples/process-manager/trc.d/halt.remove-logs), [example2](https://github.com/vorakl/TrivialRC/blob/master/examples/docker-service-discovery/trc.d/halt.sd-unreg))
 
 
-##### Version: v1.1.7
+##### Version: v1.1.8
 ##### Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name
