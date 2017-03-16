@@ -7,11 +7,11 @@
     * [The installation on top of CentOS Linux base image](#the-installation-on-top-of-centos-linux-base-image)
     * [The installation on top of Alpine Linux base image](#the-installation-on-top-of-alpine-linux-base-image)
 * [How to get started (examples)?](#how-to-get-started)
-* [Verbose levels](#verbose-levels)
-* [Wait policies](#wait-policies)
-* [Integrated functions](#integrated-functions)
 * [Command line options](#command-line-options)
 * [Run stages](#run-stages)
+* [Wait policies](#wait-policies)
+* [Verbose levels](#verbose-levels)
+* [Integrated functions](#integrated-functions)
 
 ## Introduction
 
@@ -98,55 +98,7 @@ To get started and find out some features, I suggest to go through these example
 * Another useful use case is using TrivialRC for [process managing](https://github.com/vorakl/TrivialRC/tree/master/examples/process-manager) of a group of processes which represent one compound application and can be invoked then on the system from the Sysdemd 
 * This solution shows how to [configure services in a docker container by using templates](https://github.com/vorakl/TrivialRC/tree/master/examples/docker-config-templates) and environment variables
 * This trick shows how to [create configuration on the fly](https://github.com/vorakl/TrivialRC/tree/master/examples/self-configuring) from the `boot` stage
-* [Serial launching of group of parallel processes](https://github.com/vorakl/TrivialRC/tree/master/examples/sync-run-of-async-groups) and fails immediately if some group failed
-
-## Verbose levels
-
-By default, TrivailRC doesn't print any service messages at all.
-It only sends `stdout` and `stderr` of all isolated sub-shells to the same terminal.
-If another behavior is needed, you can redirect any of them inside each sub-shell separately.
-To increase the verbosity of rc system there are provided a few environment variables:
-
-* *RC_DEBUG* (true|false) [false] <br />
-    Prints out all commands which are being executed
-* *RC_VERBOSE* (true|false) [false] <br />
-    Prints out service information
-* *RC_VERBOSE_EXTRA* (true|false) [false] <br />
-    Prints out additional service information
-
-## Wait policies
-
-The rc system reacts differently when one of controlled processes finishes.
-Depending on the value of *RC_WAIT_POLICY* environment variable it makes a decision when exactly it should stop itself.
-The possible values are:
-
-* *wait_all* <br />
-    stops after exiting all commands and it doesn't matter whether they are synchronous or asynchronous. Just keep in mind, if you need to catch a signal in the main process, it doesn't have to be blocked by some foreground (sync) process. For example, this mode can be helpful if you need to troubleshoot a container (with `wait_any` policy) where some async task fails and the whole container gets stopped by this immediately. In this case, you can change a policy to `wait_all` and run BASH on the foreground like `docker -e RC_WAIT_POLICY=wait_all some-container bash`
-* *wait_any*  [default] <br />
-    stops after exiting any of background commands and if there are no foreground commands working at that moment. It makes sense to use this mode if all commands are **asynchronous** (background). For example, if you need to start more than one process in the docker container, they all have to be asynchronous. Then, the main processed will be able to catch signals (for instance, from a docker daemon) and wait for finishing all other async processes.
-* *wait_err* <br />
-    stops after the first failed command. It make sense to use this mode with **synchronous** (foreground) commands only. For example, if you need to iterate sequentially over the list of commands and to stop only if one of them has failed.
-* *wait_forever* <br />
-    there is a special occasion when a process has doubled forked to become a daemon, it's still running but for the parent shell such process is considered as finished. So, in this mode, TrivialRC will keep working even if all processes have finished and it has to be stopped by the signal from its parent process (such as docker daemon for example).
-
-## Integrated functions
-
-You can also use some of internal functions in async/sync tasks:
-
-* *say* <br />
-    prints only if RC_VERBOSE is set
-* *log* <br />
-    does the same as `say` but add additional info about time, PID, namespace, etc
-* *warn* <br />
-    does the say as `log` but sends a mesage to stderr
-* *err* <br />
-    does the same as `warn` but exits with an error (exit status = 1)
-* *debug* <br />
-    does the same as `log` but only if RC_VERBOSE_EXTRA is set
-* *run* <br />
-    launches builtin or external commands without checking functions with the same name
-    For instance, if you wanna run only external command from the standart PATH list, use `run -p 'command'`
-    Or, if you need to check existence of the command, try `run -v 'command'`
+* [Serial launching of a group of parallel processes](https://github.com/vorakl/TrivialRC/tree/master/examples/sync-run-of-async-groups) and failing immediately if some group failed
 
 ## Command line options
 
@@ -224,7 +176,55 @@ If you are going to run more than one async commands, don't forget that default 
 4. *halt* <br />
    **Execution order**: trc.halt.* -> trc.d/halt.* -> [-H 'cmds' [...]] <br />
    Commands run in the separate environment, synchronously (one by one) when the main process is finishing (on exit).
-   An exit status from the last halt command has precedence under an exit status from the main process which was supplied as ${_exit_status} variable. So you are able to keep a main exit status (by finishing `exit ${_exit_status}`) or rewrite it to something else but anyway, if you have at least one halt command, TrivialRC will finish with an exit status of this halt command.
+   An exit status from the last halt command has precedence under an exit status from the main process which was supplied as ${_exit_status} variable. So you are able to keep a main exit status (by finishing as `exit ${_exit_status}`) or rewrite it to something else but anyway, if you have at least one halt command, TrivialRC will finish with an exit status of this halt command.
+
+## Wait policies
+
+The rc system reacts differently when one of controlled processes finishes.
+Depending on the value of *RC_WAIT_POLICY* environment variable it makes a decision when exactly it should stop itself.
+The possible values are:
+
+* *wait_all* <br />
+    stops after exiting all commands and it doesn't matter whether they are synchronous or asynchronous. Just keep in mind, if you need to catch a signal in the main process, it doesn't have to be blocked by some foreground (sync) process. For example, this mode can be helpful if you need to troubleshoot a container (with `wait_any` policy) where some async task fails and the whole container gets stopped by this immediately. In this case, you can change a policy to `wait_all` and run BASH on the foreground like `docker -e RC_WAIT_POLICY=wait_all some-container bash`
+* *wait_any*  [default] <br />
+    stops after exiting any of background commands and if there are no foreground commands working at that moment. It makes sense to use this mode if all commands are **asynchronous** (background). For example, if you need to start more than one process in the docker container, they all have to be asynchronous. Then, the main processed will be able to catch signals (for instance, from a docker daemon) and wait for finishing all other async processes.
+* *wait_err* <br />
+    stops after the first failed command. It make sense to use this mode with **synchronous** (foreground) commands only. For example, if you need to iterate sequentially over the list of commands and to stop only if one of them has failed.
+* *wait_forever* <br />
+    there is a special occasion when a process has doubled forked to become a daemon, it's still running but for the parent shell such process is considered as finished. So, in this mode, TrivialRC will keep working even if all processes have finished and it has to be stopped by the signal from its parent process (such as docker daemon for example).
+
+## Verbose levels
+
+By default, TrivailRC doesn't print any service messages at all.
+It only sends `stdout` and `stderr` of all isolated sub-shells to the same terminal.
+If another behavior is needed, you can redirect any of them inside each sub-shell separately.
+To increase the verbosity of rc system there are provided a few environment variables:
+
+* *RC_DEBUG* (true|false) [false] <br />
+    Prints out all commands which are being executed
+* *RC_VERBOSE* (true|false) [false] <br />
+    Prints out service information
+* *RC_VERBOSE_EXTRA* (true|false) [false] <br />
+    Prints out additional service information
+
+## Integrated functions
+
+You can also use some of internal functions in async/sync tasks:
+
+* *say* <br />
+    prints only if RC_VERBOSE is set
+* *log* <br />
+    does the same as `say` but add additional info about time, PID, namespace, etc
+* *warn* <br />
+    does the say as `log` but sends a mesage to stderr
+* *err* <br />
+    does the same as `warn` but exits with an error (exit status = 1)
+* *debug* <br />
+    does the same as `log` but only if RC_VERBOSE_EXTRA is set
+* *run* <br />
+    launches builtin or external commands without checking functions with the same name
+    For instance, if you wanna run only external command from the standart PATH list, use `run -p 'command'`
+    Or, if you need to check existence of the command, try `run -v 'command'`
 
 
 ##### Version: v1.1.7
