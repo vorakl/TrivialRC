@@ -1,4 +1,4 @@
-# Reliable tests of docker images
+# Reliable tests for docker images
 
 If you have automated builds of docker images, you need to be sure that these images are not only built successfuly but also run services. Sometimes, services fail immediately after they were started up. 
 
