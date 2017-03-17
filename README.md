@@ -89,7 +89,7 @@ ENTRYPOINT ["/etc/trc"]
 
 ## How to get started?
 
-To get started and find out some features, basically, I suggest to go through [all available examples](https://github.com/vorakl/TrivialRC/tree/master/examples) and read their readmes plus comments along the code but to start from [One-liners](https://github.com/vorakl/TrivialRC/blob/master/examples/one-liners/README.md) which show most common use cases and features.
+To get started and find out some features, basically, I suggest to go through [all available examples](https://github.com/vorakl/TrivialRC/tree/master/examples) and read their readmes plus comments along the code but to start from [one-liners](https://github.com/vorakl/TrivialRC/blob/master/examples/one-liners/README.md) which show most common use cases and features.
 
 ## Command line options
 
@@ -219,7 +219,7 @@ You can also use some of internal functions in async/sync tasks:
 
 ## Useful global variables
 
-* `MAINPID`, for sending signals to the main process ([example1](https://github.com/vorakl/TrivialRC/tree/master/examples/reliable-tests-of-docker-images))
+* `MAINPID`, for sending signals to the main process ([example1](https://github.com/vorakl/TrivialRC/tree/master/examples/reliable-tests-for-docker-images))
 * `_exit_status`, for checking or rewriting an exit status of the whole script ([example1](https://github.com/vorakl/TrivialRC/blob/master/examples/process-manager/trc.d/halt.remove-logs), [example2](https://github.com/vorakl/TrivialRC/blob/master/examples/docker-service-discovery/trc.d/halt.sd-unreg))
 
 
