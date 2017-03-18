@@ -1,8 +1,8 @@
 # Reliable tests for docker images
 
-If you have automated builds of docker images, you need to be sure that these images are not only built successfuly but also run services. Sometimes, services fail immediately after they were started up. 
+If you have automated builds of docker images, you need to be sure that these images are not only built successfuly but also run services. Sometimes, services fail immediately after they were started up in a container because of different reasons like segmentation fault, lack of some libraries because they were moved by an upstream package, wrong system permissions or something else that is hard to be predicted and cannot be noticed without actually running a service and testing that it is up and fully functional.
 
-This is an example of how services can be reliably tested without any extra efforts by adding a test proccess on the background and then, checking the exit status on exit. 
+This is an example of how services in containers can be reliably tested without any extra efforts by adding a test process in the background which runs all necessary tests and then, checking the exit status on exit. 
 
 As an example docker image I'm going to use [OpenSMTPD](https://github.com/vorakl/docker-images/tree/master/centos-opensmtpd) service image. Then, inject a background test command. In case of a success test, it will send a specific signal to the main process and cause (because a default wait policy is `wait_any`) a stop the whole container. On exit, I'll inject a `halt` command to check if the main process has cought my signal (128 + 10 = 138). If yes, I'll rewrite an exit status to 0 (success). Otherwise, the script will finish with some other error.
 
