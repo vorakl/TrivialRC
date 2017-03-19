@@ -13,7 +13,7 @@
     * ADD: a new wait policy `wait_err` which waits for a first failed command
     * ADD: a new stage "halt" (`-H` command line option or `halt.*` files) that runs on exit from the main process
 * 1.1.3
-    * ADD: a new command line option `-F` that runs commands on the foreground (to run more than one foreground processes)
+    * ADD: a new command line option `-F` that runs commands in the foreground (to run more than one foreground processes)
 * 1.1.2
     * ADD: on exiting from sub-process it tries to kill all possible child processes if any
 * 1.1.1

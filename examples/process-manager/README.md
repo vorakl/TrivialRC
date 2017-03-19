@@ -28,12 +28,12 @@ $ sudo systemctl stop trc-example-procmgr
 $ sudo journalctl -o cat -u trc-example-procmgr
 Started The example of running TrivialRC as a process manager.
 2017-03-06 23:46:29 trc [main/29871]: The wait policy: wait_any
-2017-03-06 23:46:29 trc [main/29871]: Launching on the boot: /opt/app/trc.d/boot.create-logs
-2017-03-06 23:46:29 trc [async/29929]: Launching on the background: /opt/app/trc.d/async.netlistener-logger
-2017-03-06 23:46:29 trc [async/29933]: Launching on the background: /opt/app/trc.d/async.netmon-logger
-2017-03-06 23:46:29 trc [async/29928]: Launching on the background: /opt/app/trc.d/async.netlistener
-2017-03-06 23:46:29 trc [async/29931]: Launching on the background: /opt/app/trc.d/async.netmon
-2017-03-06 23:46:29 trc [async/29934]: Launching on the background: /opt/app/trc.d/async.netsender
+2017-03-06 23:46:29 trc [main/29871]: Launching in the boot: /opt/app/trc.d/boot.create-logs
+2017-03-06 23:46:29 trc [async/29929]: Launching in the background: /opt/app/trc.d/async.netlistener-logger
+2017-03-06 23:46:29 trc [async/29933]: Launching in the background: /opt/app/trc.d/async.netmon-logger
+2017-03-06 23:46:29 trc [async/29928]: Launching in the background: /opt/app/trc.d/async.netlistener
+2017-03-06 23:46:29 trc [async/29931]: Launching in the background: /opt/app/trc.d/async.netmon
+2017-03-06 23:46:29 trc [async/29934]: Launching in the background: /opt/app/trc.d/async.netsender
 2017-03-06 23:46:29 trc [async/29931]: Start monitoring TCP activity...
 netmon: State      Recv-Q Send-Q Local Address:Port               Peer Address:Port
 2017-03-06 23:46:29 trc [async/29928]: Start a network listener on the port 1234...
@@ -63,11 +63,11 @@ Terminated
 Terminated
 Terminated
 2017-03-06 23:46:43 trc [main/29871]: Trying to terminate sub-processes...
-2017-03-06 23:46:43 trc [async/29931]: Exiting on the background (exitcode=143): /opt/app/trc.d/async.netmon
-2017-03-06 23:46:43 trc [async/29929]: Exiting on the background (exitcode=0): /opt/app/trc.d/async.netlistener-logger
-2017-03-06 23:46:43 trc [async/29933]: Exiting on the background (exitcode=0): /opt/app/trc.d/async.netmon-logger
-2017-03-06 23:46:43 trc [async/29934]: Exiting on the background (exitcode=143): /opt/app/trc.d/async.netsender
-2017-03-06 23:46:43 trc [async/29928]: Exiting on the background (exitcode=143): /opt/app/trc.d/async.netlistener
+2017-03-06 23:46:43 trc [async/29931]: Exiting in the background (exitcode=143): /opt/app/trc.d/async.netmon
+2017-03-06 23:46:43 trc [async/29929]: Exiting in the background (exitcode=0): /opt/app/trc.d/async.netlistener-logger
+2017-03-06 23:46:43 trc [async/29933]: Exiting in the background (exitcode=0): /opt/app/trc.d/async.netmon-logger
+2017-03-06 23:46:43 trc [async/29934]: Exiting in the background (exitcode=143): /opt/app/trc.d/async.netsender
+2017-03-06 23:46:43 trc [async/29928]: Exiting in the background (exitcode=143): /opt/app/trc.d/async.netlistener
 2017-03-06 23:46:43 trc [main/29871]: terminating the child process <pid=29928>
 2017-03-06 23:46:43 trc [halt/30183]: Running the shutdown script: /opt/app/trc.d/halt.remove-logs
 2017-03-06 23:46:43 trc [main/29871]: Exiting from the shutdown script (exitcode=143): /opt/app/trc.d/halt.remove-logs

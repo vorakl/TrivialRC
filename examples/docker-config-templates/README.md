@@ -121,7 +121,7 @@ $ docker run -d --name trc-test-conftpl -e RC_VERBOSE=true -e BACKEND="([web1]=1
 
 $ docker logs -f trc-test-conftpl
 2017-03-08 18:56:48 trc [main/1]: The wait policy: wait_any
-2017-03-08 18:56:48 trc [main/1]: Launching on the boot: /etc/trc.d/boot.make-conf
+2017-03-08 18:56:48 trc [main/1]: Launching in the boot: /etc/trc.d/boot.make-conf
 2017-03-08 18:56:48 trc [main/1]: Building a new config file from the template:
 global
     log /host-journal/dev-log local0
@@ -146,7 +146,7 @@ backend web_dyn
    server web1 127.0.0.2:80 check
    server web2 127.0.0.3:80 check
    server web3 127.0.0.4:80 check
-2017-03-08 18:56:48 trc [async/30]: Launching on the background: /etc/trc.d/async.haproxy
+2017-03-08 18:56:48 trc [async/30]: Launching in the background: /etc/trc.d/async.haproxy
 <7>haproxy-systemd-wrapper: executing /usr/local/sbin/haproxy -p /run/haproxy.pid -f /usr/local/etc/haproxy/haproxy.cfg -Ds 
 ```
 

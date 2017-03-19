@@ -156,13 +156,13 @@ All stages are executed through in the next order:
    It's useful for setting up global variables which are seen in all other isolated environments.
 2. *async* <br />
    **Execution order**: trc.async.* -> trc.d/async.* -> [-D 'cmds' [...]] <br />
-   Commands run in the separate environment, asynchronously (all run in parallel), on the background and do not affect the main process.
+   Commands run in the separate environment, asynchronously (all run in parallel), in the background and do not affect the main process.
 If you are going to run more than one async commands, don't forget that default RC_WAIT_POLICY is set to 'wait_any' and the executing process will be stopped after the first finished command and only if there wasn't any running foreground (sync) command that could block the reaction on the TERM signal. So, there are two options: 
    * to wait until all async commands have finished, you need to set RC_WAIT_POLICY to 'wait_all'.
    * to wait for the first finished command, do not change the default value of RC_WAIT_POLICY but run only async commands.
 3. *sync* <br />
    **Execution order**: trc.sync.* -> trc.d/sync.* -> [-F 'cmds' [...]] -> [cmd] <br />
-   Commands run in the separate environment, synchronously (one by one), on the foreground and do not affect the main process.
+   Commands run in the separate environment, synchronously (one by one), in the foreground and do not affect the main process.
    if you are going to run more than one sync commands, don't forget to change RC_WAIT_POLICY to 'wait_all' or 'wait_err', otherwise, the executing process will be stopped after the first command.
 4. *halt* <br />
    **Execution order**: trc.halt.* -> trc.d/halt.* -> [-H 'cmds' [...]] <br />
@@ -176,7 +176,7 @@ Depending on the value of *RC_WAIT_POLICY* environment variable it makes a decis
 The possible values are:
 
 * *wait_all* <br />
-    stops after exiting all commands and it doesn't matter whether they are synchronous or asynchronous. Just keep in mind, if you need to catch a signal in the main process, it doesn't have to be blocked by some foreground (sync) process. For example, this mode can be helpful if you need to troubleshoot a container (with `wait_any` policy) where some async task fails and the whole container gets stopped by this immediately. In this case, you can change a policy to `wait_all` and run BASH on the foreground like `docker -e RC_WAIT_POLICY=wait_all some-container bash`
+    stops after exiting all commands and it doesn't matter whether they are synchronous or asynchronous. Just keep in mind, if you need to catch a signal in the main process, it doesn't have to be blocked by some foreground (sync) process. For example, this mode can be helpful if you need to troubleshoot a container (with `wait_any` policy) where some async task fails and the whole container gets stopped by this immediately. In this case, you can change a policy to `wait_all` and run BASH in the foreground like `docker -e RC_WAIT_POLICY=wait_all some-container bash`
 * *wait_any*  [default] <br />
     stops after exiting any of background commands and if there are no foreground commands working at that moment. It makes sense to use this mode if all commands are **asynchronous** (background). For example, if you need to start more than one process in the docker container, they all have to be asynchronous. Then, the main processed will be able to catch signals (for instance, from a docker daemon) and wait for finishing all other async processes.
 * *wait_err* <br />

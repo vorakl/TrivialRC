@@ -30,13 +30,13 @@ For example:
 ```bash
 $ docker run --rm -it -e ZKURL=192.168.1.173 trc-test-sd 
 2017-03-03 16:49:06 trc [main/1]: The wait policy: wait_any
-2017-03-03 16:49:06 trc [main/1]: Launching on the boot: /etc/trc.d/boot.sd-reg
+2017-03-03 16:49:06 trc [main/1]: Launching in the boot: /etc/trc.d/boot.sd-reg
 2017-03-03 16:49:06 trc [main/1]: 2a3556e6f646 has been registered at 192.168.1.173
-2017-03-03 16:49:06 trc [sync/29]: Launching on the foreground: /etc/trc.d/sync.app
+2017-03-03 16:49:06 trc [sync/29]: Launching in the foreground: /etc/trc.d/sync.app
 I am alive! Press <Ctrl+C> to exit...
 I am alive! Press <Ctrl+C> to exit...
 I am alive! Press <Ctrl+C> to exit...
-^C2017-03-03 16:49:08 trc [sync/29]: Exiting on the foreground (exitcode=130): /etc/trc.d/sync.app
+^C2017-03-03 16:49:08 trc [sync/29]: Exiting in the foreground (exitcode=130): /etc/trc.d/sync.app
 2017-03-03 16:49:09 trc [main/1]: Trying to terminate sub-processes...
 2017-03-03 16:49:09 trc [halt/44]: Running the shutdown script: /etc/trc.d/halt.sd-unreg
 2017-03-03 16:49:09 trc [halt/44]: 2a3556e6f646 has been unregistered at 192.168.1.173

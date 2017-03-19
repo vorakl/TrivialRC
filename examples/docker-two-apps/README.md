@@ -69,10 +69,10 @@ WSGI app 0 (mountpoint='') ready in 1 seconds on interpreter 0x559785bca080 pid:
 spawned uWSGI worker 1 (and the only) (pid: 26, cores: 16)
 [pid: 26|app: 0|req: 1/1] 172.17.0.1 () {32 vars in 324 bytes} [Sat Mar  4 21:26:15 2017] GET / => generated 389 bytes in 4 msecs (HTTP/1.1 200) 2 headers in 72 bytes (2 switches on core 1)
 [04/Mar/2017:21:26:15 +0000] localhost 172.17.0.1 "GET / HTTP/1.1" 200 389 "-" "curl/7.51.0" "-"
-2017-03-04 21:33:31 trc [async/16]: Exiting on the background (exitcode=0): /etc/trc.d/async.nginx
+2017-03-04 21:33:31 trc [async/16]: Exiting in the background (exitcode=0): /etc/trc.d/async.nginx
 2017-03-04 21:33:31 trc [main/1]: Trying to terminate sub-processes...
 2017-03-04 21:33:31 trc [main/1]: terminating the child process <pid=17>
-2017-03-04 21:33:31 trc [async/17]: Exiting on the background (exitcode=30): /etc/trc.d/async.uwsgi
+2017-03-04 21:33:31 trc [async/17]: Exiting in the background (exitcode=30): /etc/trc.d/async.uwsgi
 2017-03-04 21:33:32 trc [main/1]: Exited (exitcode=143)
 ```
 

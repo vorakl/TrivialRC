@@ -13,9 +13,9 @@ Hello World
 # Turns on logs
 $ RC_VERBOSE=true ./trc echo Hello World
 2017-02-22 23:10:11 trc [main/23630]: The wait policy: wait_any
-2017-02-22 23:10:11 trc [sync/23640]: Launching on the foreground: echo Hello World
+2017-02-22 23:10:11 trc [sync/23640]: Launching in the foreground: echo Hello World
 Hello World
-2017-02-22 23:10:11 trc [sync/23640]: Exiting on the foreground (exitcode=0): echo Hello World
+2017-02-22 23:10:11 trc [sync/23640]: Exiting in the foreground (exitcode=0): echo Hello World
 2017-02-22 23:10:11 trc [main/23630]: Going down. Running shutdown scripts...
 2017-02-22 23:10:11 trc [main/23630]: Handling of termination...
 2017-02-22 23:10:11 trc [main/23630]: Exited.
@@ -31,16 +31,16 @@ $ echo $?
 111
 ```
 ```bash
-# Both commands are running on the foreground but it exits after the first one by default
+# Both commands are running in the foreground but it exits after the first one by default
 $ RC_VERBOSE=true \
   RC_VERBOSE_EXTRA=true \
   ./trc -F 'echo Hello'
         echo World
 2017-02-22 23:14:35 trc [main/24314]: The wait policy: wait_any
-2017-02-22 23:14:35 trc [sync/24324]: Launching on the foreground: echo Hello
+2017-02-22 23:14:35 trc [sync/24324]: Launching in the foreground: echo Hello
 Hello
 2017-02-22 23:14:35 trc [sync/24324]:  - exit-trap (exitcode=0)
-2017-02-22 23:14:35 trc [sync/24324]: Exiting on the foreground (exitcode=0): echo Hello
+2017-02-22 23:14:35 trc [sync/24324]: Exiting in the foreground (exitcode=0): echo Hello
 2017-02-22 23:14:35 trc [sync/24324]:  - terminating the main process <pid=24314>
 2017-02-22 23:14:35 trc [main/24314]:  - sig-trap (exitcode=0)
 2017-02-22 23:14:35 trc [main/24314]:  - exit-trap (exitcode=0)
@@ -55,7 +55,7 @@ Hello
 World
 ```
 ```bash
-# A few ways to run many commands on the foreground
+# A few ways to run many commands in the foreground
 $ RC_WAIT_POLICY=wait_all \ 
   ./trc -F 'echo Hello' \
         -F 'sleep 1' \
@@ -68,7 +68,7 @@ Hello
 World
 ```
 ```bash
-# It's going to create file on the background, waiting for 3 sec and then reading this file 
+# It's going to create file in the background, waiting for 3 sec and then reading this file 
 $ RC_WAIT_POLICY=wait_all \
   ./trc -D 'date > date1.log' \
         -F 'sleep 3' \

@@ -24,8 +24,8 @@ That's how it looks like:
 $ docker run --rm vorakl/centos-opensmtpd -H 'if [[ ${_exit_status} -eq 138 ]]; then exit 0; else exit ${_exit_status}; fi' -D 'sleep 3; smtpctl show status && kill -10 ${MAINPID}'
 
 2017-03-16 21:40:50 trc [main/1]: The wait policy: wait_any
-2017-03-16 21:40:50 trc [async/15]: Launching on the background: /etc/trc.d/async.opensmtpd
-2017-03-16 21:40:50 trc [async/16]: Launching on the background: sleep 3; smtpctl show status && kill -10 ${MAINPID}
+2017-03-16 21:40:50 trc [async/15]: Launching in the background: /etc/trc.d/async.opensmtpd
+2017-03-16 21:40:50 trc [async/16]: Launching in the background: sleep 3; smtpctl show status && kill -10 ${MAINPID}
 info: OpenSMTPD 6.0.2p1 starting
 setup_peer: klondike -> control[28] fd=4
 setup_peer: klondike -> pony express[30] fd=5
@@ -64,7 +64,7 @@ setup_proc: queue done
 MDA running
 MTA running
 SMTP running
-2017-03-16 21:40:53 trc [async/16]: Exiting on the background (exitcode=0): sleep 3; smtpctl show status && kill -10 ${MAINPID}
+2017-03-16 21:40:53 trc [async/16]: Exiting in the background (exitcode=0): sleep 3; smtpctl show status && kill -10 ${MAINPID}
 2017-03-16 21:40:53 trc [main/1]: Trying to terminate sub-processes...
 2017-03-16 21:40:53 trc [main/1]: terminating the child process <pid=15>
 info: Terminated, shutting down
@@ -75,7 +75,7 @@ info: queue handler exiting
 info: lookup agent exiting
 info: scheduler handler exiting
 warn: parent terminating
-2017-03-16 21:40:53 trc [async/15]: Exiting on the background (exitcode=0): /etc/trc.d/async.opensmtpd
+2017-03-16 21:40:53 trc [async/15]: Exiting in the background (exitcode=0): /etc/trc.d/async.opensmtpd
 2017-03-16 21:40:54 trc [halt/60]: Running the shutdown command: if [[ ${_exit_status} -eq 138 ]]; then exit 0; else exit ${_exit_status}; fi
 2017-03-16 21:40:54 trc [main/1]: Exiting from the shutdown command (exitcode=0): if [[ ${_exit_status} -eq 138 ]]; then exit 0; else exit ${_exit_status}; fi
 2017-03-16 21:40:54 trc [main/1]: Exited (exitcode=0)
