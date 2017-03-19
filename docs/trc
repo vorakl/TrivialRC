@@ -3,7 +3,7 @@
 # TrivialRC
 # The minimalistic RC system and process manager for containers and applications
 # Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name
-trc_version="v1.1.8"
+trc_version="v1.1.9"
 
 set +e # Do not exit on errors by default
 if [[ "${RC_DEBUG}" = "true" ]]; then
@@ -55,7 +55,7 @@ main() {
     {
         # Reads commands from files to run before everything
         for _file in $(run -p ls ${dir_name}/trc.boot.* ${dir_name}/trc.d/boot.* 2>/dev/null || true); do
-            log "Launching on the $(ns_long ${ns}): ${_file}"
+            log "Launching in the $(ns_long ${ns}): ${_file}"
             set -e 
             . ${_file}
             set +e
@@ -64,7 +64,7 @@ main() {
         # Checks for boot tasks in the command line (all commands and their parameters should be supplied as one parameter)
         while [[ "$1" = "-B" ]]; do
             shift
-            log "Launching on the $(ns_long ${ns}): $1"
+            log "Launching in the $(ns_long ${ns}): $1"
             set -e 
             eval "$1"
             set +e
@@ -83,7 +83,7 @@ main() {
     done
 
     debug "Looking for \`async\` scripts and commands..."
-    # Reads commands from files to run on the background (in parallel)
+    # Reads commands from files to run in the background (in parallel)
     for _file in $(run -p ls ${dir_name}/trc.async.* ${dir_name}/trc.d/async.* 2>/dev/null || true); do
         (
             # Run this on any exit, catching the exitcode of the "main" command,
@@ -96,7 +96,7 @@ main() {
             trap '_es_dt_er=$?; trap '_ignore_dt_er=1' ERR; debug "err-trap (exitcode=$_es_dt_er)"; exit ${_es_dt_er}' ERR
 
             ns="async"
-            log "Launching on the $(ns_long ${ns}): ${_file}"
+            log "Launching in the $(ns_long ${ns}): ${_file}"
             . ${_file}
         )& 
         child_pids="${child_pids} $!"
@@ -111,7 +111,7 @@ main() {
             trap '_es_dt_er=$?; trap '_ignore_dt_er=1' ERR; debug "err-trap (exitcode=$_es_dt_er)"; exit ${_es_dt_er}' ERR
 
             ns="async"
-            log "Launching on the $(ns_long ${ns}): $1"
+            log "Launching in the $(ns_long ${ns}): $1"
             eval "$1"
         )& 
         child_pids="${child_pids} $!"
@@ -127,7 +127,7 @@ main() {
             trap '_es_ft_er=$?; trap '_ignore_ft_er=1' ERR; debug "err-trap (exitcode=$_es_ft_er)"; exit ${_es_ft_er}' ERR
 
             ns="sync"
-            log "Launching on the $(ns_long ${ns}): ${_file}"
+            log "Launching in the $(ns_long ${ns}): ${_file}"
             . ${_file}
         )
         # Catch the exitcode of a foreground sub-program
@@ -143,7 +143,7 @@ main() {
             trap '_es_ft_er=$?; trap '_ignore_ft_er=1' ERR; debug "err-trap (exitcode=$_es_ft_er)"; exit ${_es_ft_er}' ERR
 
             ns="sync"
-            log "Launching on the $(ns_long ${ns}): $1"
+            log "Launching in the $(ns_long ${ns}): $1"
             eval "$1"
         )
         _es_m_f=$?
@@ -159,7 +159,7 @@ main() {
             trap '_es_ft_er=$?; trap '_ignore_ft_er=1' ERR; debug "err-trap (exitcode=$_es_ft_er)"; exit ${_es_ft_er}' ERR
 
             ns="sync"
-            log "Launching on the $(ns_long ${ns}): $@"
+            log "Launching in the $(ns_long ${ns}): $@"
             "$@"
         )
         # Catch the exitcode of a foreground sub-program
@@ -283,7 +283,7 @@ hook_sub_exit() {
     local _rc=$1 # Getting the exit code for a logging purpose only
     shift
 
-    log "Exiting on the $(ns_long ${ns}) (exitcode=${_rc}): $@"
+    log "Exiting in the $(ns_long ${ns}) (exitcode=${_rc}): $@"
 
     if [[ "${RC_WAIT_POLICY}" = "wait_any" ]]; then 
         # If exiting from a bg process and don't need to wait other processes, let's stop the main
