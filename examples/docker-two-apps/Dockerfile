@@ -11,7 +11,8 @@ COPY app/ /app/
 
 # The required packages for TrivialRC to be run on Alpine Linux
 RUN apk add --no-cache bash procps
-RUN wget -qP /etc/ http://vorakl.github.io/TrivialRC/trc && \
+RUN wget -qP /etc/ http://trivialrc.vorakl.name/trc && \
+    ( cd /etc && wget -qO - http://trivialrc.vorakl.name/trc.sha256 | sha256sum -c ) && \
     chmod +x /etc/trc && \
     /etc/trc --version
 COPY etc/ /etc/

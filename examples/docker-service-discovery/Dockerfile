@@ -4,7 +4,8 @@ MAINTAINER "Oleksii Tsvietnov" <me@vorakl.name>
 ENV RC_VERBOSE true
 ENV ZKURL 127.0.0.1
 
-RUN curl -sSLfo /etc/trc http://vorakl.github.io/TrivialRC/trc && \
+RUN curl -sSLfo /etc/trc http://trivialrc.vorakl.name/trc && \
+    ( cd /etc && wget -qO - http://trivialrc.vorakl.name/trc.sha256 | sha256sum -c ) && \
     chmod +x /etc/trc && \
     /etc/trc --version
 
