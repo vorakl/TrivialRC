@@ -31,11 +31,11 @@
 }
 
 .navbar .brand:hover { color: #49AFCD; }
-.navbar .nav > li > a { color: #FFFFFF; }
+.navbar .brand { padding: 12px 20px 12px; }
+.navbar .nav > li > a { color: #FFFFFF; padding: 12px 10px 12px; }
 .navbar .nav > li > a:hover { color: #49AFCD; }
 .navbar .divider-vertical { border-right: 1px solid #4D4D4D; }
 .navbar { margin-bottom: 4em; } 
-
 
 /* Styling for elements */
 body { font-size: 100%; }
