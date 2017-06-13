@@ -3,7 +3,7 @@
 # TrivialRC
 # The minimalistic RC system and process manager for containers and applications
 # Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name
-trc_version="v1.1.10"
+trc_version="v1.1.11"
 
 set +e # Do not exit on errors by default
 if [[ "${RC_DEBUG}" = "true" ]]; then
@@ -337,7 +337,7 @@ print_usage() {
 }
 
 print_version() {
-    run echo "$trc_version"
+    run echo "trc (TrivialRC) $trc_version"
     exit 0
 }
 
