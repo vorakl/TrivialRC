@@ -1,3 +1,5 @@
+* 1.1.10
+    * FIX: many README files have been fixed. Thanks to Oren Schulman.
 * 1.1.7
     * ADD: more examples
     * DEL: deprecated names of configuration files have been removed (`trc.fg.*`, `trc.bg.*`, `trc.sd.*`)

@@ -1,9 +1,9 @@
 # Keeping the configuration in files
 
-In this examples it will set a few variables and defining a new function in the `boot` mode.
+In these examples it will set a few variables and defining a new function in the `boot` mode.
 Then in the background (in the `async` mode) it will create a file using the new function and values of variables.
-On the next step, it will run in `sync` mode (in the foreground). Here, trc first sleeps for a defined number of seconds
-and then prints out the content of the file. On the last step, it will run in `halt` mode and remove previously created file.
+In the next step, it will run in `sync` mode (in the foreground). Here, trc first sleeps for a defined number of seconds
+and then prints out the content of the file. In the last step, it will run in `halt` mode and remove previously created file.
 A required RC_WAIT_POLICY for this example is wait_all.
 
 ### The structure of `trc.d` directory

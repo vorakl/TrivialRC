@@ -23,29 +23,13 @@ The minimalistic Run-time Configuration (RC) system and process manager
 Introduction
 ============
 
-The minimalistic Run-time Configuration (RC) system and process manager.
-It's written in pure BASH and uses just a few external utilities like ls, ps, date and sleep.
-In the minimum intallation TrivialRC consists of only one file which can be downloaded directly from the Github.
-Originaly, it was designed for using in containers but it also can be well used for running a group of processes
-asynchronously and synchronously, managing their running order and exit codes.
+The minimalistic Run-time Configuration (RC) system and process manager is written in pure BASH and uses just a few external utilities like ``ls``, ``ps``, ``date`` and ``sleep``. Minimally, intallation of TrivialRC consists of only one file which can be downloaded directly from the Github. Originaly, it was designed for use in containers but it also can be well used for running a group of processes asynchronously and synchronously, as well as managing their running order and exit codes.
 
-TrivialRC is not a replacement for an init process that usually resides in /sbin/init
-and has a PID 1. In containers for this purpose could be used projects like dumb-init_ or tini_.
-Although, in most cases, having only TrivialRC as a first/main process (PID 1) in containers is quite enough.
-In terms of Docker, the best place for it is ENTRYPOINT.
+TrivialRC is not a replacement for an init process that usually resides in ``/sbin/init`` and has a PID 1. In containers for this purpose projects like dumb-init_ or tini_ can be used, although in most cases, having only TrivialRC as a first/main process (PID 1) in containers is quite enough. In terms of Docker, the best place for it is ENTRYPOINT.
 
-TrivialRC is an equivalent to well known /etc/rc for xBSD users. The RC system that is used for
-managing startup and shutdown processes. It can start and stop one or more processes,
-in parallel or sequentially, on back- or foreground, react differently in case of process failures, etc.
-All commands can be specified in the command line if they are relatively simple, or in separate files
-if a more comprehensive scenario is needed. That's why it can be used as a simplest tool for managing 
-a group of process and be a lightweight replacement for solutions like Supervisor_.
+TrivialRC is an equivalent to well known ``/etc/rc`` for xBSD users. The RC system that is used for managing startup and shutdown processes. It can start and stop one or more processes, in parallel or sequentially, on back- or foreground, react differently in case of process failures, etc. All commands can be specified in the command line if they are relatively simple, or in separate files if a more comprehensive scenario is needed. That's why it can be used as a simplest tool for managing a group of process and be a lightweight replacement for solutions like Supervisor_.
 
-For instance, in docker images when TrivialRC is used as an Entrypoint, it doesn't reveal itself by default,
-does not affect any configuration and behaves absolutely transparently. So, you can add it into
-any Dockerfiles which do not have an entrypoint yet and get by this the full control under processes 
-with fairly detailed logs of what's is going on inside a container. 
-Please, take a look at examples__ for more information.
+For instance, in docker images when TrivialRC is used as an Entrypoint, it doesn't reveal itself by default, does not affect any configuration and behaves absolutely transparently. So, you can add it into any Dockerfiles which do not have an entrypoint yet and get by this the full control under processes with fairly detailed logs of what's is going on inside a container. Please, take a look at examples__ for more information.
 
 __ https://github.com/vorakl/TrivialRC/tree/master/examples
 
@@ -54,7 +38,8 @@ Installation
 ============
 
 Basically, all you need to install TrivialRC is download the latest release of the script from ``http://trivialrc.vorakl.name/trc``
-and give it an execute permission. By default, it looks for configuration files in the same directory from which it was invoked but this behavior can be changed by setting a work directory (``-w|--workdir`` parametr). So, if you are going to use configuration files and keep them in /etc/, then you would probably want to install the script to /etc/ as well and simply run it without specifying any parametrs.
+and give it an execute permission. By default, it looks for configuration files in the same directory from which it was invoked but this behavior can be changed by setting a work directory (``-w|--workdir`` parametr). So, if you are going to use configuration files and keep them in ``/etc/``, then you would probably want to install the script to /etc/ as well and simply run it without specifying any parametrs.
+
 Another option in this case could be to install the script in a more appropriate path but don't forget to specify ``--workdir /etc`` parametr every time when you invoke this rc system. Both options are possible and depend more on a particular use case.
 For instance, in case of using in a docker container, I personaly prefer to have all configuration in separate files in ``trc.d/`` sub-directory and copy it together with the script in ``/etc/``. 
 
@@ -62,7 +47,7 @@ For instance, in case of using in a docker container, I personaly prefer to have
 The installation on top of CentOS Linux base image
 --------------------------------------------------
 
-This is an example of how it would look like in a Dockerfile with `centos:latest`_ as base image:
+This is an example of how it would look in a Dockerfile with `centos:latest`_ as base image:
 
 .. code-block:: bash
 
@@ -74,7 +59,7 @@ This is an example of how it would look like in a Dockerfile with `centos:latest
         /etc/trc --version
 
     # Uncomment this if you have configuration files in trc.d/
-    #COPY trc.d/ /etc/trc.d/
+    # COPY trc.d/ /etc/trc.d/
 
     ENTRYPOINT ["/etc/trc"]
 
@@ -97,7 +82,7 @@ As a result, Dockerfile for the `alpine:latest`_ base image would look like:
         /etc/trc --version
 
     # Uncomment this if you have configuration files in trc.d/
-    #COPY trc.d/ /etc/trc.d/
+    # COPY trc.d/ /etc/trc.d/
 
     ENTRYPOINT ["/etc/trc"]
 
@@ -110,7 +95,7 @@ To get started and find out some features, basically, I suggest to go through `a
 Command line options
 ====================
 
-That's important to notice that the order of command line options **is not** equal to their run order.
+It is important to notice that the order of command line options **is not** equal to their run order.
 In general it looks like:
 
 .. code-block:: bash
