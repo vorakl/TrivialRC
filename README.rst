@@ -23,7 +23,7 @@ The minimalistic Run-time Configuration (RC) system and process manager
 Introduction
 ============
 
-The minimalistic Run-time Configuration (RC) system and process manager is written in pure BASH and uses just a few external utilities like ``ls``, ``ps``, ``date`` and ``sleep``. Minimally, intallation of TrivialRC consists of only one file which can be downloaded directly from the Github. Originaly, it was designed for use in containers but it also can be well used for running a group of processes asynchronously and synchronously, as well as managing their running order and exit codes.
+The minimalistic Run-time Configuration (RC) system and process manager is written in pure BASH and uses just a few external utilities like ``ls``, ``ps``, ``date`` and ``sleep``. Minimally, installation of TrivialRC consists of only one file which can be downloaded directly from the Github. Originaly, it was designed for use in containers but it also can be well used for running a group of processes asynchronously and synchronously, as well as managing their running order and exit codes.
 
 TrivialRC is not a replacement for an init process that usually resides in ``/sbin/init`` and has a PID 1. In containers for this purpose projects like dumb-init_ or tini_ can be used, although in most cases, having only TrivialRC as a first/main process (PID 1) in containers is quite enough. In terms of Docker, the best place for it is ENTRYPOINT.
 
