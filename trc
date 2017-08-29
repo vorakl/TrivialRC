@@ -3,7 +3,7 @@
 # TrivialRC
 # The minimalistic RC system and process manager for containers and applications
 # Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name
-trc_version="v1.1.11"
+trc_version="1.2.0"
 
 set +e # Do not exit on errors by default
 if [[ "${RC_DEBUG}" = "true" ]]; then
@@ -29,7 +29,7 @@ main() {
     export MAINPID="${BASHPID}" # PID of the main process
     : ${RC_WAIT_POLICY:=wait_any}; export RC_WAIT_POLICY 
 
-    dir_name=$(run -p dirname $0)
+    work_dir=$(run -p dirname $0)
     boot_stage_left=0
     halt_cmds_exist=0
     halt_cmds=()
@@ -47,15 +47,15 @@ main() {
 
     if [[ "$1" = "-w" ]] || [[ "$1" = "--workdir" ]]; then
         shift
-        dir_name="$1"
+        work_dir="$1"
         shift
     fi
 
     debug "Looking for \`boot\` scripts and commands..."
     {
         # Reads commands from files to run before everything
-        for _file in $(run -p ls ${dir_name}/trc.boot.* ${dir_name}/trc.d/boot.* 2>/dev/null || true); do
-            log "Launching in the $(ns_long ${ns}): ${_file}"
+        for _file in $(run -p ls ${work_dir}/trc.boot.* ${work_dir}/trc.d/boot.* 2>/dev/null || true); do
+            log "Running in the $(ns_long ${ns}) stage: ${_file}"
             set -e 
             . ${_file}
             set +e
@@ -64,7 +64,7 @@ main() {
         # Checks for boot tasks in the command line (all commands and their parameters should be supplied as one parameter)
         while [[ "$1" = "-B" ]]; do
             shift
-            log "Launching in the $(ns_long ${ns}): $1"
+            log "Running in the $(ns_long ${ns}) stage: $1"
             set -e 
             eval "$1"
             set +e
@@ -84,7 +84,7 @@ main() {
 
     debug "Looking for \`async\` scripts and commands..."
     # Reads commands from files to run in the background (in parallel)
-    for _file in $(run -p ls ${dir_name}/trc.async.* ${dir_name}/trc.d/async.* 2>/dev/null || true); do
+    for _file in $(run -p ls ${work_dir}/trc.async.* ${work_dir}/trc.d/async.* 2>/dev/null || true); do
         (
             # Run this on any exit, catching the exitcode of the "main" command,
             # printing additional info and finishing up this sub-program with the right exitcode
@@ -96,7 +96,7 @@ main() {
             trap '_es_dt_er=$?; trap '_ignore_dt_er=1' ERR; debug "err-trap (exitcode=$_es_dt_er)"; exit ${_es_dt_er}' ERR
 
             ns="async"
-            log "Launching in the $(ns_long ${ns}): ${_file}"
+            log "Running in the $(ns_long ${ns}) stage: ${_file}"
             . ${_file}
         )& 
         child_pids="${child_pids} $!"
@@ -111,7 +111,7 @@ main() {
             trap '_es_dt_er=$?; trap '_ignore_dt_er=1' ERR; debug "err-trap (exitcode=$_es_dt_er)"; exit ${_es_dt_er}' ERR
 
             ns="async"
-            log "Launching in the $(ns_long ${ns}): $1"
+            log "Running in the $(ns_long ${ns}) stage: $1"
             eval "$1"
         )& 
         child_pids="${child_pids} $!"
@@ -120,14 +120,14 @@ main() {
 
     debug "Looking for \`sync\` scripts and commands..." 
     # Checks for foreground tasks in files (sequentially)
-    for _file in $(run -p ls ${dir_name}/trc.sync.* ${dir_name}/trc.d/sync.* 2>/dev/null || true); do
+    for _file in $(run -p ls ${work_dir}/trc.sync.* ${work_dir}/trc.d/sync.* 2>/dev/null || true); do
         (
             trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "${_file}"' EXIT
             trap '_es_ft_s=$?; trap '_ignore_ft_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_ft_s)"; exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
             trap '_es_ft_er=$?; trap '_ignore_ft_er=1' ERR; debug "err-trap (exitcode=$_es_ft_er)"; exit ${_es_ft_er}' ERR
 
             ns="sync"
-            log "Launching in the $(ns_long ${ns}): ${_file}"
+            log "Running in the $(ns_long ${ns}) stage: ${_file}"
             . ${_file}
         )
         # Catch the exitcode of a foreground sub-program
@@ -143,28 +143,12 @@ main() {
             trap '_es_ft_er=$?; trap '_ignore_ft_er=1' ERR; debug "err-trap (exitcode=$_es_ft_er)"; exit ${_es_ft_er}' ERR
 
             ns="sync"
-            log "Launching in the $(ns_long ${ns}): $1"
+            log "Running in the $(ns_long ${ns}) stage: $1"
             eval "$1"
         )
         _es_m_f=$?
         shift
     done
-
-    # Checks for a foreground task in the command line (without any quotation!)
-    if [[ -n "$*" ]]; then
-        (
-            set -e
-            trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "$@"' EXIT
-            trap '_es_ft_s=$?; trap '_ignore_ft_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_ft_s)"; exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-            trap '_es_ft_er=$?; trap '_ignore_ft_er=1' ERR; debug "err-trap (exitcode=$_es_ft_er)"; exit ${_es_ft_er}' ERR
-
-            ns="sync"
-            log "Launching in the $(ns_long ${ns}): $@"
-            "$@"
-        )
-        # Catch the exitcode of a foreground sub-program
-        _es_m_f=$?
-    fi
 
     # Wait for all background processes and exit with a status of the last one
     # or with 128+SIGNAL in case of getting a signal
@@ -177,6 +161,13 @@ main() {
 
     if [[ "${RC_WAIT_POLICY}" = "wait_forever" ]]; then
         infinite_loop
+    fi
+
+    # Checks for a foreground task in the command line (without any quotation!)
+    if [[ -n "$*" ]]; then
+            ns="bare"
+            log "Running in the $(ns_long ${ns}) stage: $@"
+            exec "$@"
     fi
 
     return ${_es_m_f}
@@ -243,7 +234,7 @@ hook_main_exit() {
     if [[ boot_stage_left -eq 1 ]]; then
         debug "Looking for \`halt\` scripts..."
         # Checks for shutdown tasks in files (sequentially)
-        for _file in $(run -p ls ${dir_name}/trc.halt.* ${dir_name}/trc.d/halt.* 2>/dev/null || true); do
+        for _file in $(run -p ls ${work_dir}/trc.halt.* ${work_dir}/trc.d/halt.* 2>/dev/null || true); do
             halt_cmds_exist=1
             (
                 set -e # Exit on errors in the sub-shell
@@ -307,11 +298,12 @@ ns_long() {
     local _ns
 
     case "$1" in
-        fg|sync)  _ns="foreground";;
-        bg|async) _ns="background";;
-        sd|halt)  _ns="shutdown";;
-        main)     _ns="boot";;
-         *)       _ns="$1";;
+        sync)  _ns="foreground";;
+        async) _ns="background";;
+        halt)  _ns="shutdown";;
+        bare)  _ns="bare";;
+        main)  _ns="boot";;
+         *)    _ns="$1";;
     esac
 
     echo "${_ns}"
@@ -330,7 +322,6 @@ print_usage() {
     run echo "Usage: ${_self} [-w|--workdir 'dir'] [-B 'cmds' [...]] [-H 'cmds' [...]] [-D 'cmds' [...]] [-F 'cmds' [...]] [cmd [args]]"
     run echo "Examples:"
     run echo -e " $ ${_self} -B 'name=\$(id -un); echo booting...' -H 'echo halting...' -F 'echo Hello, \${name}!'"
-    run echo -e " $ RC_WAIT_POLICY=wait_all ${_self} -D 'echo Hello' -D 'sleep 2; echo World' echo waiting..."
     run echo -e " $ RC_VERBOSE=true ${_self} -F 'echo -n \"Hello \"; echo World'"
     run echo -e " $ ${_self} --workdir /opt/app"
     exit 0

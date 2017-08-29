@@ -54,7 +54,7 @@ processes, control their states and react differently in case of failures.
 In this mode, it allows to switch a container's model from ``one process per
 container`` to ``one service per container``.
 
-For instance, in docker containers, when TrivialRC is used as an Entrypoint, it
+For instance, in docker containers, when TrivialRC is used as an entrypoint, it
 doesn't reveal itself by default, does not affect any configurations and behaves
 absolutely transparently. This happens because a ``bare command``, which is run
 by a ``CMD`` instruction without using any special running stages of TrivialRC 

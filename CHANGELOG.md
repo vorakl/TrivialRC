@@ -1,4 +1,6 @@
-    * CHNG: a bare command is executed in the same shell
+* 1.2.0
+    * CHNG: dir_name variable was renamed to work_dir
+    * CHNG: a bare command replaces the main shell (by exec call)
     * CHNG: the download path has been changed from / to /files/
 * 1.1.10
     * FIX: many README files have been fixed. Thanks to Oren Schulman.
