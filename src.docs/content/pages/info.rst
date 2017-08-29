@@ -261,6 +261,7 @@ All stages are executed in the next order:
        This stage is a part of a ``process manager``, it's always isolated.
        Commands run in a sub-shell, synchronously (one by one) when the main
        process is terminating. This can happen only in two ocasions:
+
        * there **isn't** provided a ``bare`` command which always takes over an
          execution control from the main process
        * the process manager terminates by following one of the WAIT_POLICY
