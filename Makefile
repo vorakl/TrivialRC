@@ -56,8 +56,8 @@ push:
 	@${GIT_BIN} push origin ${VERSION}
 
 publish:
-	@${CP_BIN} -f trc docs/
-	@(cd docs && ${SHA256SUM_BIN} trc > trc.sha256)
+	@${CP_BIN} -f trc docs/files/
+	@(cd docs/files/ && ${SHA256SUM_BIN} trc > trc.sha256)
 
 cirelease: test setver settag publish
 	@${GIT_BIN} add .
