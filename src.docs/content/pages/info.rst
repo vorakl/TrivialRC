@@ -196,7 +196,8 @@ Where
 * ``-D 'command1; command2; ...'``, ``async`` ([D]etouched) commands
 * ``-F 'command1; command2; ...'``, ``sync`` ([F]oreground) commands
 * ``bare_command [args]``, a ``bare`` command with arguments, 
-  without quotation marks
+  without quotation marks. It will be executed only there aren't any ``-H``,
+  ``-D`` or ``-F`` options
 
 So, command line options have to be supplied in the next order
 
@@ -308,8 +309,8 @@ All stages are executed in the next order:
        leads to the replacement of the main shell process. This stage is needed
        for the ability to run a command as a PID 1 in the Docker container after
        a zero or more ``boot`` commands which can be useful for preconfiguring
-       a container. But there is not too much sense to run a ``bare`` command
-       with ``sync``, ``async`` and ``halt`` commands at the same time
+       a container. It is not possible to run a ``bare`` command with ``sync``,
+       ``async`` or ``halt`` commands at the same time.
 
 
 Wait policies
@@ -380,6 +381,8 @@ You can also use some of internal functions in async/sync tasks:
         does the say as ``log`` but sends a mesage to stderr
 * ``err``
         does the same as ``warn`` but exits with an error (exit status = 1)
+* ``die``
+        does the same as ``err`` but uses say() instead of log()
 * ``debug``
         does the same as ``log`` but only if RC_VERBOSE_EXTRA is set
 * ``run``

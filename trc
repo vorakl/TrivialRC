@@ -11,7 +11,7 @@ if [[ "${RC_DEBUG}" = "true" ]]; then
 fi
 
 main() {
-    # If it's needed to have extra paths, update $PATH at 'boot' stage
+    # Update $PATH at 'boot' stage to have extra paths if it's needed
     PATH="/sbin:/bin:/usr/sbin:/usr/bin"
     
     check_ver_usage "$1"
@@ -21,7 +21,6 @@ main() {
     # main()'s exit status which is stored to ${exit_status}.
     # So, it's possible to exit from the last `halt` command with ${exit_status}
     # or set to whatever you think is better as a final exit status.
-
     trap 'exit_status=$?;\
           trap "_ignore_mt_ex=1" EXIT;\
           debug "exit-trap (exitcode=${exit_status})";\
@@ -51,7 +50,7 @@ main() {
     async_cmds_exist=0
     sync_cmds_exist=0
     halt_cmds=()
-    child_pids="" # Collects of child processes
+    child_pids="" # The collection of child processes
     ns="main" # Name Space
 
     case "${RC_WAIT_POLICY}" in
@@ -191,78 +190,73 @@ main() {
             log "launching: ${_file}"
             . ${_file}
         )
-        # Catchs the exitcode of a foreground sub-program
+        # Catchs the exitcode of a foreground sub-shell
         _es_m_f=$?
     done
 
-    # Checks for foreground tasks in the command line (all commands and their parameters should be supplied as one parameter)
+    # Checks for foreground tasks in the command line
+    # All commands and their parameters should be supplied as one parameter!
     while [[ "$1" = "-F" ]]; do
         shift
+        sync_cmds_exist=1
         (
-            trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "$1"' EXIT
-            trap '_es_ft_s=$?; trap '_ignore_ft_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_ft_s)"; exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-            trap '_es_ft_er=$?; trap '_ignore_ft_er=1' ERR; debug "err-trap (exitcode=$_es_ft_er)"; exit ${_es_ft_er}' ERR
+            trap '_es_ft_ex=$?;\
+                  trap "_ignore_ft_ex=1" EXIT;\
+                  debug "exit-trap (exitcode=${_es_ft_ex})";\
+                  hook_sub_exit ${_es_ft_ex} "$1"' EXIT
+            trap '_es_ft_s=$?;\
+                  trap "_ignore_ft_s=1" HUP INT ILL TRAP ABRT BUS FPE USR1\
+                            SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
+                  debug "sig-trap (exitcode=$_es_ft_s)";\
+                  exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV\
+                                    USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+            trap '_es_ft_er=$?;\
+                  trap "_ignore_ft_er=1" ERR;\
+                  debug "err-trap (exitcode=$_es_ft_er)";\
+                  exit ${_es_ft_er}' ERR
 
             ns="sync"
-            log "Running in the $(ns_long ${ns}) stage: $1"
+            log "launching: $1"
             eval "$1"
         )
         _es_m_f=$?
         shift
     done
 
-    # Wait for all background processes and exit with a status of the last one
-    # or with 128+SIGNAL in case of getting a signal
-    # this is a work around for not trigerring ERR trap in main() two times in case of non 0 exist status
-    ${_wait_bg_cmd} ${child_pids} || _es_m_d=$?
+    # It there were any 'sync', 'async' or 'halt' commands then switchs to
+    # a 'process manager' mode. Otherwise, checks for a bare command 
+    # in the command line (without quotation!)
+    if (( halt_cmds_exist )) || (( async_cmds_exist )) || \
+                                    (( sync_cmds_exist )); then
+        debug "Working in the 'process manager' mode..."
+        # Waits for all background processes and exit with a status of
+        # the last one or with 128+SIGNAL in case of getting a signal
+        ${_wait_bg_cmd} ${child_pids} || _es_m_d=$?
 
-    if [ ${_es_m_d} -ne 0 ]; then
-        _es_m_f=${_es_m_d} # update exit code only if one of background processes has failed
-    fi
+        if (( _es_m_d )); then
+            # update an exit code only if one of background processes has failed
+            _es_m_f=${_es_m_d}
+        fi
 
-    if [[ "${RC_WAIT_POLICY}" = "wait_forever" ]]; then
-        infinite_loop
-    fi
-
-    # Checks for a foreground task in the command line (without any quotation!)
-    if [[ -n "$*" ]]; then
+        if [[ "${RC_WAIT_POLICY}" = "wait_forever" ]]; then
+            infinite_loop
+        fi
+    else
+        debug  "Looking for a 'bare' command..."      
+        if [[ -n "$*" ]]; then
             ns="bare"
-            log "Running in the $(ns_long ${ns}) stage: $@"
+            log "handing over the execution to: $@"
             exec "$@"
+        fi
     fi
 
     return ${_es_m_f}
 }
 
-say() {
-    if [[ "${RC_VERBOSE}" = "true" ]]; then
-        run echo "$@"
-    fi
-}
-
-log() {
-    say "$(run -p date '+%Y-%m-%d %H:%M:%S') ${SELF_NAME} [${ns}/${BASHPID}]: $@"
-}
-
-warn() {
-    log "$@" >&2
-}
-
-err() {
-    warn "$@"
-    exit 1
-}
-
-debug() {
-    if [[ "${RC_VERBOSE_EXTRA}" = "true" ]]; then
-        log " - $@"
-    fi
-}
-
 hook_main_exit() {
     local _pid _cpids _file _cmd _es_mtt_h=0 _term_timeout=5
 
-    # If it fails in the `boot` stage, it appears here with 'set -e'. So, reset to +e again
+    # If it fails in the 'boot' stage, it appears here with 'set -e'. So, reset to +e again
     set +e
     trap 'true' ERR
 
@@ -286,16 +280,18 @@ hook_main_exit() {
             fi
         fi
     done
-    debug "removing all unexpected sub-processes"
+
+    debug "Removing all unexpected sub-processes"
     if ! run -p pkill -KILL -P ${MAIN_PID} &> /dev/null; then
         true
     fi
 
     # --- `halt`
     if [[ boot_stage_left -eq 1 ]]; then
-        debug "Looking for \`halt\` scripts..."
+        debug "Looking for 'halt' scripts..."
         # Checks for shutdown tasks in files (sequentially)
-        for _file in $(run -p ls ${work_dir}/trc.halt.* ${work_dir}/trc.d/halt.* 2>/dev/null || true); do
+        for _file in $(run -p ls ${work_dir}/trc.halt.* \
+                              ${work_dir}/trc.d/halt.* 2>/dev/null || true); do
             halt_cmds_exist=1
             (
                 set -e # Exit on errors in the sub-shell
@@ -321,7 +317,7 @@ hook_main_exit() {
         done    
     fi 
 
-    if [[ ${halt_cmds_exist} -eq 1 ]]; then
+    if (( halt_cmds_exist )); then
         exit_status=${_es_mtt_h}
     fi
 
@@ -350,9 +346,7 @@ hook_sub_exit() {
 
 infinite_loop() {
     log "Activated infinite loop! To stop, press <Ctrl+C> or send SIGTERM..."
-    while true; do
-        run -p sleep 1
-    done
+    run -p sleep infinity
 }
 
 check_ver_usage() {
@@ -363,8 +357,19 @@ check_ver_usage() {
     esac
 }
 
+check_req_bins() {
+    local _cmd
+
+    for _cmd in "$@"; do
+        if ! run -v ${_cmd} &> /dev/null; then
+            die "There is no the required command: ${_cmd}"
+        fi
+    done
+}
+
 print_usage() {
-    local _self=$0
+    local _self="$0"
+
     run echo "Usage:"
     run echo " ${_self} [[-h|--help]|[-v|--version]] \\"
     run echo "       [-w|--workdir 'dir'] \\"
@@ -395,15 +400,34 @@ run() {
     builtin command "$@"
 }
 
-check_req_bins() {
-    local _cmd
+say() {
+    if [[ "${RC_VERBOSE}" = "true" ]]; then
+        run echo "$@"
+    fi
+}
 
-    for _cmd in "$@"; do
-        if ! run -v ${_cmd} &> /dev/null; then
-            echo "There is no the required command: ${_cmd}" >&2
-            exit 1 
-        fi
-    done
+log() {
+    say "$(run -p date '+%Y-%m-%d %H:%M:%S') ${SELF_NAME} [${ns}/${BASHPID}]: $@"
+}
+
+warn() {
+    log "$@" >&2
+}
+
+err() {
+    warn "$@"
+    exit 1
+}
+
+die() {
+    say "$@" >&2
+    exit 1
+}
+
+debug() {
+    if [[ "${RC_VERBOSE_EXTRA}" = "true" ]]; then
+        log " - $@"
+    fi
 }
 
 main "$@"
