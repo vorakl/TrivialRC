@@ -178,7 +178,8 @@ In general it looks like:
 
 .. code-block:: bash
 
-    $ trc [-h|--help] [-v|--version] [-w|--workdir 'dir'] \
+    $ trc [[-h|--help]|[-v|--version]] \
+          [-w|--workdir 'dir'] \
           [-B 'cmds' [...]] \
           [-H 'cmds' [...]] \
           [-D 'cmds' [...]] \

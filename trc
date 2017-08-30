@@ -11,27 +11,45 @@ if [[ "${RC_DEBUG}" = "true" ]]; then
 fi
 
 main() {
-    # If it's needed to have extra paths, update $PATH at `boot` stage
+    # If it's needed to have extra paths, update $PATH at 'boot' stage
     PATH="/sbin:/bin:/usr/sbin:/usr/bin"
     
     check_ver_usage "$1"
     check_req_bins ls ps pkill sleep date basename dirname
 
-    # It's possible to exit from the last `halt` command with ${exit_status} which comes from main() 
-    # and rewrite by this an exit status of the `halt` stage which always has a priority against main's exit status
-    trap 'exit_status=$?; trap '_ignore_mt_ex=1' EXIT; debug "exit-trap (exitcode=${exit_status})"; hook_main_exit' EXIT
-    trap '_es_mt_s=$?; trap '_ignore_mt_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=${_es_mt_s})"; exit ${_es_mt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-    trap '_es_mt_er=$?; trap '_ignore_mt_er=1' ERR; if [[ "${RC_WAIT_POLICY}" = "wait_err" ]]; then debug "err-trap (exitcode=${_es_mt_er})"; exit ${_es_mt_er}; fi' ERR
+    # An exit status of a `halt` stage always has a priority against
+    # main()'s exit status which is stored to ${exit_status}.
+    # So, it's possible to exit from the last `halt` command with ${exit_status}
+    # or set to whatever you think is better as a final exit status.
+
+    trap 'exit_status=$?;\
+          trap "_ignore_mt_ex=1" EXIT;\
+          debug "exit-trap (exitcode=${exit_status})";\
+          hook_main_exit' EXIT
+    trap '_es_mt_s=$?;\
+          trap "_ignore_mt_s=1" HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2\
+                                         PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
+          debug "sig-trap (exitcode=${_es_mt_s})";\
+          exit ${_es_mt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE\
+                                               ALRM TERM XCPU XFSZ VTALRM SYS
+    trap '_es_mt_er=$?;\
+          trap "_ignore_mt_er=1" ERR;\
+          if [[ "${RC_WAIT_POLICY}" = "wait_err" ]]; then\
+              debug "err-trap (exitcode=${_es_mt_er})";\
+              exit ${_es_mt_er};\
+          fi' ERR
 
     local _wait_bg_cmd _file _es_m_f=0 _es_m_d=0
 
-    export SELF_NAME=$(run -p basename $0 .sh) # Self name for logging purpose
+    export SELF_NAME=$(run -p basename $0 .sh) # Self name for logging
     export MAIN_PID="${BASHPID}" # PID of the main process
     : ${RC_WAIT_POLICY:=wait_any}; export RC_WAIT_POLICY 
 
     work_dir=$(run -p dirname $0)
     boot_stage_left=0
     halt_cmds_exist=0
+    async_cmds_exist=0
+    sync_cmds_exist=0
     halt_cmds=()
     child_pids="" # Collects of child processes
     ns="main" # Name Space
@@ -51,20 +69,22 @@ main() {
         shift
     fi
 
-    debug "Looking for \`boot\` scripts and commands..."
+    debug "Looking for 'boot' scripts and commands..."
     {
         # Reads commands from files to run before everything
-        for _file in $(run -p ls ${work_dir}/trc.boot.* ${work_dir}/trc.d/boot.* 2>/dev/null || true); do
-            log "Running in the $(ns_long ${ns}) stage: ${_file}"
+        for _file in $(run -p ls ${work_dir}/trc.boot.* \
+                              ${work_dir}/trc.d/boot.* 2>/dev/null || true); do
+            log "launching: ${_file}"
             set -e 
             . ${_file}
             set +e
         done
 
-        # Checks for boot tasks in the command line (all commands and their parameters should be supplied as one parameter)
+        # Checks for boot tasks in the command line.
+        # All commands and their parameters should be supplied as one parameter!
         while [[ "$1" = "-B" ]]; do
             shift
-            log "Running in the $(ns_long ${ns}) stage: $1"
+            log "launching: $1"
             set -e 
             eval "$1"
             set +e
@@ -73,8 +93,9 @@ main() {
     }
     boot_stage_left=1
 
-    debug "Looking for \`halt\` commands..."
-    # Collects commands for the `halt` stage from a command line to be run on exit from the main exit trap
+    debug "Looking for 'halt' commands..."
+    # Collects commands for the 'halt' stage from a command line to be run
+    # on exit from the main exit trap
     while [[ "$1" = "-H" ]]; do
         shift
             halt_cmds_exist=1
@@ -82,55 +103,95 @@ main() {
         shift
     done
 
-    debug "Looking for \`async\` scripts and commands..."
+    debug "Looking for 'async' scripts and commands..."
     # Reads commands from files to run in the background (in parallel)
-    for _file in $(run -p ls ${work_dir}/trc.async.* ${work_dir}/trc.d/async.* 2>/dev/null || true); do
+    for _file in $(run -p ls ${work_dir}/trc.async.* \
+                             ${work_dir}/trc.d/async.* 2>/dev/null || true); do
+        async_cmds_exist=1
         (
-            # Run this on any exit, catching the exitcode of the "main" command,
-            # printing additional info and finishing up this sub-program with the right exitcode
-            trap '_es_dt_ex=$?; trap '_ignore_mt_ex=1' EXIT; debug "exit-trap (exitcode=${_es_dt_ex})"; hook_sub_exit ${_es_dt_ex} "${_file}"' EXIT
+            # Run this on any exit, catch the exitcode of the "main" command,
+            # print additional info and finish this sub-program with
+            # the right exitcode
+            trap '_es_dt_ex=$?;\
+                  trap "_ignore_mt_ex=1" EXIT;\
+                  debug "exit-trap (exitcode=${_es_dt_ex})";\
+                  hook_sub_exit ${_es_dt_ex} "${_file}"' EXIT
 
-            # In case of exit on errors (set -e) or by a signal, catch exitcode and exit with it, which
-            # will lead to triggering an EXIT trap
-            trap '_es_dt_s=$?; trap '_ignore_dt_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_dt_s)"; exit ${_es_dt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-            trap '_es_dt_er=$?; trap '_ignore_dt_er=1' ERR; debug "err-trap (exitcode=$_es_dt_er)"; exit ${_es_dt_er}' ERR
+            # In case of exit on errors (set -e) or by a signal, catch exitcode
+            # and exit with it. This will lead to triggering an EXIT trap
+            trap '_es_dt_s=$?;\
+                  trap "_ignore_dt_s=1" HUP INT ILL TRAP ABRT BUS FPE USR1\
+                               SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
+                  debug "sig-trap (exitcode=$_es_dt_s)";\
+                  exit ${_es_dt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV\
+                                    USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+            trap '_es_dt_er=$?;\
+                  trap "_ignore_dt_er=1" ERR;\
+                  debug "err-trap (exitcode=$_es_dt_er)";\
+                  exit ${_es_dt_er}' ERR
 
             ns="async"
-            log "Running in the $(ns_long ${ns}) stage: ${_file}"
+            log "launching: ${_file}"
             . ${_file}
         )& 
         child_pids="${child_pids} $!"
     done
 
-    # Checks for background tasks in the command line (all commands and their parameters should be supplied as one parameter)
+    # Checks for background tasks in the command line.
+    # All commands and their parameters should be supplied as one parameter!
     while [[ "$1" = "-D" ]]; do
         shift
+        async_cmds_exist=1
         (
-            trap '_es_dt_ex=$?; trap '_ignore_dt_ex=1' EXIT; debug "exit-trap (exitcode=${_es_dt_ex})"; hook_sub_exit ${_es_dt_ex} "$1"' EXIT
-            trap '_es_dt_s=$?; trap '_ignore_dt_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_dt_s)"; exit ${_es_dt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-            trap '_es_dt_er=$?; trap '_ignore_dt_er=1' ERR; debug "err-trap (exitcode=$_es_dt_er)"; exit ${_es_dt_er}' ERR
+            trap '_es_dt_ex=$?;\
+                  trap "_ignore_dt_ex=1" EXIT;\
+                  debug "exit-trap (exitcode=${_es_dt_ex})";\
+                  hook_sub_exit ${_es_dt_ex} "$1"' EXIT
+            trap '_es_dt_s=$?;\
+                  trap "_ignore_dt_s=1" HUP INT ILL TRAP ABRT BUS FPE USR1\
+                            SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
+                  debug "sig-trap (exitcode=$_es_dt_s)";\
+                  exit ${_es_dt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1\
+                                 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+            trap '_es_dt_er=$?;\
+                  trap "_ignore_dt_er=1" ERR;\
+                  debug "err-trap (exitcode=$_es_dt_er)";\
+                  exit ${_es_dt_er}' ERR
 
             ns="async"
-            log "Running in the $(ns_long ${ns}) stage: $1"
+            log "launching: $1"
             eval "$1"
         )& 
         child_pids="${child_pids} $!"
         shift
     done
 
-    debug "Looking for \`sync\` scripts and commands..." 
+    debug "Looking for 'sync' scripts and commands..." 
     # Checks for foreground tasks in files (sequentially)
-    for _file in $(run -p ls ${work_dir}/trc.sync.* ${work_dir}/trc.d/sync.* 2>/dev/null || true); do
+    for _file in $(run -p ls ${work_dir}/trc.sync.*\
+                             ${work_dir}/trc.d/sync.* 2>/dev/null || true); do
+        sync_cmds_exist=1
         (
-            trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "${_file}"' EXIT
-            trap '_es_ft_s=$?; trap '_ignore_ft_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_ft_s)"; exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
-            trap '_es_ft_er=$?; trap '_ignore_ft_er=1' ERR; debug "err-trap (exitcode=$_es_ft_er)"; exit ${_es_ft_er}' ERR
+            trap '_es_ft_ex=$?;\
+                  trap "_ignore_ft_ex=1" EXIT;\
+                  debug "exit-trap (exitcode=${_es_ft_ex})";\
+                  hook_sub_exit ${_es_ft_ex} "${_file}"' EXIT
+            trap '_es_ft_s=$?;\
+                  trap "_ignore_ft_s=1" HUP INT ILL TRAP ABRT BUS FPE USR1\
+                            SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
+                  debug "sig-trap (exitcode=$_es_ft_s)";\
+                  exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV\
+                                    USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+            trap '_es_ft_er=$?;\
+                  trap "_ignore_ft_er=1" ERR;\
+                  debug "err-trap (exitcode=$_es_ft_er)";\
+                  exit ${_es_ft_er}' ERR
 
             ns="sync"
-            log "Running in the $(ns_long ${ns}) stage: ${_file}"
+            log "launching: ${_file}"
             . ${_file}
         )
-        # Catch the exitcode of a foreground sub-program
+        # Catchs the exitcode of a foreground sub-program
         _es_m_f=$?
     done
 
@@ -294,20 +355,6 @@ infinite_loop() {
     done
 }
 
-ns_long() {
-    local _ns
-
-    case "$1" in
-        sync)  _ns="foreground";;
-        async) _ns="background";;
-        halt)  _ns="shutdown";;
-        main)  _ns="boot";;
-         *)    _ns="$1";;
-    esac
-
-    echo "${_ns}"
-}
-
 check_ver_usage() {
     case "$1" in
         -v|--version) print_version ;;
@@ -318,11 +365,24 @@ check_ver_usage() {
 
 print_usage() {
     local _self=$0
-    run echo "Usage: ${_self} [-w|--workdir 'dir'] [-B 'cmds' [...]] [-H 'cmds' [...]] [-D 'cmds' [...]] [-F 'cmds' [...]] [cmd [args]]"
+    run echo "Usage:"
+    run echo " ${_self} [[-h|--help]|[-v|--version]] \\"
+    run echo "       [-w|--workdir 'dir'] \\"
+    run echo "       [-B 'cmds' [...]] \\"
+    run echo "       [-H 'cmds' [...]] \\"
+    run echo "       [-D 'cmds' [...]] \\"
+    run echo "       [-F 'cmds' [...]] \\"
+    run echo "       [bare_cmd [args]]"
+    run echo ""
     run echo "Examples:"
-    run echo -e " $ ${_self} -B 'name=\$(id -un); echo booting...' -H 'echo halting...' -F 'echo Hello, \${name}!'"
-    run echo -e " $ RC_VERBOSE=true ${_self} -F 'echo -n \"Hello \"; echo World'"
-    run echo -e " $ ${_self} --workdir /opt/app"
+    run echo " $ ${_self} -B 'name=\$(id -un); echo booting...' \\"
+    run echo "       -H 'echo halting...' \\"
+    run echo "       -F 'echo Hello, \${name}!'"
+    run echo ""
+    run echo " $ RC_VERBOSE=true \\"
+    run echo "   ${_self} -F 'echo -n \"Hello \"; echo World'"
+    run echo ""
+    run echo " $ ${_self} --workdir /opt/app"
     exit 0
 }
 
@@ -339,7 +399,10 @@ check_req_bins() {
     local _cmd
 
     for _cmd in "$@"; do
-        run -v ${_cmd} &> /dev/null || { echo "There is no the required command: ${_cmd}" >&2; exit 1; }
+        if ! run -v ${_cmd} &> /dev/null; then
+            echo "There is no the required command: ${_cmd}" >&2
+            exit 1 
+        fi
     done
 }
 
