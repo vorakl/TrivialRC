@@ -8,6 +8,7 @@ The minimalistic Run-time Configuration (RC) system and process manager
 |build-status|
 
 * Introduction_
+* `Getting deeper`_
 * Installation_
     * `The installation in Docker on top of CentOS Linux base image`_
     * `The installation in Docker on top of Alpine Linux base image`_
@@ -24,20 +25,20 @@ Introduction
 ============
 
 The minimalistic Run-time Configuration (RC) system and process manager is
-written in pure BASH and uses just a few external tools like ``ls`` or ``ps``.
-Minimally, installation of TrivialRC consists of only one file which can be
-downloaded directly from the Github. Originaly, it was designed for use in
-containers but it also can be well used for running a group of processes
-asynchronously and synchronously, as well as managing their running order and
-exit codes.
+written in pure Bash and uses just a few external tools like ``ls`` or ``ps``.
+Minimally, installation of TrivialRC consists of the only one file which can be
+downloaded directly from Github. Originaly, it was designed for use in
+containers but it also can be easily used independently of containers for
+running a group of processes asynchronously and synchronously, as well as
+managing their running order and exit codes.
 
-TrivialRC is not a replacement for an init process that usually resides in
-``/sbin/init`` and has a PID 1. In containers for this purpose can be used
-projects like dumb-init_ or tini_. Although in most cases, having only TrivialRC
-as a first/main process (PID 1) in containers is quite enough. In terms of
-Docker, the best place for it is ENTRYPOINT.
+In the container's world, TrivialRC is not a replacement for an init process
+that usually resides in ``/sbin/init`` and has a PID 1. For this purpose there
+are few projects like dumb-init_ or tini_. Although, in most cases, having only
+TrivialRC as a first/main process (PID 1) in a container is quite enough.
+In terms of Docker, the best place for it is the ENTRYPOINT.
 
-TrivialRC is an equivalent to well known ``/etc/rc`` for xBSD users. It can
+TrivialRC somehow reminds a well known ``/etc/rc`` for xBSD users. It can
 start and stop one or more processes, in parallel or sequentially, react
 differently in case of process failures, etc. All commands can be specified in
 the command line if they are relatively simple, or in separate files if a more
@@ -45,14 +46,35 @@ comprehensive scenario is needed. That's why it can be used as the simplest tool
 for managing a group of process and be a lightweight replacement for solutions
 like Supervisor_.
 
-It's also fully compatible with the main ideology of Docker when it's assumed
-to run only one process per container, with letting it a PID 1, and stop
-a container if a process fails. That's how TrivialRC operates by default if only
-a ``bare command`` with its options is provided. Although, it's easy to put
-TrivialRC in a process manager mode with PID 1 and run multiple
-processes, control their states and react differently in case of failures.
-In this mode, it allows to switch a container's model from ``one process per
-container`` to ``one service per container``.
+
+Getting deeper
+==============
+
+Regardless of a chosen running mode, at a startup, TrivialRC runs in
+the ``boot`` stage which can be used for run-time configuration by running
+a number of commands/scripts in the same shell environment. For example, it's
+a right place for setting global variables, creating configuration files from
+templates, etc.
+
+Besides doing this, in Docker containers, TrivialRC is basically used to get
+one of the patterns:
+* ``one process per container`` (the default one), when the only one process 
+  is running inside a container and has a PID 1. In this mode, the process gets
+  signals directly from a Docker daemon. This mode is activated when only
+  ``bare`` command with arguments were specified in the command line.
+* ``one service per container``, when a logically linked group of process are
+  running inside a container. In this case, TrivialRC runs with a PID 1,
+  controls a processess' invocation order, their running states and reacts
+  properly on incoming signals. This is when it works as a ``process manager``
+  and this mode is activated when processes were specified as ``sync``, 
+  ``async`` or ``halt``.
+
+In other words, if you run the only one command (plus arguments) in the command
+line, then TrivialRC is fully compatible with the main ideology of Docker
+because it ``exec``'utes one process per container. But, if you need to run
+sequentially a few isolated (in a sub-shell) processes and control their exit
+statuses or even run more than one process at the same time inside a container,
+then TrivailRC needs to get a PID 1 and act as a process manager for them.
 
 For instance, in docker containers, when TrivialRC is used as an entrypoint, it
 doesn't reveal itself by default, does not affect any configurations and behaves
@@ -61,9 +83,9 @@ by a ``CMD`` instruction without using any special running stages of TrivialRC
 is actually being ``exec``'uted in the same shell environment. As a result,
 a ``bare command`` appears with PID 1. So, you can add it into any Dockerfiles
 which haven't had an entrypoint yet and later turn on detailed logs of
-a stratup process, add some extra actions in a specific order before running
+a startup process, add some extra actions in a specific order before running
 a main container's command or even run a few different processes at the same
-time inside the same container. for more information, please take a look
+time inside the same container. For more information, please take a look
 at the examples__.
 
 __ https://github.com/vorakl/TrivialRC/tree/master/examples
@@ -160,7 +182,7 @@ In general it looks like:
           [-H 'cmds' [...]] \
           [-D 'cmds' [...]] \
           [-F 'cmds' [...]] \
-          [command [args]]
+          [bare_command [args]]
 
 Where 
 
@@ -171,7 +193,8 @@ Where
 * ``-H 'command1; command2; ...'``, ``[H]alt`` commands
 * ``-D 'command1; command2; ...'``, ``async`` ([D]etouched) commands
 * ``-F 'command1; command2; ...'``, ``sync`` ([F]oreground) commands
-* ``command [args]``, a ``bare`` command with arguments, without quotation marks
+* ``bare-command [args]``, a ``bare`` command with arguments, 
+  without quotation marks
 
 So, command line options have to be supplied in the next order
 
@@ -179,7 +202,7 @@ So, command line options have to be supplied in the next order
 2. ``-H``, zero or more which run in a sub-shell
 3. ``-D``, zero or more which run in a sub-shell
 4. ``-F``, zero or more which run in a sub-shell
-5. ``command with arguments`` (without an option), zero or only one, takes
+5. ``bare command with arguments`` (without an option), zero or only one, takes
    the whole execution control from the main process
 
 Examples:
