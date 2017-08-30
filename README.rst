@@ -96,7 +96,7 @@ Installation
 ============
 
 Basically, all you need to install TrivialRC is download the latest release of
-the script from ``http://trivialrc.vorakl.name/files/trc`` (or stick to any
+the script from ``http://trivialrc.vorakl.name/trc`` (or stick to any
 available releases in ``https://github.com/vorakl/TrivialRC/releases``) and give
 it an execute permission. By default, it looks for configuration files in the
 same directory from which it was invoked but this behavior can be changed by
@@ -194,7 +194,7 @@ Where
 * ``-H 'command1; command2; ...'``, ``[H]alt`` commands
 * ``-D 'command1; command2; ...'``, ``async`` ([D]etouched) commands
 * ``-F 'command1; command2; ...'``, ``sync`` ([F]oreground) commands
-* ``bare-command [args]``, a ``bare`` command with arguments, 
+* ``bare_command [args]``, a ``bare`` command with arguments, 
   without quotation marks
 
 So, command line options have to be supplied in the next order
@@ -203,7 +203,7 @@ So, command line options have to be supplied in the next order
 2. ``-H``, zero or more which run in a sub-shell
 3. ``-D``, zero or more which run in a sub-shell
 4. ``-F``, zero or more which run in a sub-shell
-5. ``bare command with arguments`` (without an option), zero or only one, takes
+5. ``bare_command with arguments`` (without an option), zero or only one, takes
    the whole execution control from the main process
 
 Examples:
