@@ -30,7 +30,7 @@ PAGINATION_PATTERNS = (
 )
 
 DELETE_OUTPUT_DIRECTORY = True  # build an output dir from scratch every time
-OUTPUT_RETENTION = ["CNAME", "files"] # but these dirs and files should be kept
+OUTPUT_RETENTION = ["CNAME", "trc", "trc.sha256"] # but these dirs and files should be kept
 
 
 ### Interface configuration

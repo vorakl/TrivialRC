@@ -1,8 +1,7 @@
 * 1.2.0
     * CHNG: dir_name variable was renamed to work_dir
     * CHNG: a bare command replaces the main shell (by exec call).
-            It's possible to run a command as PID 1 in a Docker container
-    * CHNG: the download path has been changed from / to /files/
+            It's possible now to run a command as PID 1 in a Docker container
     * UPD:  documentation
     * ADD:  new examples
 * 1.1.10
