@@ -196,7 +196,7 @@ Where
 * ``-D 'command1; command2; ...'``, ``async`` ([D]etouched) commands
 * ``-F 'command1; command2; ...'``, ``sync`` ([F]oreground) commands
 * ``bare_command [args]``, a ``bare`` command with arguments, 
-  without quotation marks. It will be executed only there aren't any ``-H``,
+  without quotation marks. It will be executed only if there aren't any ``-H``,
   ``-D`` or ``-F`` options
 
 So, command line options have to be supplied in the next order
