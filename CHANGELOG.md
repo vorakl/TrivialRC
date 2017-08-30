@@ -1,5 +1,7 @@
 * 1.2.0
-    * CHNG: dir_name variable was renamed to work_dir
+    * CHNG: `dir_name` variable was renamed to `work_dir`
+    * CHNG: `exit_status` variable was renamed to `exit_status`
+    * CHNG: `MAINPID` variable was renamed to `MAIN_PID`
     * CHNG: a bare command replaces the main shell (by exec call).
             It's possible now to run a command as PID 1 in a Docker container
     * UPD:  documentation
@@ -22,7 +24,7 @@
            with config files
 * 1.1.4
     * ADD: a new wait policy `wait_err` which waits for a first failed command
-    * ADD: a new stage "halt" (`-H` command line option or `halt.*` files) that
+    * ADD: a new stage `halt` (`-H` command line option or `halt.*` files) that
            runs on exit from the main process
 * 1.1.3
     * ADD: a new command line option `-F` that runs commands in the foreground

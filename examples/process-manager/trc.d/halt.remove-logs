@@ -4,4 +4,4 @@ set +e
 rm -f ${NETMON} ${NETLISTENER}
 
 # Finishing  with the original exit status
-exit ${_exit_status}
+exit ${exit_status}

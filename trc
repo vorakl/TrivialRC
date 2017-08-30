@@ -17,16 +17,16 @@ main() {
     check_ver_usage "$1"
     check_req_bins ls ps pkill sleep date basename dirname
 
-    # It's possible to exit from the last `halt` command with ${_exit_status} which comes from main() 
+    # It's possible to exit from the last `halt` command with ${exit_status} which comes from main() 
     # and rewrite by this an exit status of the `halt` stage which always has a priority against main's exit status
-    trap '_exit_status=$?; trap '_ignore_mt_ex=1' EXIT; debug "exit-trap (exitcode=${_exit_status})"; hook_main_exit' EXIT
+    trap 'exit_status=$?; trap '_ignore_mt_ex=1' EXIT; debug "exit-trap (exitcode=${exit_status})"; hook_main_exit' EXIT
     trap '_es_mt_s=$?; trap '_ignore_mt_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=${_es_mt_s})"; exit ${_es_mt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
     trap '_es_mt_er=$?; trap '_ignore_mt_er=1' ERR; if [[ "${RC_WAIT_POLICY}" = "wait_err" ]]; then debug "err-trap (exitcode=${_es_mt_er})"; exit ${_es_mt_er}; fi' ERR
 
     local _wait_bg_cmd _file _es_m_f=0 _es_m_d=0
 
     export SELF_NAME=$(run -p basename $0 .sh) # Self name for logging purpose
-    export MAINPID="${BASHPID}" # PID of the main process
+    export MAIN_PID="${BASHPID}" # PID of the main process
     : ${RC_WAIT_POLICY:=wait_any}; export RC_WAIT_POLICY 
 
     work_dir=$(run -p dirname $0)
@@ -226,7 +226,7 @@ hook_main_exit() {
         fi
     done
     debug "removing all unexpected sub-processes"
-    if ! run -p pkill -KILL -P ${MAINPID} &> /dev/null; then
+    if ! run -p pkill -KILL -P ${MAIN_PID} &> /dev/null; then
         true
     fi
 
@@ -261,11 +261,11 @@ hook_main_exit() {
     fi 
 
     if [[ ${halt_cmds_exist} -eq 1 ]]; then
-        _exit_status=${_es_mtt_h}
+        exit_status=${_es_mtt_h}
     fi
 
-    log "Exited (exitcode=${_exit_status})"
-    exit ${_exit_status}
+    log "Exited (exitcode=${exit_status})"
+    exit ${exit_status}
 }
 
 hook_sub_exit() {
@@ -278,9 +278,9 @@ hook_sub_exit() {
 
     if [[ "${RC_WAIT_POLICY}" = "wait_any" ]]; then 
         # If exiting from a bg process and don't need to wait other processes, let's stop the main
-        if run -p ps -p ${MAINPID} &> /dev/null; then
-            debug "terminating the main process <pid=${MAINPID}>"
-            run kill -TERM ${MAINPID} &> /dev/null
+        if run -p ps -p ${MAIN_PID} &> /dev/null; then
+            debug "terminating the main process <pid=${MAIN_PID}>"
+            run kill -TERM ${MAIN_PID} &> /dev/null
         fi
     fi
 
@@ -301,7 +301,6 @@ ns_long() {
         sync)  _ns="foreground";;
         async) _ns="background";;
         halt)  _ns="shutdown";;
-        bare)  _ns="bare";;
         main)  _ns="boot";;
          *)    _ns="$1";;
     esac

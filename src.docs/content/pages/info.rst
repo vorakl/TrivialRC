@@ -100,8 +100,8 @@ as base image:
 
     FROM centos:latest
 
-    RUN curl -sSLfo /etc/trc http://trivialrc.vorakl.name/files/trc && \
-        ( cd /etc && curl -sSLf http://trivialrc.vorakl.name/files/trc.sha256 |\
+    RUN curl -sSLfo /etc/trc http://trivialrc.vorakl.name/trc && \
+        ( cd /etc && curl -sSLf http://trivialrc.vorakl.name/trc.sha256 |\
           sha256sum -c ) && \
         chmod +x /etc/trc && \
         /etc/trc --version
@@ -126,8 +126,8 @@ As a result, Dockerfile for the `alpine:latest`_ base image would look like:
 
     RUN apk add --no-cache bash procps
 
-    RUN wget -qP /etc/ http://trivialrc.vorakl.name/files/trc && \
-        ( cd /etc && wget -qO - http://trivialrc.vorakl.name/files/trc.sha256 |\
+    RUN wget -qP /etc/ http://trivialrc.vorakl.name/trc && \
+        ( cd /etc && wget -qO - http://trivialrc.vorakl.name/trc.sha256 |\
           sha256sum -c ) && \
         chmod +x /etc/trc && \
         /etc/trc --version
@@ -269,8 +269,8 @@ All stages are executed in the next order:
        
        An exit status from the last ``halt`` command has precedence under an
        exit status from the main process which was supplied as the
-       ${_exit_status} variable. So you are able to keep a main exit status
-       (by finishing as **exit ${_exit_status}**) or rewrite it to something
+       ${exit_status} variable. So you are able to keep a main exit status
+       (by finishing as **exit ${exit_status}**) or rewrite it to something
        else but anyway, if you have at least one ``halt`` command, TrivialRC
        will finish with an exit status of this ``halt`` command.
 
@@ -367,9 +367,9 @@ You can also use some of internal functions in async/sync tasks:
 Useful global variables
 =======================
 
-* ``MAINPID``, for sending signals to the main process
+* ``MAIN_PID``, for sending signals to the main process
   (see `Testing of Docker images`_)
-* ``_exit_status``, for checking or rewriting an exit status of the whole script
+* ``exit_status``, for checking or rewriting an exit status of the whole script
   (see `Process Manager`_, `Service Discovery`_)
 
 .. Links
