@@ -58,6 +58,7 @@ templates, etc.
 
 Besides doing this, in Docker containers, TrivialRC is basically used to get
 one of the patterns:
+
 * ``one process per container`` (the default one), when the only one process 
   is running inside a container and has a PID 1. In this mode, the process gets
   signals directly from a Docker daemon. This mode is activated when only
