@@ -390,7 +390,8 @@ You can also use some of internal functions in async/sync tasks:
         the same name. For instance, if you wanna run only external command from
         the standart PATH list, use ``run -p 'command'``. Or, if you need
         to check an existence of a command, try ``run -v 'command'``
-
+* ``iso_time``
+        prints a current time in the format ``%Y-%m-%d %H:%M:%S``
 
 Useful global variables
 =======================

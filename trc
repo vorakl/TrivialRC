@@ -239,7 +239,8 @@ main() {
         fi
 
         if [[ "${RC_WAIT_POLICY}" = "wait_forever" ]]; then
-            infinite_loop
+            log "The infinite loop! To stop, press <Ctrl+C> or send SIGTERM..."
+            run -p sleep infinity
         fi
     else
         debug  "Looking for a 'bare' command..."      
@@ -344,11 +345,6 @@ hook_sub_exit() {
     exit ${_rc}
 }
 
-infinite_loop() {
-    log "Activated infinite loop! To stop, press <Ctrl+C> or send SIGTERM..."
-    run -p sleep infinity
-}
-
 check_ver_usage() {
     case "$1" in
         -v|--version) print_version ;;
@@ -407,7 +403,7 @@ say() {
 }
 
 log() {
-    say "$(run -p date '+%Y-%m-%d %H:%M:%S') ${SELF_NAME} [${ns}/${BASHPID}]: $@"
+    say "$(iso_time) ${SELF_NAME} [${ns}/${BASHPID}]: $@"
 }
 
 warn() {
@@ -428,6 +424,10 @@ debug() {
     if [[ "${RC_VERBOSE_EXTRA}" = "true" ]]; then
         log " - $@"
     fi
+}
+
+iso_time() {
+    run -p date '+%Y-%m-%d %H:%M:%S'
 }
 
 main "$@"
