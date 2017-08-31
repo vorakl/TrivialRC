@@ -77,17 +77,17 @@ sequentially a few isolated (in a sub-shell) processes and control their exit
 statuses or even run more than one process at the same time inside a container,
 then TrivailRC needs to get a PID 1 and act as a process manager for them.
 
-For instance, in docker containers, when TrivialRC is used as an entrypoint, it
-doesn't reveal itself by default, does not affect any configurations and behaves
-absolutely transparently. This happens because a ``bare command``, which is run
-by a ``CMD`` instruction without using any special running stages of TrivialRC 
-is actually being ``exec``'uted in the same shell environment. As a result,
-a ``bare command`` appears with PID 1. So, you can add it into any Dockerfiles
-which haven't had an entrypoint yet and later turn on detailed logs of
-a startup process, add some extra actions in a specific order before running
-a main container's command or even run a few different processes at the same
-time inside the same container. For more information, please take a look
-at the examples__.
+For instance, in docker containers when TrivialRC is used as an entrypoint, it
+doesn't reveal itself by default. It doesn't affect any configurations and
+behaves absolutely transparently. This happens because a ``bare command`` which
+is run by a ``CMD`` instruction without using any special running stages
+of TrivialRC is actually being ``exec``'uted in the same shell environment.
+As a result, a ``bare command`` appears with PID 1. So, you can add it into
+any Dockerfiles which haven't had an entrypoint yet. Later, it's easy to turn on
+detailed logs of a startup process, add some extra actions in a specific order
+before running a main container's command or even run a few different processes
+at the same time inside the same container.
+For more information please take a look at the examples__.
 
 __ https://github.com/vorakl/TrivialRC/tree/master/examples
 
@@ -95,8 +95,8 @@ __ https://github.com/vorakl/TrivialRC/tree/master/examples
 Installation
 ============
 
-Basically, all you need to install TrivialRC is download the latest release of
-the script from ``http://trivialrc.vorakl.name/trc`` (or stick to any
+Basically, all you need to install TrivialRC is to download the latest release
+of the script from ``http://trivialrc.vorakl.name/trc`` (or stick to any
 available releases in ``https://github.com/vorakl/TrivialRC/releases``) and give
 it an execute permission. By default, it looks for configuration files in the
 same directory from which it was invoked but this behavior can be changed by
@@ -106,7 +106,7 @@ to install the script to /etc/ as well and simply run it without specifying
 any parameters.
 
 Another option in this case could be to install the script in a more appropriate
-place but don't forget to specify ``--workdir /etc`` parameter every time when
+place but don't forget to specify ``-w /etc`` parameter every time when
 you invoke this rc system. Both options are possible and it depends more on
 a particular use case. For instance, in case of using in a docker container,
 I personaly prefer to have all configuration in separate files in ``trc.d/``
