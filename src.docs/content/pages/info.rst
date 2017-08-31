@@ -61,7 +61,7 @@ one of the patterns:
 
 * ``one process per container`` (the default one), when the only one process 
   is running inside a container and has a PID 1. In this mode, the process gets
-  signals directly from a Docker daemon. This mode is activated when only
+  signals directly from a Docker daemon. This mode is activated when the only
   ``bare`` command with arguments were specified in the command line.
 * ``one service per container``, when a logically linked group of process are
   running inside a container. In this case, TrivialRC runs with a PID 1,

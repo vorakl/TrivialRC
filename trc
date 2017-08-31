@@ -257,7 +257,8 @@ main() {
 hook_main_exit() {
     local _pid _cpids _file _cmd _es_mtt_h=0 _term_timeout=5
 
-    # If it fails in the 'boot' stage, it appears here with 'set -e'. So, reset to +e again
+    # If it fails in the 'boot' stage, it appears here with 'set -e'.
+    # So, reset to +e again
     set +e
     trap 'true' ERR
 
@@ -270,22 +271,22 @@ hook_main_exit() {
             _cpids="$(run -p pgrep -P ${_pid} -d,)"
             run kill -TERM ${_pid} $(echo "${_cpids}" | tr ',' ' ') &> /dev/null
 
-            while run -p ps -p ${_pid},${_cpids} &> /dev/null && [[ ${_term_timeout} -gt 0 ]]
+            while run -p ps -p ${_pid},${_cpids} &> /dev/null && \
+                  (( _term_timeout ))
             do
                 run -p sleep 1
-                : $((_term_timeout--))
+                (( _term_timeout-- ))
             done
 
             if run -p ps -p ${_pid},${_cpids} &>/dev/null; then
-                run kill -KILL ${_pid} $(run echo "${_cpids}" | run -p tr ',' ' ') &> /dev/null
+                run kill -KILL ${_pid} $(run echo "${_cpids}" | \
+                                         run -p tr ',' ' ') &> /dev/null
             fi
         fi
     done
 
     debug "Removing all unexpected sub-processes"
-    if ! run -p pkill -KILL -P ${MAIN_PID} &> /dev/null; then
-        true
-    fi
+    run -p pkill -KILL -P ${MAIN_PID} &> /dev/null || true
 
     # --- `halt`
     if [[ boot_stage_left -eq 1 ]]; then
@@ -295,13 +296,13 @@ hook_main_exit() {
                               ${work_dir}/trc.d/halt.* 2>/dev/null || true); do
             halt_cmds_exist=1
             (
-                set -e # Exit on errors in the sub-shell
+                set -e # Exit on errors in a sub-shell
                 ns="halt"
-                log "Running the shutdown script: ${_file}"
+                log "launching: ${_file}"
                 . ${_file}
             )
             _es_mtt_h=$?
-            log "Exiting from the shutdown script (exitcode=${_es_mtt_h}): ${_file}"
+            log "exiting (exitcode=${_es_mtt_h}): ${_file}"
         done
 
         # Runs shutdown tasks from the command line if any
@@ -310,11 +311,11 @@ hook_main_exit() {
                 set -e # Exit on errors in the sub-shell
 
                 ns="halt"
-                log "Running the shutdown command: ${_cmd}"
+                log "launching: ${_cmd}"
                 eval "${_cmd}"
             )
             _es_mtt_h=$?
-            log "Exiting from the shutdown command (exitcode=${_es_mtt_h}): ${_cmd}"
+            log "exiting (exitcode=${_es_mtt_h}): ${_cmd}"
         done    
     fi 
 
@@ -327,15 +328,16 @@ hook_main_exit() {
 }
 
 hook_sub_exit() {
-    set +e # do not stop or errors anyway
+    set +e # do not stop on errors
 
     local _rc=$1 # Getting the exit code for a logging purpose only
     shift
 
-    log "Exiting in the $(ns_long ${ns}) (exitcode=${_rc}): $@"
+    log "exiting (exitcode=${_rc}): $@"
 
     if [[ "${RC_WAIT_POLICY}" = "wait_any" ]]; then 
-        # If exiting from a bg process and don't need to wait other processes, let's stop the main
+        # If it's exiting from a background process and there is no need
+        # to wait other processes, let's stop the main shell
         if run -p ps -p ${MAIN_PID} &> /dev/null; then
             debug "terminating the main process <pid=${MAIN_PID}>"
             run kill -TERM ${MAIN_PID} &> /dev/null
