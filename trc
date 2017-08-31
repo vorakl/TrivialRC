@@ -32,11 +32,11 @@ main() {
               exit ${_es_mt_er};\
           fi' ERR
     trap '_es_mt_s=$?;\
-          trap "_ignore_mt_s=1" HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2\
-                                         PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
+          trap "_ignore_mt_s=1" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1 SEGV\
+                                USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
           debug "sig-trap (exitcode=${_es_mt_s})";\
-          exit ${_es_mt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE\
-                                               ALRM TERM XCPU XFSZ VTALRM SYS
+          exit ${_es_mt_s}' HUP INT QUIT ILL TRAP ABRT BUS FPE USR1 SEGV USR2\
+                            PIPE ALRM TERM XCPU XFSZ VTALRM SYS
 
     local _wait_bg_cmd _file _es_m_f=0 _es_m_d=0
 
@@ -122,11 +122,11 @@ main() {
             # In case of exit on errors (set -e) or by a signal, catch exitcode
             # and exit with it. This will lead to triggering an EXIT trap
             trap '_es_dt_s=$?;\
-                  trap "_ignore_dt_s=1" HUP INT ILL TRAP ABRT BUS FPE USR1\
+                  trap "_ignore_dt_s=1" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
                                SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
                   debug "sig-trap (exitcode=$_es_dt_s)";\
-                  exit ${_es_dt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV\
-                                    USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+                  exit ${_es_dt_s}' HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
+                                  SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
 
             ns="async"
             log "launching: ${_file}"
@@ -150,10 +150,10 @@ main() {
                   debug "err-trap (exitcode=$_es_dt_er)";\
                   exit ${_es_dt_er}' ERR
             trap '_es_dt_s=$?;\
-                  trap "_ignore_dt_s=1" HUP INT ILL TRAP ABRT BUS FPE USR1\
+                  trap "_ignore_dt_s=1" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
                             SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
                   debug "sig-trap (exitcode=$_es_dt_s)";\
-                  exit ${_es_dt_s}' HUP INT ILL TRAP ABRT BUS FPE USR1\
+                  exit ${_es_dt_s}' HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
                                  SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
 
             ns="async"
@@ -179,11 +179,11 @@ main() {
                   debug "err-trap (exitcode=$_es_ft_er)";\
                   exit ${_es_ft_er}' ERR
             trap '_es_ft_s=$?;\
-                  trap "_ignore_ft_s=1" HUP INT ILL TRAP ABRT BUS FPE USR1\
+                  trap "_ignore_ft_s=1" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
                             SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
                   debug "sig-trap (exitcode=$_es_ft_s)";\
-                  exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV\
-                                    USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+                  exit ${_es_ft_s}' HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
+                                 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
 
             ns="sync"
             log "launching: ${_file}"
@@ -208,11 +208,11 @@ main() {
                   debug "err-trap (exitcode=$_es_ft_er)";\
                   exit ${_es_ft_er}' ERR
             trap '_es_ft_s=$?;\
-                  trap "_ignore_ft_s=1" HUP INT ILL TRAP ABRT BUS FPE USR1\
+                  trap "_ignore_ft_s=1" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
                             SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
                   debug "sig-trap (exitcode=$_es_ft_s)";\
-                  exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV\
-                                    USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
+                  exit ${_es_ft_s}' HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
+                                 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
 
             ns="sync"
             log "launching: $1"
