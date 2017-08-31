@@ -94,13 +94,6 @@ __ https://github.com/vorakl/TrivialRC/tree/master/examples
 |run-stages|
 
 
-.. image:: trivialrc-stages.svg
-   :scale: 50
-   :alt: Run Stages
-   :align: center
-
-
-
 Installation
 ============
 
@@ -415,7 +408,7 @@ Useful global variables
 .. |build-status| image:: https://travis-ci.org/vorakl/TrivialRC.svg?branch=master
    :target: https://travis-ci.org/vorakl/TrivialRC
    :alt: Travis CI: continuous integration status
-.. |run-stages| image:: trivialrc-stages.svg
+.. |run-stages| image:: http://trivialrc.vorakl.name/images/trivialrc.svg
    :scale: 50
    :alt: Run Stages
    :align: center
