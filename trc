@@ -288,7 +288,7 @@ hook_main_exit() {
     run -p pkill -KILL -P ${MAIN_PID} &> /dev/null || true
 
     # --- `halt`
-    if [[ boot_stage_left -eq 1 ]]; then
+    if (( boot_stage_left )); then
         debug "Looking for 'halt' scripts..."
         # Checks for shutdown tasks in files (sequentially)
         for _file in $(run -p ls ${work_dir}/trc.halt.* \

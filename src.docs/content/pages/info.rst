@@ -229,7 +229,7 @@ The life cycle of TrivialRC consists of different stages, with a different
 isolation. By default, all configuration files (or ``trc.d/`` directory with
 them) are searched in the directory from which a script was executed.
 For instance, if you've installed trc in /usr/bin/ and run it by using only its
-name, like ``trc``, then configuration will also be searched in /usr/bin/.
+name, like ``trc``, then configuration will be also searched in /usr/bin/.
 Though, you can place configuration files anywhere you like and specify their
 location in the ``-w|--workdir`` option, like ``trc -w /etc/``. 
 
@@ -286,7 +286,7 @@ All stages are executed in the next order:
 
        This stage is a part of a ``process manager``, it's always isolated.
        Commands run in a sub-shell, synchronously (one by one) when the main
-       process is terminating. This can happen only in two ocasions:
+       process is terminating. This can happen only in two situations:
 
        * there **isn't** provided a ``bare`` command which always takes over an
          execution control from the main process
