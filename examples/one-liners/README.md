@@ -1,85 +1,92 @@
 # One Liners
 
 ```bash
-# The simplest start is doing nothing
-$ ./trc
+# The simplest start is to do nothing
+$ trc
 ```
 ```bash
-# The most famous one
-$ ./trc echo Hello World
+# But in fact trc does much more than it seems
+
+$ RC_VERBOSE=true RC_VERBOSE_EXTRA=true trc
+2017-08-31 18:10:24 trc [main/22776]: The wait policy: wait_any
+2017-08-31 18:10:24 trc [main/22776]:  - Looking for 'boot' scripts and commands...
+2017-08-31 18:10:24 trc [main/22776]:  - Looking for 'halt' commands...
+2017-08-31 18:10:24 trc [main/22776]:  - Looking for 'async' scripts and commands...
+2017-08-31 18:10:24 trc [main/22776]:  - Looking for 'sync' scripts and commands...
+2017-08-31 18:10:24 trc [main/22776]:  - Looking for a 'bare' command...
+2017-08-31 18:10:24 trc [main/22776]:  - exit-trap (exitcode=0)
+2017-08-31 18:10:24 trc [main/22776]: Trying to terminate sub-processes...
+2017-08-31 18:10:24 trc [main/22776]:  - Removing all unexpected sub-processes
+2017-08-31 18:10:24 trc [main/22776]:  - Looking for 'halt' scripts...
+2017-08-31 18:10:24 trc [main/22776]: Exited (exitcode=0)
+```
+```bash
+# The most famous test
+
+$ trc echo Hello World
 Hello World
 ```
 ```bash
-# Turns on logs
-$ RC_VERBOSE=true ./trc echo Hello World
-2017-02-22 23:10:11 trc [main/23630]: The wait policy: wait_any
-2017-02-22 23:10:11 trc [sync/23640]: Launching in the foreground: echo Hello World
-Hello World
-2017-02-22 23:10:11 trc [sync/23640]: Exiting in the foreground (exitcode=0): echo Hello World
-2017-02-22 23:10:11 trc [main/23630]: Going down. Running shutdown scripts...
-2017-02-22 23:10:11 trc [main/23630]: Handling of termination...
-2017-02-22 23:10:11 trc [main/23630]: Exited.
+# If turn on the logs, it's easy to notice that the command replaces TrivialRC.
+# PID of trc and PID of the executed command are the same (3403)
+# TrivialRC obviously looses all the control under the process
+
+$ RC_VERBOSE=true trc ls -ld /proc/self
+2017-08-31 21:03:53 trc [main/3403]: The wait policy: wait_any
+2017-08-31 21:03:53 trc [bare/3403]: handing over the execution to: ls -ld /proc/self
+lrwxrwxrwx 1 root root 0 Aug 26 20:31 /proc/self -> 3403
+```
+```bash
+# Let's get back a full control! ;)
+# It's going to stop after the first command because a default wait policy
+# is 'wait_any'
+
+$ trc -F 'exit 12' -F 'exit 13'
 
 $ echo $?
-0
+12
 ```
 ```bash
-# Exits with a proper exit code
-$ ./trc exit 111
+# If a wait policy is set to 'wait_all', it can catch exit codes of all commands
+# and exit with a code of the last one
 
-$ echo $?
-111
+$ { RC_VERBOSE=true RC_WAIT_POLICY=wait_all \
+    trc -F 'exit 12' -F 'true' -F 'false' -F 'exit 13'; \
+    echo "trc exited with code: $?" >&2; \
+  } | sed -n 's/^.*exiting (\(exitcode=.*\)).*$/\1/p'
+exitcode=12
+exitcode=0
+exitcode=1
+exitcode=13
+trc exited with code: 13
 ```
 ```bash
-# Both commands are running in the foreground but it exits after the first one by default
-$ RC_VERBOSE=true \
-  RC_VERBOSE_EXTRA=true \
-  ./trc -F 'echo Hello'
-        echo World
-2017-02-22 23:14:35 trc [main/24314]: The wait policy: wait_any
-2017-02-22 23:14:35 trc [sync/24324]: Launching in the foreground: echo Hello
-Hello
-2017-02-22 23:14:35 trc [sync/24324]:  - exit-trap (exitcode=0)
-2017-02-22 23:14:35 trc [sync/24324]: Exiting in the foreground (exitcode=0): echo Hello
-2017-02-22 23:14:35 trc [sync/24324]:  - terminating the main process <pid=24314>
-2017-02-22 23:14:35 trc [main/24314]:  - sig-trap (exitcode=0)
-2017-02-22 23:14:35 trc [main/24314]:  - exit-trap (exitcode=0)
-2017-02-22 23:14:35 trc [main/24314]: Going down. Running shutdown scripts...
-2017-02-22 23:14:35 trc [main/24314]: Handling of termination...
-2017-02-22 23:14:35 trc [main/24314]: Exited.
-```
-```bash
-# To achive the same goal it needs to wait for all commands and then we'll see both outputs
-$ RC_WAIT_POLICY=wait_all ./trc -F 'echo Hello' echo World
-Hello
-World
-```
-```bash
-# A few ways to run many commands in the foreground
-$ RC_WAIT_POLICY=wait_all \ 
-  ./trc -F 'echo Hello' \
-        -F 'sleep 1' \
-        -F 'echo World'
-Hello
-World
+# By setting a wait policy to 'wait_err', it's simple to stop the process
+# on the first failed command and catch the exit code
 
-$ ./trc -F 'echo Hello; sleep 1; echo World'
-Hello
-World
+$ { RC_VERBOSE=true RC_WAIT_POLICY=wait_err \
+    trc -F 'exit 0' -F 'true' -F 'exit 12' -F 'false'; \
+    echo "trc exited with code: $?" >&2; \
+  } | sed -n 's/^.*exiting (\(exitcode=.*\)).*$/\1/p'
+exitcode=0
+exitcode=0
+exitcode=12
+trc exited with code: 12
 ```
 ```bash
-# It's going to create file in the background, waiting for 3 sec and then reading this file 
-$ RC_WAIT_POLICY=wait_all \
-  ./trc -D 'date > date1.log' \
-        -F 'sleep 3' \
-        -F 'echo -e "Old time: $(cat date1.log)\nNew time: $(date)"'
-        -F 'rm -f date1.log'
-Old time: Wed Feb 22 14:15:20 CET 2017
-New time: Wed Feb 22 14:15:23 CET 2017
+# This is another way to run a few commands
 
-$ ls -l date1.log
-ls: cannot access 'date1.log': No such file or directory
+$ trc -F 'date; sleep 3; date'
+Thu Aug 31 22:21:11 CEST 2017
+Thu Aug 31 22:21:14 CEST 2017
 ```
+```bash
+# In this example, it's going to run a few jobs in parallel and wait until they
+# all have finished. It doesn't matter if some of them fails because TrivialRC
+# in the 'wait_all' mode will wait for all jobs and exit with the exit code
+# of the last finished process
+```
+
 ```bash
 # It assigns environment variables in the boot-block an then uses them in the foreground-block
 ./trc -B 'export myhost=$(hostname) user=$(id -un)' \
