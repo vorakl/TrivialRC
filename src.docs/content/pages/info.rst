@@ -226,12 +226,12 @@ Run stages
 ==========
 
 The life cycle of TrivialRC consists of different stages, with a different
-isolation. By default, all configuration files (or trc.d/ directory with them)
-are searched in the directory from which a script was executed. For instance,
-if you've installed trc in /usr/bin/ and run it by using only its name, like
-``trc``, then configuration will also be searched in /usr/bin/. Though, you can
-place configuration files anywhere you like and specify their location in the
-``-w|--workdir`` option, like ``trc -w /etc/``. 
+isolation. By default, all configuration files (or ``trc.d/`` directory with
+them) are searched in the directory from which a script was executed.
+For instance, if you've installed trc in /usr/bin/ and run it by using only its
+name, like ``trc``, then configuration will also be searched in /usr/bin/.
+Though, you can place configuration files anywhere you like and specify their
+location in the ``-w|--workdir`` option, like ``trc -w /etc/``. 
 
 Let's check:
 
