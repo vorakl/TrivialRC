@@ -409,9 +409,7 @@ Useful global variables
    :target: https://travis-ci.org/vorakl/TrivialRC
    :alt: Travis CI: continuous integration status
 .. |run-stages| image:: http://trivialrc.vorakl.name/images/trivialrc.svg
-   :scale: 50
    :alt: Run Stages
-   :align: center
 .. _dumb-init: https://github.com/Yelp/dumb-init
 .. _tini: https://github.com/krallin/tini
 .. _Supervisor: https://github.com/Supervisor/supervisor
