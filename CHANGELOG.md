@@ -1,11 +1,13 @@
 * 1.2.0
-    * CHNG: `dir_name` variable was renamed to `work_dir`
-    * CHNG: `exit_status` variable was renamed to `exit_status`
-    * CHNG: `MAINPID` variable was renamed to `MAIN_PID`
-    * CHNG: a bare command replaces the main shell (by exec call).
+    * CHNG: A few variables were renamed:
+        * `dir_name` to `work_dir`
+        * `exit_status` to `exit_status`
+        * `MAINPID` to `MAIN_PID`
+    * CHNG: a bare command replaces the main shell (by `exec` call).
             It's possible now to run a command as PID 1 in a Docker container
-    * UPD:  documentation
-    * ADD:  new examples
+    * UPD: documentation improvements
+    * UPD: code improvements
+    * ADD: new examples
 * 1.1.10
     * FIX: many README files have been fixed. Thanks to Oren Schulman.
 * 1.1.7
