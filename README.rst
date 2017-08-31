@@ -197,7 +197,7 @@ Where
 * ``-F 'command1; command2; ...'``, ``sync`` ([F]oreground) commands
 * ``bare_command [args]``, a ``bare`` command with arguments, without a switch
   parameter and quotation marks. It will be executed only if there aren't
-  any ``-H``, ``-D`` or ``-F`` options.
+  any ``sync``, ``async`` or ``halt`` commands to be executed.
 
 So, command line options have to be supplied in the next order
 
