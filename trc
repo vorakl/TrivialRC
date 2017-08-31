@@ -19,7 +19,7 @@ main() {
 
     # An exit status of a `halt` stage always has a priority against
     # main()'s exit status which is stored to ${exit_status}.
-    # So, it's possible to exit from the last `halt` command with ${exit_status}
+    # So, it's possible to exit from the last 'halt' command with ${exit_status}
     # or set to whatever you think is better as a final exit status.
     trap 'exit_status=$?;\
           trap "true" EXIT;\
