@@ -296,7 +296,7 @@ All stages are executed in the next order:
        An exit status from a last ``halt`` command has precedence under an
        exit status from the main process which was supplied as the
        ``${exit_status}`` variable. So, it's possible to keep a main exit status
-       (by finishing as **``exit ${exit_status}``**) or rewrite it to something
+       (by finishing as **'exit ${exit_status}'**) or rewrite it to something
        else but, anyway, if there is at least one ``halt`` command, TrivialRC
        will finish with an exit status of this ``halt`` command.
 
