@@ -293,11 +293,11 @@ All stages are executed in the next order:
        * the process manager terminates by following one of the WAIT_POLICY
          instructions after some ``sync`` or ``async`` command has finished.
        
-       An exit status from the last ``halt`` command has precedence under an
+       An exit status from a last ``halt`` command has precedence under an
        exit status from the main process which was supplied as the
-       ${exit_status} variable. So you are able to keep a main exit status
-       (by finishing as **exit ${exit_status}**) or rewrite it to something
-       else but anyway, if you have at least one ``halt`` command, TrivialRC
+       ``${exit_status}`` variable. So, it's possible to keep a main exit status
+       (by finishing as **``exit ${exit_status}``**) or rewrite it to something
+       else but, anyway, if there is at least one ``halt`` command, TrivialRC
        will finish with an exit status of this ``halt`` command.
 
        It's important to notice that the ``halt`` stage will not be executed if

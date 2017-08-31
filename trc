@@ -287,7 +287,7 @@ hook_main_exit() {
     debug "Removing all unexpected sub-processes"
     run -p pkill -KILL -P ${MAIN_PID} &> /dev/null || true
 
-    # --- `halt`
+    # --- 'halt' stage
     if (( boot_stage_left )); then
         debug "Looking for 'halt' scripts..."
         # Checks for shutdown tasks in files (sequentially)
