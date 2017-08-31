@@ -195,9 +195,9 @@ Where
 * ``-H 'command1; command2; ...'``, ``[H]alt`` commands
 * ``-D 'command1; command2; ...'``, ``async`` ([D]etouched) commands
 * ``-F 'command1; command2; ...'``, ``sync`` ([F]oreground) commands
-* ``bare_command [args]``, a ``bare`` command with arguments, 
-  without quotation marks. It will be executed only if there aren't any ``-H``,
-  ``-D`` or ``-F`` options
+* ``bare_command [args]``, a ``bare`` command with arguments, without a switch
+  parameter and quotation marks. It will be executed only if there aren't
+  any ``-H``, ``-D`` or ``-F`` options.
 
 So, command line options have to be supplied in the next order
 
@@ -205,8 +205,8 @@ So, command line options have to be supplied in the next order
 2. ``-H``, zero or more which run in a sub-shell
 3. ``-D``, zero or more which run in a sub-shell
 4. ``-F``, zero or more which run in a sub-shell
-5. ``bare_command with arguments`` (without an option), zero or only one, takes
-   the whole execution control from the main process
+5. ``bare_command with arguments``,  zero or only one, replaces the main process
+   by calling builtin 'exec' command
 
 Examples:
 
