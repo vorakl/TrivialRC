@@ -91,6 +91,7 @@ For more information please take a look at the examples__.
 
 __ https://github.com/vorakl/TrivialRC/tree/master/examples
 
+
 |run-stages|
 
 
@@ -409,7 +410,11 @@ Useful global variables
    :target: https://travis-ci.org/vorakl/TrivialRC
    :alt: Travis CI: continuous integration status
 .. |run-stages| image:: trivialrc-stages.svg
+   :height: 100px
+   :width: 200 px
+   :scale: 50 %
    :alt: Run Stages
+   :align: center
 .. _dumb-init: https://github.com/Yelp/dumb-init
 .. _tini: https://github.com/krallin/tini
 .. _Supervisor: https://github.com/Supervisor/supervisor
