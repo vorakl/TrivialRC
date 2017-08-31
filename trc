@@ -15,7 +15,7 @@ main() {
     PATH="/sbin:/bin:/usr/sbin:/usr/bin"
     
     check_ver_usage "$1"
-    check_req_bins ls ps pkill sleep date basename dirname
+    check_req_bins ls ps kill pkill pgrep sleep date basename dirname tr
 
     # An exit status of a `halt` stage always has a priority against
     # main()'s exit status which is stored to ${exit_status}.
