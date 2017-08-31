@@ -22,18 +22,18 @@ main() {
     # So, it's possible to exit from the last `halt` command with ${exit_status}
     # or set to whatever you think is better as a final exit status.
     trap 'exit_status=$?;\
-          trap "_ignore_mt_ex=1" EXIT;\
+          trap "true" EXIT;\
           debug "exit-trap (exitcode=${exit_status})";\
           hook_main_exit' EXIT
     trap '_es_mt_er=$?;\
-          trap "_ignore_mt_er=1" ERR;\
+          trap "true" ERR;\
           if [[ "${RC_WAIT_POLICY}" = "wait_err" ]]; then\
               debug "err-trap (exitcode=${_es_mt_er})";\
               exit ${_es_mt_er};\
           fi' ERR
     trap '_es_mt_s=$?;\
-          trap "_ignore_mt_s=1" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1 SEGV\
-                                USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
+          trap "true" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1 SEGV\
+                      USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
           debug "sig-trap (exitcode=${_es_mt_s})";\
           exit ${_es_mt_s}' HUP INT QUIT ILL TRAP ABRT BUS FPE USR1 SEGV USR2\
                             PIPE ALRM TERM XCPU XFSZ VTALRM SYS
@@ -112,18 +112,18 @@ main() {
             # print additional info and finish this sub-program with
             # the right exitcode
             trap '_es_dt_ex=$?;\
-                  trap "_ignore_mt_ex=1" EXIT;\
+                  trap "true" EXIT;\
                   debug "exit-trap (exitcode=${_es_dt_ex})";\
                   hook_sub_exit ${_es_dt_ex} "${_file}"' EXIT
             trap '_es_dt_er=$?;\
-                  trap "_ignore_dt_er=1" ERR;\
+                  trap "true" ERR;\
                   debug "err-trap (exitcode=$_es_dt_er)";\
                   exit ${_es_dt_er}' ERR
             # In case of exit on errors (set -e) or by a signal, catch exitcode
             # and exit with it. This will lead to triggering an EXIT trap
             trap '_es_dt_s=$?;\
-                  trap "_ignore_dt_s=1" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
-                               SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
+                  trap "true" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
+                              SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
                   debug "sig-trap (exitcode=$_es_dt_s)";\
                   exit ${_es_dt_s}' HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
                                   SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
@@ -142,16 +142,16 @@ main() {
         async_cmds_exist=1
         (
             trap '_es_dt_ex=$?;\
-                  trap "_ignore_dt_ex=1" EXIT;\
+                  trap "true" EXIT;\
                   debug "exit-trap (exitcode=${_es_dt_ex})";\
                   hook_sub_exit ${_es_dt_ex} "$1"' EXIT
             trap '_es_dt_er=$?;\
-                  trap "_ignore_dt_er=1" ERR;\
+                  trap "true" ERR;\
                   debug "err-trap (exitcode=$_es_dt_er)";\
                   exit ${_es_dt_er}' ERR
             trap '_es_dt_s=$?;\
-                  trap "_ignore_dt_s=1" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
-                            SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
+                  trap "true" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
+                              SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
                   debug "sig-trap (exitcode=$_es_dt_s)";\
                   exit ${_es_dt_s}' HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
                                  SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
@@ -171,16 +171,16 @@ main() {
         sync_cmds_exist=1
         (
             trap '_es_ft_ex=$?;\
-                  trap "_ignore_ft_ex=1" EXIT;\
+                  trap "true" EXIT;\
                   debug "exit-trap (exitcode=${_es_ft_ex})";\
                   hook_sub_exit ${_es_ft_ex} "${_file}"' EXIT
             trap '_es_ft_er=$?;\
-                  trap "_ignore_ft_er=1" ERR;\
+                  trap "true" ERR;\
                   debug "err-trap (exitcode=$_es_ft_er)";\
                   exit ${_es_ft_er}' ERR
             trap '_es_ft_s=$?;\
-                  trap "_ignore_ft_s=1" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
-                            SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
+                  trap "true" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
+                              SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
                   debug "sig-trap (exitcode=$_es_ft_s)";\
                   exit ${_es_ft_s}' HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
                                  SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
@@ -200,16 +200,16 @@ main() {
         sync_cmds_exist=1
         (
             trap '_es_ft_ex=$?;\
-                  trap "_ignore_ft_ex=1" EXIT;\
+                  trap "true" EXIT;\
                   debug "exit-trap (exitcode=${_es_ft_ex})";\
                   hook_sub_exit ${_es_ft_ex} "$1"' EXIT
             trap '_es_ft_er=$?;\
-                  trap "_ignore_ft_er=1" ERR;\
+                  trap "true" ERR;\
                   debug "err-trap (exitcode=$_es_ft_er)";\
                   exit ${_es_ft_er}' ERR
             trap '_es_ft_s=$?;\
-                  trap "_ignore_ft_s=1" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
-                            SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
+                  trap "true" HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
+                              SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS;\
                   debug "sig-trap (exitcode=$_es_ft_s)";\
                   exit ${_es_ft_s}' HUP INT QUIT ILL TRAP ABRT BUS FPE USR1\
                                  SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
