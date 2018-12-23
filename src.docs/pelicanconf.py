@@ -7,13 +7,13 @@ from __future__ import unicode_literals
 
 AUTHOR = u'Oleksii Tsvietnov'
 SITENAME = u"TrivialRC"
-SITEURL = 'http://trivialrc.vorakl.name'
+SITEURL = 'https://trivialrc.cf'
 SITEDESC = u'The minimalistic Run-time Configuration (RC) system and process manager'
 SITE_VERSION = '1494021623'
 SITE_KEYWORDS = 'trivialrc,trc,rc system,process manager,rc'
 ARTICLE_PATHS = ['articles'] # a place for articles under the content location
 PAGE_PATHS = ['pages']
-CONTACT_URL = 'http://vorakl.name/pages/about/'
+CONTACT_URL = 'https://vorakl.name/pages/about/'
 START_URL = 'pages/info/' # What's a start point of a site (like 'news/' or 'pages/about/')?
 TIMEZONE = 'Europe/Berlin'
 DEFAULT_LANG = u'en'
@@ -54,8 +54,8 @@ DISPLAY_LINKS_ON_SIDEBAR = False # Links are set in the LINKS variable below
 MENUITEMS = [
     ("download", "http://trivialrc.vorakl.name/trc"),
     ("repo", "https://github.com/vorakl/TrivialRC"),
-    ("blog", "http://vorakl.name/"),
-    ("author", "http://vorakl.name/pages/about/"),
+    ("blog", "https://vorakl.name/"),
+    ("author", "https://vorakl.name/pages/about/"),
     ]
 #LINKS = [("Github", "https://github.com/vorakl"), ("LinkedIn", "https://linkedin.com/in/vorakl/")]
 DISPLAY_AUTHOR = False # Add an author in a article's metadata
@@ -127,7 +127,7 @@ AUTHOR_URL = 'author/{slug}/'
 # a list of templates for rendering blog posts. Not all of them, just an index and groups of entities (tags, categories, ...)
 # other templates for blog posts rendering (for a tag, a category, ...) are activated by *_SAVE_AS variables below
 DIRECT_TEMPLATES = []
-PAGINATED_DIRECT_TEMPLATES = []
+PAGINATED_TEMPLATES = {'tag': None, 'category': None, 'author': None}
 
 INDEX_SAVE_AS = 'news/index.html'
 AUTHORS_SAVE_AS = 'author/index.html'  # defines where to save an authors page, it's activated by DIRECT_TEMPLATES 
