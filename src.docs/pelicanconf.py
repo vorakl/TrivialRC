@@ -52,7 +52,7 @@ DISPLAY_SITE_ON_SIDEBAR = False
 DISPLAY_LINKS_ON_SIDEBAR = False # Links are set in the LINKS variable below
 
 MENUITEMS = [
-    ("download", "http://trivialrc.vorakl.name/trc"),
+    ("download", "https://trivialrc.cf/trc"),
     ("repo", "https://github.com/vorakl/TrivialRC"),
     ("blog", "https://vorakl.name/"),
     ("author", "https://vorakl.name/pages/about/"),
