@@ -3,7 +3,7 @@
 # TrivialRC
 # The minimalistic RC system and process manager for containers and applications
 # Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name
-trc_version="1.2.0"
+trc_version="1.2.1"
 
 set +e # Do not exit on errors by default
 if [[ "${RC_DEBUG}" = "true" ]]; then
@@ -18,13 +18,13 @@ main() {
     check_req_bins ls ps kill pkill pgrep sleep date basename dirname tr
 
     # An exit status of a `halt` stage always has a priority against
-    # main()'s exit status which is stored to ${exit_status}.
-    # So, it's possible to exit from the last 'halt' command with ${exit_status}
+    # main()'s exit status which is stored to ${main_exit_code}.
+    # So, it's possible to exit from the last 'halt' command with ${main_exit_code}
     # or set to whatever you think is better as a final exit status.
-    trap 'exit_status=$?;\
+    trap 'main_exit_code=$?;\
           trap "true" EXIT;\
-          debug "exit-trap (exitcode=${exit_status})";\
-          hook_main_exit' EXIT
+          debug "exit-trap (exitcode=${main_exit_code})";\
+          main_exit_hook' EXIT
     trap '_es_mt_er=$?;\
           trap "true" ERR;\
           if [[ "${RC_WAIT_POLICY}" = "wait_err" ]]; then\
@@ -49,13 +49,17 @@ main() {
     halt_cmds_exist=0
     async_cmds_exist=0
     sync_cmds_exist=0
-    halt_cmds=()
-    child_pids="" # The collection of child processes
+    halt_cmds=() # A list of 'halt' commands to be executed at the end
+    sync_finished_cmds=() # In the order of their execution
+    sync_finished_exitcodes=()
+    async_finished_pids=()
+    async_cmds_pids=()
+    async_exitcodes_pids=()
     ns="main" # Name Space
 
     case "${RC_WAIT_POLICY}" in
         wait_all)  _wait_bg_cmd="run wait";;
-        wait_any)  _wait_bg_cmd="run wait";;
+        wait_any)  _wait_bg_cmd="run wait -n";;
         wait_err)  _wait_bg_cmd="run wait";;
         *)         _wait_bg_cmd=":";;
     esac
@@ -68,12 +72,12 @@ main() {
         shift
     fi
 
-    debug "Looking for 'boot' scripts and commands..."
+    debug "looking for 'boot' scripts and commands..."
     {
         # Reads commands from files to run before everything
         for _file in $(run -p ls ${work_dir}/trc.boot.* \
                               ${work_dir}/trc.d/boot.* 2>/dev/null || true); do
-            log "launching: ${_file}"
+            log "Launching: ${_file}"
             set -e 
             . ${_file}
             set +e
@@ -83,7 +87,7 @@ main() {
         # All commands and their parameters should be supplied as one parameter!
         while [[ "$1" = "-B" ]]; do
             shift
-            log "launching: $1"
+            log "Launching: $1"
             set -e 
             eval "$1"
             set +e
@@ -92,7 +96,7 @@ main() {
     }
     boot_stage_left=1
 
-    debug "Looking for 'halt' commands..."
+    debug "looking for 'halt' commands..."
     # Collects commands for the 'halt' stage from a command line to be run
     # on exit from the main exit trap
     while [[ "$1" = "-H" ]]; do
@@ -102,7 +106,7 @@ main() {
         shift
     done
 
-    debug "Looking for 'async' scripts and commands..."
+    debug "looking for 'async' scripts and commands..."
     # Reads commands from files to run in the background (in parallel)
     for _file in $(run -p ls ${work_dir}/trc.async.* \
                              ${work_dir}/trc.d/async.* 2>/dev/null || true); do
@@ -114,7 +118,7 @@ main() {
             trap '_es_dt_ex=$?;\
                   trap "true" EXIT;\
                   debug "exit-trap (exitcode=${_es_dt_ex})";\
-                  hook_sub_exit ${_es_dt_ex} "${_file}"' EXIT
+                  sub_exit_hook ${_es_dt_ex} "${_file}"' EXIT
             trap '_es_dt_er=$?;\
                   trap "true" ERR;\
                   debug "err-trap (exitcode=$_es_dt_er)";\
@@ -129,10 +133,10 @@ main() {
                                   SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
 
             ns="async"
-            log "launching: ${_file}"
+            log "Launching: ${_file}"
             . ${_file}
         )& 
-        child_pids="${child_pids} $!"
+        async_cmds_pids[$!]="${_file}"
     done
 
     # Checks for background tasks in the command line.
@@ -144,7 +148,7 @@ main() {
             trap '_es_dt_ex=$?;\
                   trap "true" EXIT;\
                   debug "exit-trap (exitcode=${_es_dt_ex})";\
-                  hook_sub_exit ${_es_dt_ex} "$1"' EXIT
+                  sub_exit_hook ${_es_dt_ex} "$1"' EXIT
             trap '_es_dt_er=$?;\
                   trap "true" ERR;\
                   debug "err-trap (exitcode=$_es_dt_er)";\
@@ -157,14 +161,15 @@ main() {
                                  SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
 
             ns="async"
-            log "launching: $1"
+            log "Launching: $1"
             eval "$1"
         )& 
-        child_pids="${child_pids} $!"
+        async_cmds_pids[$!]="$1"
         shift
     done
 
-    debug "Looking for 'sync' scripts and commands..." 
+
+    debug "looking for 'sync' scripts and commands..." 
     # Checks for foreground tasks in files (sequentially)
     for _file in $(run -p ls ${work_dir}/trc.sync.*\
                              ${work_dir}/trc.d/sync.* 2>/dev/null || true); do
@@ -173,7 +178,7 @@ main() {
             trap '_es_ft_ex=$?;\
                   trap "true" EXIT;\
                   debug "exit-trap (exitcode=${_es_ft_ex})";\
-                  hook_sub_exit ${_es_ft_ex} "${_file}"' EXIT
+                  sub_exit_hook ${_es_ft_ex} "${_file}"' EXIT
             trap '_es_ft_er=$?;\
                   trap "true" ERR;\
                   debug "err-trap (exitcode=$_es_ft_er)";\
@@ -186,7 +191,7 @@ main() {
                                  SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
 
             ns="sync"
-            log "launching: ${_file}"
+            log "Launching: ${_file}"
             . ${_file}
         )
         # Catchs the exitcode of a foreground sub-shell
@@ -202,7 +207,7 @@ main() {
             trap '_es_ft_ex=$?;\
                   trap "true" EXIT;\
                   debug "exit-trap (exitcode=${_es_ft_ex})";\
-                  hook_sub_exit ${_es_ft_ex} "$1"' EXIT
+                  sub_exit_hook ${_es_ft_ex} "$1"' EXIT
             trap '_es_ft_er=$?;\
                   trap "true" ERR;\
                   debug "err-trap (exitcode=$_es_ft_er)";\
@@ -215,7 +220,7 @@ main() {
                                  SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
 
             ns="sync"
-            log "launching: $1"
+            log "Launching: $1"
             eval "$1"
         )
         _es_m_f=$?
@@ -227,10 +232,19 @@ main() {
     # in the command line (without quotation!)
     if (( halt_cmds_exist )) || (( async_cmds_exist )) || \
                                     (( sync_cmds_exist )); then
-        debug "Working in the 'process manager' mode..."
-        # Waits for all background processes and exit with a status of
-        # the last one or with 128+SIGNAL in case of getting a signal
-        ${_wait_bg_cmd} ${child_pids} || _es_m_d=$?
+        debug "working in the 'process manager' mode"
+        if (( async_cmds_exist )); then
+            debug "wating for async process: ${!async_cmds_pids[*]}"
+            # Waits for all background processes and exit with a status of
+            # the last one or with 128+SIGNAL in case of getting a signal
+            ${_wait_bg_cmd} ${!async_cmds_pids[*]}
+            _es_m_d=$?
+
+            for _pid in ${!async_cmds_pids[*]}; do
+                debug "reaped 'async/${_pid}' (exitcode=x): \
+${async_cmds_pids[_pid]}"
+            done
+        fi
 
         if (( _es_m_d )); then
             # update an exit code only if one of background processes has failed
@@ -242,7 +256,7 @@ main() {
             run -p sleep infinity
         fi
     else
-        debug  "Looking for a 'bare' command..."      
+        debug  "looking for a 'bare' command..."      
         if [[ -n "$*" ]]; then
             ns="bare"
             log "handing over the execution to: $@"
@@ -253,7 +267,7 @@ main() {
     return ${_es_m_f}
 }
 
-hook_main_exit() {
+main_exit_hook() {
     local _pid _cpids _file _cmd _es_mtt_h=0 _term_timeout=5
 
     # If it fails in the 'boot' stage, it appears here with 'set -e'.
@@ -262,7 +276,7 @@ hook_main_exit() {
     trap 'true' ERR
 
     log "Trying to terminate sub-processes..."
-    for _pid in ${child_pids}; do
+    for _pid in ${!async_cmds_pids[*]}; do
         if run -p ps -p ${_pid} &> /dev/null; then
             log "terminating the child process <pid=${_pid}>"
 
@@ -284,12 +298,12 @@ hook_main_exit() {
         fi
     done
 
-    debug "Removing all unexpected sub-processes"
+    debug "removing all unexpected sub-processes"
     run -p pkill -KILL -P ${MAIN_PID} &> /dev/null || true
 
     # --- 'halt' stage
     if (( boot_stage_left )); then
-        debug "Looking for 'halt' scripts..."
+        debug "looking for 'halt' scripts..."
         # Checks for shutdown tasks in files (sequentially)
         for _file in $(run -p ls ${work_dir}/trc.halt.* \
                               ${work_dir}/trc.d/halt.* 2>/dev/null || true); do
@@ -297,11 +311,11 @@ hook_main_exit() {
             (
                 set -e # Exit on errors in a sub-shell
                 ns="halt"
-                log "launching: ${_file}"
+                log "Launching: ${_file}"
                 . ${_file}
             )
             _es_mtt_h=$?
-            log "exiting (exitcode=${_es_mtt_h}): ${_file}"
+            log "Exiting (exitcode=${_es_mtt_h}): ${_file}"
         done
 
         # Runs shutdown tasks from the command line if any
@@ -310,29 +324,29 @@ hook_main_exit() {
                 set -e # Exit on errors in the sub-shell
 
                 ns="halt"
-                log "launching: ${_cmd}"
+                log "Launching: ${_cmd}"
                 eval "${_cmd}"
             )
             _es_mtt_h=$?
-            log "exiting (exitcode=${_es_mtt_h}): ${_cmd}"
+            log "Exiting (exitcode=${_es_mtt_h}): ${_cmd}"
         done    
     fi 
 
     if (( halt_cmds_exist )); then
-        exit_status=${_es_mtt_h}
+        main_exit_code=${_es_mtt_h}
     fi
 
-    log "Exited (exitcode=${exit_status})"
-    exit ${exit_status}
+    log "Exited (exitcode=${main_exit_code})"
+    exit ${main_exit_code}
 }
 
-hook_sub_exit() {
+sub_exit_hook() {
     set +e # do not stop on errors
 
     local _rc=$1 # Getting the exit code for a logging purpose only
     shift
 
-    log "exiting (exitcode=${_rc}): $@"
+    log "Exiting (exitcode=${_rc}): $@"
 
     if [[ "${RC_WAIT_POLICY}" = "wait_any" ]]; then 
         # If it's exiting from a background process and there is no need

@@ -177,7 +177,7 @@ Command line options
 ====================
 
 It is important to notice that the order of command line options **is not**
-equal to their run order.
+equal to their running order.
 In general it looks like:
 
 .. code-block:: bash
@@ -234,7 +234,7 @@ isolation. By default, all configuration files (or ``trc.d/`` directory with
 them) are searched in the directory from which a script was executed.
 For instance, if you've installed trc in /usr/bin/ and run it by using only its
 name, like ``trc``, then configuration will be also searched in /usr/bin/.
-Though, you can place configuration files anywhere you like and specify their
+Though, you can place configuration files anywhere you need and specify their
 location in the ``-w|--workdir`` option, like ``trc -w /etc/``. 
 
 Let's check:
@@ -256,35 +256,53 @@ All stages are executed in the next order:
 1. ``boot``
        **Execution order**: trc.boot.* -> trc.d/boot.* -> [-B 'cmds' [...]]
 
-       This stage runs always without any isolation.
-       Commands run in the same shell environment as the main process and
-       that's why it has to be used with caution. It's useful for setting up
-       global variables which are seen in all other isolated environments.
+       This stage runs always without any isolation that means in the same
+       shell environment as the main process and that's why it has to be used
+       with caution. It's useful for exporting variables which are seen
+       in all other isolated environments (sub-shells).
 2. ``async``
        **Execution order**: trc.async.* -> trc.d/async.* -> [-D 'cmds' [...]]
 
        This stage is a part of a ``process manager`` and it's always isolated.
-       Commands run in a sub-shell, asynchronously (all run in parallel),
-       in the background and do not affect the main process.
-       If you are going to run more than one async commands, don't forget that
-       default RC_WAIT_POLICY is set to 'wait_any' and the executing process
-       will be terminated after the first finished command and only if there
-       wasn't any running foreground (``sync``) commands that could block
-       the reaction on the TERM signal. So, there are two options: 
+       Which means that by specifying each new ``-D`` option or by adding every
+       new configuration file, TrivialRC will spawn a new sub-shell for
+       the specified command(s). And no matter whether there are several
+       commands or the only one, it all will be run in a sub-shell,
+       asynchronously (in parallel) in relation to other ``async`` environments
+       (another ``-D`` or a configaration file). All ``async`` sub-processes
+       run in the background and do not affect the main process.
+       For example, if you run ``trc -D 'cmd1' -D 'cmd2' -D 'cmd3'``, then
+       TrivialRC spawns 3 different sub-shells and asynchronously run each
+       command in a separate environment. But, if you run 
+       ``trc -D 'cmd1; cmd2; cmd3'``, there is a significant difference! In this
+       case, TrivialRC creates the only one background sub-shell and runs
+       inside it these 3 commands synchronously, one by one.
+       If you are going to run more than one ``async`` commands, don't forget
+       that default ``RC_WAIT_POLICY`` is set to ``wait_any`` and the executing
+       process will be terminated after the first finished sub-environment and
+       only if there wasn't any running foreground (``sync``) commands which
+       could block the reaction of the main proccess on the TERM signal.
+       So, there are two options: 
 
-       * wait until all ``async`` commands have finished, you need to set
-         RC_WAIT_POLICY to 'wait_all'.
-       * wait for the first finished command, do not change the default value of
-         RC_WAIT_POLICY but run only ``async`` commands.
+       * if you need to wait until all ``async`` environments have finished,
+         then set ``RC_WAIT_POLICY`` to ``wait_all``
+       * if you need to wait for the first finished ``async`` enviroment, then
+         don't change anything, but also don't run any ``sync`` commands because
+         in this case, the main process will not be able to react on signals
+         until is waiting for any ``sync`` command.
+         
 3. ``sync``
        **Execution order**: trc.sync.* -> trc.d/sync.* -> [-F 'cmds' [...]]
 
        This stage is a part of a ``process manager`` and it's always isolated.
-       Commands run in a sub-shell, synchronously (one by one), in the
-       foreground and do not affect the main process. If you are going to run
-       more than one ``sync`` command, don't forget to change RC_WAIT_POLICY to
-       'wait_all' or 'wait_err', otherwise, the executing process will be
-       terminated after the first finished command.
+       The main idea of the isolation is the same as for ``async`` stage and
+       described in the previous section. Commands run in a sub-shell,
+       synchronously (one by one), in the foreground and do not affect the main
+       process in terms of exit statuses but they do block the main process
+       against of dealing with signals. If you are going to run
+       more than one ``sync`` command, don't forget to change ``RC_WAIT_POLICY``
+       to ``wait_all`` or ``wait_err``, otherwise, the executing process will be
+       terminated after the first finished evironment.
 4. ``halt``
        **Execution order**: trc.halt.* -> trc.d/halt.* -> [-H 'cmds' [...]]
 
@@ -299,10 +317,10 @@ All stages are executed in the next order:
        
        An exit status from a last ``halt`` command has precedence under an
        exit status from the main process which was supplied as the
-       ``${exit_status}`` variable. So, it's possible to keep a main exit status
-       (by finishing as **'exit ${exit_status}'**) or rewrite it to something
-       else but, anyway, if there is at least one ``halt`` command, TrivialRC
-       will finish with an exit status of this ``halt`` command.
+       ``${main_exit_code}`` variable. So, it's possible to keep a main exit
+       status (by finishing as **'exit ${main_exit_code}'**) or rewrite it
+       to something else but, anyway, if there is at least one ``halt`` command,
+       TrivialRC will finish with an exit status of this ``halt`` command.
 
        It's important to notice that the ``halt`` stage will not be executed if
        there is a ``bare`` command or a process manager wasn't terminated by a
@@ -402,8 +420,8 @@ Useful global variables
 
 * ``MAIN_PID``, for sending signals to the main process
   (see `Testing of Docker images`_)
-* ``exit_status``, for checking or rewriting an exit status of the whole script
-  (see `Process Manager`_, `Service Discovery`_)
+* ``main_exit_code``, for checking or rewriting (in ``halt`` commands ) an exit
+  status of the whole script (see `Process Manager`_, `Service Discovery`_)
 
 .. Links
 

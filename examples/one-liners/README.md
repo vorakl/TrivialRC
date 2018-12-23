@@ -74,11 +74,34 @@ exitcode=12
 trc exited with code: 12
 ```
 ```bash
-# This is another way to run a few commands
+# Let's check the difference betwin two ways of running commands
+# In the first example, it needs to change the default RC_WAIT_POLICY to run
+# all commands
 
-$ trc -F 'date; sleep 3; date'
-Thu Aug 31 22:21:11 CEST 2017
-Thu Aug 31 22:21:14 CEST 2017
+$ RC_WAIT_POLICY=wait_all \
+  trc -F 'pstree -sp $BASHPID' \
+      -F 'pstree -sp $BASHPID' \
+      -F 'pstree -sp $BASHPID'
+
+systemd(1)───xfce4-terminal(5257)───bash(29798)───trc(309)───trc(322)───pstree(325)
+systemd(1)───xfce4-terminal(5257)───bash(29798)───trc(309)───trc(328)───pstree(331)
+systemd(1)───xfce4-terminal(5257)───bash(29798)───trc(309)───trc(334)───pstree(340)
+
+# All three 'pstree' had different PIDs and all their parrent processes also
+# had different PIDS because TrivialRC spawned three different sub-shells for
+# each '-F' option. And this is another way
+
+$ trc -F 'pstree -sp $BASHPID; pstree -sp $BASHPID; pstree -sp $BASHPID'
+
+systemd(1)───xfce4-terminal(5257)───bash(29798)───trc(459)───trc(473)───pstree(476)
+systemd(1)───xfce4-terminal(5257)───bash(29798)───trc(459)───trc(473)───pstree(477)
+systemd(1)───xfce4-terminal(5257)───bash(29798)───trc(459)───trc(473)───pstree(478)
+
+# PIDs of 'pstree' are still different but the parrent process is the same for
+# all of them. This happened because there is only one '-F' option and TrivialRC
+# spawned the only one sub-shell. That's why 'RC_WAIT_POLICY' wasn't also
+# changed, all commands were run in the same sub shell.
+
 ```
 ```bash
 # In this example, it's going to run a few jobs in parallel and wait until they
