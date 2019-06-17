@@ -9,7 +9,7 @@ AUTHOR = u'Oleksii Tsvietnov'
 SITENAME = u"TrivialRC"
 SITEURL = 'https://trivialrc.cf'
 SITEDESC = u'The minimalistic Run-time Configuration (RC) system and process manager'
-SITE_VERSION = '1494021624'
+SITE_VERSION = '1494021625'
 SITE_KEYWORDS = 'trivialrc,trc,rc system,process manager,rc'
 ARTICLE_PATHS = ['articles'] # a place for articles under the content location
 PAGE_PATHS = ['pages']
@@ -37,7 +37,7 @@ OUTPUT_RETENTION = ["CNAME", "trc", "trc.sha256"] # but these dirs and files sho
 ############################
 
 DISPLAY_MENU = True
-DISPLAY_PAGES_ON_MENU = False
+DISPLAY_PAGES_IN_MENU = False
 DISPLAY_CATEGORIES_ON_MENU = False
 DISPLAY_ITEMS_ON_MENU = True # Items are set in the MENUITEMS variable below
 
