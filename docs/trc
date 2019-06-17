@@ -2,7 +2,7 @@
 
 # TrivialRC
 # The minimalistic RC system and process manager for containers and applications
-# Copyright (c) 2016, 2017 by Oleksii Tsvietnov, me@vorakl.name
+# Copyright (c) 2016, 2017 by Oleksii Tsvietnov, vorakl@protonmail.com
 trc_version="v1.1.11"
 
 set +e # Do not exit on errors by default

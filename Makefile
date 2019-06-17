@@ -1,4 +1,4 @@
-# (c) Oleksii Tsvietnov, me@vorakl.name
+# (c) Oleksii Tsvietnov, vorakl@protonmail.com
 #
 # Variables:
 ECHO_BIN ?= echo

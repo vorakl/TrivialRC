@@ -6,10 +6,6 @@
     <changefreq>daily</changefreq>
 </url>
 <url>
-    <loc>https://trivialrc.cf/pages/</loc>
-    <priority>1</priority>
-    <changefreq>daily</changefreq>
-</url><url>
     <loc>https://trivialrc.cf/pages/info/</loc>
     <priority>1.0</priority>
     <changefreq>weekly</changefreq>

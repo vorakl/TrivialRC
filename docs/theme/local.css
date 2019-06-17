@@ -39,7 +39,7 @@
 
 /* Styling for elements */
 body { font-size: 100%; }
-p { font-size: 100%; line-height: 1.6em; margin-top: 0.8em; margin-bottom: 0.8em; }
+p { font-size: 100%; line-height: 1.6em; margin-top: 0.2em; margin-bottom: 0.2em; }
 .p-footer { font-size: 100%; line-height: 1.6em; padding-bottom: 2em; }
 li { line-height: 1.6em; }
 /* h3 { margin-top: 2.5em; } */
@@ -52,6 +52,8 @@ a:hover { text-decoration: none; }
 .content-title { margin-bottom: 30px; }
 .article a:hover { text-decoration: none; } 
 .iconmenu { margin-right: 0.4em; }
+
+.well { margin-bottom: 5px; }
 
 /* Styling for the "other entries" section */
 /* Metadata */
@@ -67,6 +69,20 @@ a:hover { text-decoration: none; }
     border-radius: 2px;
 }
 
+.btn-info.xsmall.left {
+    padding: 1px 3px 1px;
+    font-size: 11px;
+    float: left;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}
+
+.img.right {
+    fload: right;
+    padding: 10px 15px 10px 15px;
+}
+
 /* Article summary */
-.summary { margin-bottom: 4em; }
+.summary { margin-bottom: 3em; }
 .summary pre { display: none; }

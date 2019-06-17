@@ -1,5 +1,5 @@
 FROM alpine:edge
-MAINTAINER "Oleksii Tsvietnov" <me@vorakl.name>
+MAINTAINER "Oleksii Tsvietnov" <vorakl@protonmail.com>
 
 RUN apk add --no-cache nginx uwsgi uwsgi-python3 && \
     pip3 install --upgrade pip && \

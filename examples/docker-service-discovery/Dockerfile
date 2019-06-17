@@ -1,5 +1,5 @@
 FROM centos
-MAINTAINER "Oleksii Tsvietnov" <me@vorakl.name>
+MAINTAINER "Oleksii Tsvietnov" <vorakl@protonmail.com>
 
 ENV RC_VERBOSE true
 ENV ZKURL 127.0.0.1
