@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-    <loc>https://trivialrc.cf/</loc>
-    <priority>0.8</priority>
+    <loc>https://trivialrc.vorakl.com/</loc>
     <changefreq>daily</changefreq>
 </url>
 <url>
-    <loc>https://trivialrc.cf/pages/info/</loc>
-    <priority>1.0</priority>
+    <loc>https://trivialrc.vorakl.com/pages/info/</loc>
     <changefreq>weekly</changefreq>
+    <lastmod>2019-06-17</lastmod>
 </url>
 </urlset>
