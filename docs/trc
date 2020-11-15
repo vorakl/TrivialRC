@@ -2,8 +2,9 @@
 
 # TrivialRC
 # The minimalistic RC system and process manager for containers and applications
-# Copyright (c) 2016, 2017 by Oleksii Tsvietnov, vorakl@protonmail.com
-trc_version="v1.1.11"
+# Copyright (c) 2016, 2017 by vorakl
+
+trc_version="v1.1.12"
 
 set +e # Do not exit on errors by default
 if [[ "${RC_DEBUG}" = "true" ]]; then
@@ -11,9 +12,6 @@ if [[ "${RC_DEBUG}" = "true" ]]; then
 fi
 
 main() {
-    # If it's needed to have extra paths, update $PATH at `boot` stage
-    PATH="/sbin:/bin:/usr/sbin:/usr/bin"
-    
     check_ver_usage "$1"
     check_req_bins ls ps pkill sleep date basename dirname
 
@@ -29,7 +27,7 @@ main() {
     export MAINPID="${BASHPID}" # PID of the main process
     : ${RC_WAIT_POLICY:=wait_any}; export RC_WAIT_POLICY 
 
-    dir_name=$(run -p dirname $0)
+    work_dir="${PWD}"
     boot_stage_left=0
     halt_cmds_exist=0
     halt_cmds=()
@@ -47,14 +45,21 @@ main() {
 
     if [[ "$1" = "-w" ]] || [[ "$1" = "--workdir" ]]; then
         shift
-        dir_name="$1"
+        work_dir="$1"
         shift
     fi
+    if [[ -n "${RC_WORK_DIR}" ]]; then
+        work_dir="${RC_WORK_DIR}"
+    else
+        RC_WORK_DIR="${work_dir}"
+        export RC_WORK_DIR
+    fi
+    log "Work dir: ${RC_WORK_DIR}"
 
     debug "Looking for \`boot\` scripts and commands..."
     {
         # Reads commands from files to run before everything
-        for _file in $(run -p ls ${dir_name}/trc.boot.* ${dir_name}/trc.d/boot.* 2>/dev/null || true); do
+        for _file in $(run -p ls ${work_dir}/trc.boot.* ${work_dir}/trc.d/boot.* 2>/dev/null || true); do
             log "Launching in the $(ns_long ${ns}): ${_file}"
             set -e 
             . ${_file}
@@ -84,7 +89,7 @@ main() {
 
     debug "Looking for \`async\` scripts and commands..."
     # Reads commands from files to run in the background (in parallel)
-    for _file in $(run -p ls ${dir_name}/trc.async.* ${dir_name}/trc.d/async.* 2>/dev/null || true); do
+    for _file in $(run -p ls ${work_dir}/trc.async.* ${work_dir}/trc.d/async.* 2>/dev/null || true); do
         (
             # Run this on any exit, catching the exitcode of the "main" command,
             # printing additional info and finishing up this sub-program with the right exitcode
@@ -120,7 +125,7 @@ main() {
 
     debug "Looking for \`sync\` scripts and commands..." 
     # Checks for foreground tasks in files (sequentially)
-    for _file in $(run -p ls ${dir_name}/trc.sync.* ${dir_name}/trc.d/sync.* 2>/dev/null || true); do
+    for _file in $(run -p ls ${work_dir}/trc.sync.* ${work_dir}/trc.d/sync.* 2>/dev/null || true); do
         (
             trap '_es_ft_ex=$?; trap '_ignore_ft_ex=1' EXIT; debug "exit-trap (exitcode=${_es_ft_ex})"; hook_sub_exit ${_es_ft_ex} "${_file}"' EXIT
             trap '_es_ft_s=$?; trap '_ignore_ft_s=1' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS; debug "sig-trap (exitcode=$_es_ft_s)"; exit ${_es_ft_s}' HUP INT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM XCPU XFSZ VTALRM SYS
@@ -243,7 +248,7 @@ hook_main_exit() {
     if [[ boot_stage_left -eq 1 ]]; then
         debug "Looking for \`halt\` scripts..."
         # Checks for shutdown tasks in files (sequentially)
-        for _file in $(run -p ls ${dir_name}/trc.halt.* ${dir_name}/trc.d/halt.* 2>/dev/null || true); do
+        for _file in $(run -p ls ${work_dir}/trc.halt.* ${work_dir}/trc.d/halt.* 2>/dev/null || true); do
             halt_cmds_exist=1
             (
                 set -e # Exit on errors in the sub-shell

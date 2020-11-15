@@ -5,17 +5,17 @@ from __future__ import unicode_literals
 ### Basic configuration
 ########################
 
-AUTHOR = u'Oleksii Tsvietnov'
+AUTHOR = u'vorakl'
 SITENAME = u"TrivialRC"
 SITEURL = 'https://trivialrc.vorakl.com'
-SITEDESC = u'The minimalistic Run-time Configuration (RC) system and process manager'
-SITE_VERSION = '1494021629'
+SITEDESC = u'The minimal Run-time Configuration (RC) system and process manager'
+SITE_VERSION = '1703025594'
 SITE_KEYWORDS = 'trivialrc,trc,rc system,process manager,rc'
 ARTICLE_PATHS = ['articles'] # a place for articles under the content location
 PAGE_PATHS = ['pages']
 CONTACT_URL = 'https://vorakl.com/pages/about/'
 START_URL = 'pages/info/' # What's a start point of a site (like 'news/' or 'pages/about/')?
-TIMEZONE = 'Europe/Berlin'
+TIMEZONE = 'America/Los_Angeles'
 DEFAULT_LANG = u'en'
 RELATIVE_URLS = True  # disable in public version
 DEFAULT_DATE = 'fs'
