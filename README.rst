@@ -7,6 +7,7 @@ The minimalistic Run-time Configuration (RC) system and process manager
 
 |build-status|
 
+* Community_
 * Introduction_
 * Installation_
     * `The installation on top of CentOS Linux base image`_
@@ -19,6 +20,13 @@ The minimalistic Run-time Configuration (RC) system and process manager
 * `Integrated functions`_
 * `Useful global variables`_
 
+Community
+=========
+
+There are a few options for the communication:
+
+* ``IRC``: `#trivialrc`_, channel on the Freenode network
+* ``Mailing list``: trivialrc-dev@freelists.org, subscribe_
 
 Introduction
 ============
@@ -257,3 +265,5 @@ Useful global variables
 .. _`Testing of Docker images`: https://github.com/vorakl/TrivialRC/tree/master/examples/reliable-tests-for-docker-images
 .. _`Process Manager`: https://github.com/vorakl/TrivialRC/blob/master/examples/process-manager/trc.d/halt.remove-logs
 .. _`Service Discovery`: https://github.com/vorakl/TrivialRC/blob/master/examples/docker-service-discovery/trc.d/halt.sd-unreg
+.. _`#trivialrc`: https://webchat.freenode.net/?channels=trivialrc
+.. _subscribe: https://www.freelists.org/list/trivialrc-dev

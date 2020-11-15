@@ -7,9 +7,9 @@ from __future__ import unicode_literals
 
 AUTHOR = u'Oleksii Tsvietnov'
 SITENAME = u"TrivialRC"
-SITEURL = 'https://trivialrc.cf'
+SITEURL = 'https://trivialrc.vorakl.com'
 SITEDESC = u'The minimalistic Run-time Configuration (RC) system and process manager'
-SITE_VERSION = '1494021625'
+SITE_VERSION = '1494021629'
 SITE_KEYWORDS = 'trivialrc,trc,rc system,process manager,rc'
 ARTICLE_PATHS = ['articles'] # a place for articles under the content location
 PAGE_PATHS = ['pages']
@@ -52,7 +52,6 @@ DISPLAY_SITE_ON_SIDEBAR = False
 DISPLAY_LINKS_ON_SIDEBAR = False # Links are set in the LINKS variable below
 
 MENUITEMS = [
-    ("download", "https://trivialrc.cf/trc"),
     ("repo", "https://github.com/vorakl/TrivialRC"),
     ("blog", "https://vorakl.com/"),
     ("author", "https://vorakl.com/pages/about/"),

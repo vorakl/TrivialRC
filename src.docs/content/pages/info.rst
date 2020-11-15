@@ -7,6 +7,7 @@ The minimalistic Run-time Configuration (RC) system and process manager
 
 |build-status|
 
+* Community_
 * Introduction_
 * Installation_
     * `The installation on top of CentOS Linux base image`_
@@ -19,6 +20,13 @@ The minimalistic Run-time Configuration (RC) system and process manager
 * `Integrated functions`_
 * `Useful global variables`_
 
+Community
+=========
+
+There are a few options for the communication:
+
+* ``IRC``: `#trivialrc`_, channel on the Freenode network
+* ``Mailing list``: trivialrc-dev@freelists.org, subscribe_
 
 Introduction
 ============
@@ -37,7 +45,7 @@ __ https://github.com/vorakl/TrivialRC/tree/master/examples
 Installation
 ============
 
-Basically, all you need to install TrivialRC is download the latest release of the script from ``http://trivialrc.cf/trc``
+Basically, all you need to install TrivialRC is download the latest release of the script from ``http://trivialrc.vorakl.com/trc``
 and give it an execute permission. By default, it looks for configuration files in the same directory from which it was invoked but this behavior can be changed by setting a work directory (``-w|--workdir`` parametr). So, if you are going to use configuration files and keep them in ``/etc/``, then you would probably want to install the script to /etc/ as well and simply run it without specifying any parametrs.
 
 Another option in this case could be to install the script in a more appropriate path but don't forget to specify ``--workdir /etc`` parametr every time when you invoke this rc system. Both options are possible and depend more on a particular use case.
@@ -53,8 +61,8 @@ This is an example of how it would look in a Dockerfile with `centos:latest`_ as
 
     FROM centos:latest
 
-    RUN curl -sSLfo /etc/trc http://trivialrc.cf/trc && \
-        ( cd /etc && curl -sSLf http://trivialrc.cf/trc.sha256 | sha256sum -c ) && \
+    RUN curl -sSLfo /etc/trc http://trivialrc.vorakl.com/trc && \
+        ( cd /etc && curl -sSLf http://trivialrc.vorakl.com/trc.sha256 | sha256sum -c ) && \
         chmod +x /etc/trc && \
         /etc/trc --version
 
@@ -76,8 +84,8 @@ As a result, Dockerfile for the `alpine:latest`_ base image would look like:
 
     RUN apk add --no-cache bash procps
 
-    RUN wget -qP /etc/ http://trivialrc.cf/trc && \
-        ( cd /etc && wget -qO - http://trivialrc.cf/trc.sha256 | sha256sum -c ) && \
+    RUN wget -qP /etc/ http://trivialrc.vorakl.com/trc && \
+        ( cd /etc && wget -qO - http://trivialrc.vorakl.com/trc.sha256 | sha256sum -c ) && \
         chmod +x /etc/trc && \
         /etc/trc --version
 
@@ -261,3 +269,5 @@ Useful global variables
 .. _`Testing of Docker images`: https://github.com/vorakl/TrivialRC/tree/master/examples/reliable-tests-for-docker-images
 .. _`Process Manager`: https://github.com/vorakl/TrivialRC/blob/master/examples/process-manager/trc.d/halt.remove-logs
 .. _`Service Discovery`: https://github.com/vorakl/TrivialRC/blob/master/examples/docker-service-discovery/trc.d/halt.sd-unreg
+.. _`#trivialrc`: https://webchat.freenode.net/?channels=trivialrc
+.. _subscribe: https://www.freelists.org/list/trivialrc-dev
