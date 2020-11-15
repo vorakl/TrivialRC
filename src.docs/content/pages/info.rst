@@ -7,6 +7,8 @@ The minimalistic Run-time Configuration (RC) system and process manager
 
 |build-status|
 
+|
+
 * Community_
 * Introduction_
 * Installation_
@@ -20,6 +22,8 @@ The minimalistic Run-time Configuration (RC) system and process manager
 * `Integrated functions`_
 * `Useful global variables`_
 
+|
+
 Community
 =========
 
@@ -27,6 +31,8 @@ There are a few options for the communication:
 
 * ``IRC``: `#trivialrc`_, channel on the Freenode network
 * ``Mailing list``: trivialrc-dev@freelists.org, subscribe_
+
+|
 
 Introduction
 ============
@@ -41,6 +47,7 @@ For instance, in docker images when TrivialRC is used as an Entrypoint, it doesn
 
 __ https://github.com/vorakl/TrivialRC/tree/master/examples
 
+|
 
 Installation
 ============
@@ -51,6 +58,7 @@ and give it an execute permission. By default, it looks for configuration files 
 Another option in this case could be to install the script in a more appropriate path but don't forget to specify ``--workdir /etc`` parametr every time when you invoke this rc system. Both options are possible and depend more on a particular use case.
 For instance, in case of using in a docker container, I personaly prefer to have all configuration in separate files in ``trc.d/`` sub-directory and copy it together with the script in ``/etc/``. 
 
+|
 
 The installation on top of CentOS Linux base image
 --------------------------------------------------
@@ -71,6 +79,7 @@ This is an example of how it would look in a Dockerfile with `centos:latest`_ as
 
     ENTRYPOINT ["/etc/trc"]
 
+|
 
 The installation on top of Alpine Linux base image
 --------------------------------------------------
@@ -94,11 +103,14 @@ As a result, Dockerfile for the `alpine:latest`_ base image would look like:
 
     ENTRYPOINT ["/etc/trc"]
 
+|
 
 How to get started?
 ===================
 
 To get started and find out some features, basically, I suggest to go through `all available examples`_ and read their readmes plus comments along the code but to start from `one-liners`_ which show most common use cases and features.
+
+|
 
 Command line options
 ====================
@@ -142,6 +154,7 @@ Examples:
 
     $ trc --workdir /opt/app
 
+|
 
 Run stages
 ==========
@@ -189,6 +202,7 @@ All stages are executed through in the next order:
        Commands run in the separate environment, synchronously (one by one) when the main process is finishing (on exit).
        An exit status from the last halt command has precedence under an exit status from the main process which was supplied as ${_exit_status} variable. So you are able to keep a main exit status (by finishing as **exit ${_exit_status}**) or rewrite it to something else but anyway, if you have at least one halt command, TrivialRC will finish with an exit status of this halt command.
 
+|
 
 Wait policies
 =============
@@ -206,6 +220,7 @@ The possible values are:
 * ``wait_forever``
         there is a special occasion when a process has doubled forked to become a daemon, it's still running but for the parent shell such process is considered as finished. So, in this mode, TrivialRC will keep working even if all processes have finished and it has to be stopped by the signal from its parent process (such as docker daemon for example).
 
+|
 
 Verbose levels
 ==============
@@ -222,6 +237,7 @@ To increase the verbosity of rc system there are provided a few environment vari
 * ``RC_VERBOSE_EXTRA`` (true|false) [false]
         Prints out additional service information
 
+|
 
 Integrated functions
 ====================
@@ -243,6 +259,7 @@ You can also use some of internal functions in async/sync tasks:
         For instance, if you wanna run only external command from the standart PATH list, use ``run -p 'command'``
         Or, if you need to check existence of the command, try ``run -v 'command'``
 
+|
 
 Useful global variables
 =======================
