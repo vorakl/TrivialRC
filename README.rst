@@ -156,10 +156,10 @@ Let's check:
     $ which trc
     /usr/bin/trc
 
-    $ trc -B 'echo $dir_name'
+    $ trc -B 'echo $work_dir'
     /usr/bin
 
-    $ trc -w /etc -B 'echo $dir_name'
+    $ trc -w /etc -B 'echo $work_dir'
     /etc
 
 
